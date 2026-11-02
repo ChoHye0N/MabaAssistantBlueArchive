@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  core-linux:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        preset: [linux-dev, linux-opencv]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ nlohmann-json3-dev ${{ matrix.preset == 'linux-opencv' && 'libopencv-dev' || '' }}
+      - run: cmake --preset ${{ matrix.preset }}
+      - run: cmake --build --preset ${{ matrix.preset }} -j 4
+      - run: ctest --preset ${{ matrix.preset }}
+
+  python:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # numpy only: the OCR tests use the fake engine (no models are downloaded in CI).
+      - run: pip install -r tools/requirements.txt numpy
+      - run: python -m unittest discover tools/tests
+      - run: python -m unittest discover ocr/tests
+      - run: python tools/privacy_check.py
+
+  templates:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Language matrix (committed templates)
+        run: python3 tools/check_templates.py --committed >> "$GITHUB_STEP_SUMMARY"
+      - name: Ready tasks have their templates in every confirmed language
+        run: python3 tools/check_templates.py --committed --strict > /dev/null

@@ -13,6 +13,13 @@ Batch mode for scripted captures: `python tools/template_capture.py SHOT.png --c
 
 Tests: `python -m unittest discover tools/tests`.
 
+## Template check and language matrix (`check_templates.py`)
+Lists, per task and language, the templates the task needs (its steps, the pages on its route from and back to `main_menu`, and all popups) and whether each resolves like Core resolves it (`assets-local/<lang>`, `assets/<lang>`, `assets-local/common`, `assets/common`). Standard library only.
+
+- `python tools/check_templates.py`: Markdown matrix plus the missing templates.
+- `--committed`: ignore `assets-local/` (what CI sees). `--json`: machine-readable.
+- `--strict`: exit 1 if a task with `"status": "ready"` misses a template in a confirmed language (CI runs this).
+
 ## Privacy check (available now)
 `python tools/privacy_check.py` scans files that would be committed for emails, local user paths, tokens, keys and any personal terms listed in `.privacy-terms.local` (gitignored). `--staged` checks staged content only. Enable the pre-commit hook once per clone with `git config core.hooksPath .githooks`; it also requires the commit author email to be a GitHub noreply address.
 
