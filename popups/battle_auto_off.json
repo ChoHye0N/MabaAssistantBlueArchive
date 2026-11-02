@@ -1,0 +1,11 @@
+{
+  "id": "battle_auto_off",
+  "notes": [
+    "Battle HUD: AUTO is lit yellow when on and white when off; a white button is clicked.",
+    "Colours are checked so a darkened frame (skill cut-in, pause) never triggers a click."
+  ],
+  "priority": 3,
+  "anchors": [{ "template": "battle_auto_icon.png", "roi": { "x": 1150, "y": 645, "w": 60, "h": 60 }, "threshold": 0.9 }],
+  "colors": [{ "hsv_min": [0, 0, 215], "hsv_max": [180, 50, 255], "area": [1500, 6000], "roi": { "x": 1165, "y": 652, "w": 105, "h": 48 } }],
+  "dismiss": { "x": 1215, "y": 677 }
+}

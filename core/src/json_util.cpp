@@ -125,4 +125,43 @@ std::vector<fs::path> JsonFilesIn(const fs::path& dir) {
     return files;
 }
 
+void ParseRange(const json& obj, const char* key, const std::string& where, int limit, int& lo,
+                int& hi) {
+    auto it = obj.find(key);
+    if (it == obj.end() || it->is_null()) return;
+    if (!it->is_array() || it->size() != 2 || !(*it)[0].is_number_integer() ||
+        !(*it)[1].is_number_integer())
+        throw ParseError(where + ": '" + key + "' must be [min, max]");
+    lo = (*it)[0].get<int>();
+    hi = (*it)[1].get<int>();
+    if (lo < 0 || hi < lo || hi > limit)
+        throw ParseError(where + ": '" + key + "' must satisfy 0 <= min <= max <= " +
+                         std::to_string(limit));
+}
+
+ColorSpec ParseColor(const json& obj, const std::string& where) {
+    if (!obj.is_object()) throw ParseError(where + ": must be an object");
+    ColorSpec c;
+    auto triple = [&](const char* key, int& h, int& s, int& v) {
+        const json& a = Require(obj, key, where);
+        if (!a.is_array() || a.size() != 3)
+            throw ParseError(where + ": '" + key + "' must be [h, s, v]");
+        for (const auto& x : a)
+            if (!x.is_number_integer()) throw ParseError(where + ": '" + key + "' must be integers");
+        h = a[0].get<int>();
+        s = a[1].get<int>();
+        v = a[2].get<int>();
+        if (h < 0 || h > 180 || s < 0 || s > 255 || v < 0 || v > 255)
+            throw ParseError(where + ": '" + key + "' must be h 0..180, s and v 0..255");
+    };
+    triple("hsv_min", c.h_min, c.s_min, c.v_min);
+    triple("hsv_max", c.h_max, c.s_max, c.v_max);
+    ParseRange(obj, "width", where, kNormWidth, c.min_width, c.max_width);
+    ParseRange(obj, "height", where, kNormHeight, c.min_height, c.max_height);
+    ParseRange(obj, "area", where, kNormWidth * kNormHeight, c.min_area, c.max_area);
+    c.roi = ParseRoi(obj, where);
+    return c;
+}
+
+
 }  // namespace maba::detail

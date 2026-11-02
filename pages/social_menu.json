@@ -1,0 +1,13 @@
+{
+  "id": "social_menu",
+  "notes": [
+    "Social menu over the main screen: circle, friends, supports.",
+    "verify: it has no close button; back (Esc) or a tap outside should close it. No route home is given, so the Navigator presses back."
+  ],
+  "anchors": [
+    { "template": "social_menu_title.png", "roi": { "x": 600, "y": 165, "w": 170, "h": 90 }, "threshold": 0.9 }
+  ],
+  "transitions": [
+    { "to": "circle", "click": { "x": 250, "y": 330 } }
+  ]
+}

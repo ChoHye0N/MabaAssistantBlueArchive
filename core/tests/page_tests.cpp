@@ -46,6 +46,29 @@ MABA_TEST(PageZeroRoiMeansUnset) {
     CHECK(r.ok && !r.page.anchors[0].roi.has_value());
 }
 
+MABA_TEST(PageParsesEnter) {
+    const auto r = maba::ParsePage(
+        R"({"id":"p","anchors":[{"template":"a.png"}],"enter":{"tap":{"x":640,"y":100},"max_taps":5,"interval_ms":500}})");
+    CHECK(r.ok && r.page.enter.has_value());
+    if (r.ok && r.page.enter) {
+        CHECK(r.page.enter->tap.x == 640 && r.page.enter->tap.y == 100);
+        CHECK(r.page.enter->max_taps == 5);
+        CHECK(r.page.enter->interval.count() == 500);
+    }
+    const auto d = maba::ParsePage(R"({"id":"p","anchors":[{"template":"a.png"}],"enter":{"tap":{"x":1,"y":1}}})");
+    CHECK(d.ok && d.page.enter && d.page.enter->max_taps == 30 && d.page.enter->interval.count() == 2000);
+    CHECK(maba::ParsePage(R"({"id":"p","anchors":[{"template":"a.png"}]})").page.enter == std::nullopt);
+
+    CHECK(HasError(maba::ParsePage(R"({"id":"p","anchors":[{"template":"a.png"}],"enter":[]})"), "'enter'"));
+    CHECK(HasError(maba::ParsePage(R"({"id":"p","anchors":[{"template":"a.png"}],"enter":{}})"), "'tap'"));
+    CHECK(HasError(maba::ParsePage(
+                       R"({"id":"p","anchors":[{"template":"a.png"}],"enter":{"tap":{"x":1280,"y":0}}})"),
+                   "inside 1280x720"));
+    CHECK(HasError(maba::ParsePage(
+                       R"({"id":"p","anchors":[{"template":"a.png"}],"enter":{"tap":{"x":1,"y":1},"max_taps":0}})"),
+                   "max_taps"));
+}
+
 MABA_TEST(PageRejectsInvalid) {
     CHECK(HasError(maba::ParsePage("{"), "invalid JSON"));
     CHECK(HasError(maba::ParsePage(R"({"anchors":[]})"), "'id'"));

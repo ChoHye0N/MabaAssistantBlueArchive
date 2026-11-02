@@ -1,0 +1,12 @@
+{
+  "id": "attendance_board",
+  "notes": [
+    "Daily attendance board shown after the attendance reward dialog. A tap anywhere closes it.",
+    "verify: event attendance boards use other titles; each needs its own anchor."
+  ],
+  "priority": 14,
+  "anchors": [
+    { "template": "popup_attendance_board.png", "roi": { "x": 670, "y": 70, "w": 360, "h": 130 }, "threshold": 0.9 }
+  ],
+  "dismiss": { "x": 640, "y": 680 }
+}

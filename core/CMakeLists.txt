@@ -5,6 +5,7 @@
 # part is child-process handling (Win32 or POSIX), used by the ADB controller and OCR sidecar.
 add_library(maba_core STATIC
     src/adb.cpp
+    src/color.cpp
     src/assistant.cpp
     src/coords.cpp
     src/detect.cpp
@@ -18,6 +19,7 @@ add_library(maba_core STATIC
     src/popup.cpp
     src/process_common.cpp
     src/schedule.cpp
+    src/strings.cpp
     src/smoke.cpp
     src/task.cpp
     src/task_order.cpp

@@ -1,0 +1,13 @@
+{
+  "id": "gem_shop",
+  "notes": [
+    "Pyroxene purchase dialog over the main screen. Tabs: special sale, pyroxene, packages. Most items cost real money.",
+    "Safety: a task may press a buy button only when gem_shop_free_price.png (the 'free' price label) matches on that very button."
+  ],
+  "anchors": [
+    { "template": "gem_shop_title.png", "roi": { "x": 540, "y": 80, "w": 200, "h": 70 }, "threshold": 0.9 }
+  ],
+  "transitions": [
+    { "to": "main_menu", "click": { "x": 1008, "y": 113 } }
+  ]
+}

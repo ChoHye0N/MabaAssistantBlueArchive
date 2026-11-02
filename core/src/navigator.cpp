@@ -104,6 +104,11 @@ Observation Navigator::ObserveUntil(const std::function<bool(const Observation&)
     return last;
 }
 
+std::string Failed(const char* what, const IController& controller) {
+    const std::string why = controller.Error();
+    return std::string(what) + " failed" + (why.empty() ? "" : ": " + why);
+}
+
 NavResult Navigator::Fail(NavResult r, std::string reason) {
     r.ok = false;
     r.error = std::move(reason);
@@ -128,6 +133,7 @@ NavResult Navigator::GoTo(const std::string& target) {
         if (recognized) result.page = obs.page;
 
         if (recognized && obs.page == target) {
+            if (result.steps > 0) clock_.Sleep(options_.after_arrive);
             result.ok = true;
             Log(log_, LogLevel::kDebug, "at page '" + target + "'");
             return result;
@@ -151,7 +157,7 @@ NavResult Navigator::GoTo(const std::string& target) {
             Log(log_, LogLevel::kInfo,
                 recognized ? "no route from '" + obs.page + "', pressing back"
                            : "unknown screen, pressing back");
-            if (!controller_.Back()) return Fail(result, "back failed");
+            if (!controller_.Back()) return Fail(result, Failed("back", controller_));
             ++backs;
             ++result.steps;
             clock_.Sleep(options_.after_back);
@@ -176,7 +182,7 @@ NavResult Navigator::GoTo(const std::string& target) {
             click = *t->click_point;
         }
         Log(log_, LogLevel::kInfo, "'" + obs.page + "' -> '" + next + "'");
-        if (!controller_.Click(click)) return Fail(result, "click failed");
+        if (!controller_.Click(click)) return Fail(result, Failed("click", controller_));
         ++result.steps;
 
         const std::string from = obs.page;
@@ -191,6 +197,43 @@ NavResult Navigator::GoTo(const std::string& target) {
         if (moved && after.page != next)
             Log(log_, LogLevel::kInfo, "expected '" + next + "', got '" + after.page + "'");
         // Not moved: the loop re-detects and retries within the step budget.
+    }
+}
+
+NavResult Navigator::EnterGame() {
+    NavResult result;
+    const auto home = pages_.find(options_.home);
+    if (home == pages_.end() || !home->second.enter) {
+        result.ok = true;
+        return result;
+    }
+    const EnterSpec& enter = *home->second.enter;
+
+    while (true) {
+        bool recognized = false;
+        const Observation obs = ObserveUntil(
+            [](const Observation& o) { return !o.page.empty(); }, options_.detect, recognized);
+        if (obs.cancelled) {
+            result.cancelled = true;
+            return Fail(result, "cancelled");
+        }
+        if (recognized) {
+            result.ok = true;
+            result.page = obs.page;
+            if (result.steps > 0)
+                Log(log_, LogLevel::kInfo, "entered the game at '" + obs.page + "' after " +
+                                               std::to_string(result.steps) + " taps");
+            return result;
+        }
+        if (obs.frame.empty())
+            return Fail(result, "capture failed" + (obs.error.empty() ? "" : " (" + obs.error + ")"));
+        if (result.steps >= enter.max_taps)
+            return Fail(result, "no known page after " + std::to_string(enter.max_taps) + " taps");
+
+        Log(log_, LogLevel::kInfo, "start-up screen, tapping");
+        if (!controller_.Click(enter.tap)) return Fail(result, Failed("click", controller_));
+        ++result.steps;
+        clock_.Sleep(enter.interval);
     }
 }
 

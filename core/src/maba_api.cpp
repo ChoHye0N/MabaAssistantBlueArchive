@@ -4,6 +4,7 @@
 
 #include <atomic>
 #include <ctime>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -111,7 +112,7 @@ extern "C" {
 
 MABA_API const char* MABA_CALL MabaGetVersion(void) { return MABA_VERSION_STRING; }
 
-MABA_API int MABA_CALL MabaApiVersion(void) { return 2; }
+MABA_API int MABA_CALL MabaApiVersion(void) { return 3; }
 
 MABA_API MabaHandle MABA_CALL MabaCreate(const char* config_json, MabaEventCallback callback,
                                          void* user_data) {
@@ -130,6 +131,7 @@ MABA_API MabaHandle MABA_CALL MabaCreate(const char* config_json, MabaEventCallb
     try {
         config.root = Utf8Path(cfg.value("root", std::string(".")));
         config.language = cfg.value("language", std::string("ko"));
+        config.data_dir = Utf8Path(cfg.value("data_dir", std::string()));
         if (auto it = cfg.find("ocr"); it != cfg.end() && it->is_object()) {
             h->ocr_enabled = it->value("enabled", true);
             if (auto c = it->find("command"); c != it->end() && c->is_array())
@@ -171,12 +173,42 @@ MABA_API const char* MABA_CALL MabaGetTasks(MabaHandle h) {
     json list = json::array();
     if (h->assistant && h->loaded) {
         for (const auto& t : h->assistant->Tasks()) {
+            json settings = json::array();
+            for (const auto& d : t.settings) {
+                static const char* const types[] = {"bool", "int", "choice", "list"};
+                json def = {{"key", d.key},
+                            {"type", types[static_cast<int>(d.type)]},
+                            {"choices", d.choices},
+                            {"description", d.description},
+                            {"ui", d.ui}};
+                if (!d.label_key.empty()) {
+                    json labels = json::object();
+                    for (const auto& c : d.choices) {
+                        auto s = h->assistant->Strings().find(d.label_key + c);
+                        labels[c] = s != h->assistant->Strings().end() ? s->second : c;
+                    }
+                    def["labels"] = std::move(labels);
+                }
+                switch (d.type) {
+                    case maba::SettingType::kBool: def["default"] = d.default_value.scalar == "true"; break;
+                    case maba::SettingType::kInt:
+                        def["default"] = std::stoll(d.default_value.scalar);
+                        def["min"] = d.min;
+                        def["max"] = d.max;
+                        break;
+                    case maba::SettingType::kChoice: def["default"] = d.default_value.scalar; break;
+                    case maba::SettingType::kList: def["default"] = d.default_value.list; break;
+                }
+                settings.push_back(std::move(def));
+            }
             list.push_back({{"id", t.id},
                             {"name", t.name},
+                            {"order", t.order},
                             {"after", t.after},
                             {"status", t.status},
                             {"implemented", !t.steps.empty()},
-                            {"needs_ocr", t.needs_ocr}});
+                            {"needs_ocr", t.needs_ocr},
+                            {"settings", std::move(settings)}});
         }
     }
     h->result = list.dump();
@@ -256,12 +288,19 @@ MABA_API int MABA_CALL MabaStart(MabaHandle h, const char* json_text) {
         return Fail(h, std::string("tasks: ") + e.what());
     }
     if (tasks.empty()) return Fail(h, "no tasks selected");
+    std::string settings_json;
+    if (auto it = args.find("settings"); it != args.end() && !it->is_null()) {
+        if (!it->is_object()) return Fail(h, "settings must be an object");
+        settings_json = it->dump();
+        std::map<std::string, maba::TaskSettings> resolved;
+        if (!maba::ResolveSettings(h->assistant->Tasks(), settings_json, resolved, error)) return Fail(h, error);
+    }
 
     h->JoinWorker();  // a finished previous job
     h->cancel = false;
     h->running = true;
     h->last_error.clear();
-    h->worker = std::thread([h, tasks] {
+    h->worker = std::thread([h, tasks, settings_json] {
         h->Emit({{"type", "run"}, {"status", "started"}, {"tasks", tasks}});
         auto on_task = [h](const maba::TaskRunResult& r) {
             json values = json::object();
@@ -287,7 +326,7 @@ MABA_API int MABA_CALL MabaStart(MabaHandle h, const char* json_text) {
         };
         maba::RunReport report;
         try {
-            report = h->assistant->Run(tasks, &h->cancel, on_task, on_failure);
+            report = h->assistant->Run(tasks, &h->cancel, on_task, on_failure, settings_json);
         } catch (const std::exception& e) {
             report.error = std::string("internal error: ") + e.what();
         }

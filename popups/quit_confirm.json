@@ -1,0 +1,7 @@
+{
+  "id": "quit_confirm",
+  "notes": ["'Quit the game?' opened by back on the main screen: always cancelled (back)."],
+  "priority": 20,
+  "anchors": [{ "template": "popup_quit_question.png", "roi": { "x": 500, "y": 290, "w": 280, "h": 100 }, "threshold": 0.9 }],
+  "dismiss": "back"
+}

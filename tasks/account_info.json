@@ -1,0 +1,21 @@
+{
+  "id": "account_info",
+  "name": "Account record: UID, resources",
+  "order": 120,
+  "after": [],
+  "status": "wip",
+  "needs_ocr": true,
+  "notes": [
+    "Runs last. Several accounts are told apart by the UID on the account info page; each gets its own record (accounts/<uid>.json in the data directory: the GUI's profile folder, or local-data/ for the CLI; never in the repository).",
+    "Credits, pyroxene and AP are read from the top bar with OCR and appended to the record's history."
+  ],
+  "steps": [
+    { "action": "goto", "page": "account" },
+    { "action": "read_number", "roi": { "x": 30, "y": 560, "w": 210, "h": 40 }, "store": "uid", "lenient": true },
+    { "action": "read_number", "roi": { "x": 705, "y": 5, "w": 140, "h": 34 }, "store": "credits", "optional": true },
+    { "action": "read_number", "roi": { "x": 920, "y": 5, "w": 100, "h": 34 }, "store": "pyroxene", "optional": true },
+    { "action": "read_number", "roi": { "x": 495, "y": 5, "w": 110, "h": 34 }, "store": "ap", "optional": true },
+    { "action": "save", "file": "accounts/{uid}.json", "values": ["credits", "pyroxene", "ap"], "history": true },
+    { "action": "return_home" }
+  ]
+}

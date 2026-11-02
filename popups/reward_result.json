@@ -6,7 +6,7 @@
   ],
   "priority": 10,
   "anchors": [
-    { "template": "popup_reward_result.png", "roi": { "x": 0, "y": 0, "w": 0, "h": 0 }, "threshold": 0.9 }
+    { "template": "popup_reward_result.png", "roi": { "x": 490, "y": 595, "w": 300, "h": 75 }, "threshold": 0.9 }
   ],
   "dismiss": { "x": 640, "y": 650 }
 }

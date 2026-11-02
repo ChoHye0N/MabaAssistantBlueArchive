@@ -1,0 +1,13 @@
+{
+  "id": "cafe",
+  "notes": [
+    "Cafe. Entering shows a loading screen for a few seconds. Students with a yellow mark can be tapped; income is claimed from the bottom right.",
+    "verify: whether the second cafe ('move to cafe 2') needs the same steps."
+  ],
+  "anchors": [
+    { "template": "cafe_title.png", "roi": { "x": 80, "y": 0, "w": 140, "h": 55 }, "threshold": 0.9 }
+  ],
+  "transitions": [
+    { "to": "main_menu", "click": { "template": "common_home_button.png", "roi": { "x": 1195, "y": 0, "w": 85, "h": 55 }, "threshold": 0.9 } }
+  ]
+}

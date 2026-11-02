@@ -1,0 +1,8 @@
+{
+  "id": "battle_speed_x1",
+  "notes": ["Battle HUD: speed 1x is white, 2x cyan, 3x yellow; each click steps 1x -> 2x -> 3x."],
+  "priority": 3,
+  "anchors": [{ "template": "battle_speed_icon.png", "roi": { "x": 1150, "y": 592, "w": 60, "h": 60 }, "threshold": 0.9 }],
+  "colors": [{ "hsv_min": [0, 0, 215], "hsv_max": [180, 50, 255], "area": [1000, 6000], "roi": { "x": 1165, "y": 600, "w": 105, "h": 48 } }],
+  "dismiss": { "x": 1215, "y": 625 }
+}

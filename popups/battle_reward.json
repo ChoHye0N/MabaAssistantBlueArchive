@@ -1,0 +1,10 @@
+{
+  "id": "battle_reward",
+  "notes": ["Battle Complete screens with the yellow confirm button (rewards, first-clear rewards)."],
+  "priority": 7,
+  "anchors": [
+    { "template": "battle_complete.png", "roi": { "x": 20, "y": 0, "w": 500, "h": 110 }, "threshold": 0.9 },
+    { "template": "battle_reward_ok.png", "roi": { "x": 500, "y": 600, "w": 500, "h": 120 }, "threshold": 0.9 }
+  ],
+  "dismiss": { "template": "battle_reward_ok.png", "roi": { "x": 500, "y": 600, "w": 500, "h": 120 }, "threshold": 0.9 }
+}

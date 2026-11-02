@@ -11,6 +11,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include "maba/color.h"
 #include "maba/page.h"
 #include "maba/types.h"
 
@@ -41,6 +42,9 @@ std::optional<Rect> ParseRoi(const nlohmann::json& obj, const std::string& where
 TemplateRef ParseTemplateRef(const nlohmann::json& obj, const std::string& where);
 // {"x","y"} inside 1280x720.
 Point ParsePoint(const nlohmann::json& obj, const std::string& where);
+
+// {"hsv_min", "hsv_max", "width"?, "height"?, "area"?, "roi"?} (see color.h).
+ColorSpec ParseColor(const nlohmann::json& obj, const std::string& where);
 
 // Reads a whole file (binary). Throws ParseError when it cannot be opened.
 std::string ReadFile(const std::filesystem::path& path);

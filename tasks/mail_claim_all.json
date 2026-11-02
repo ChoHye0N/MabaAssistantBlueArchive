@@ -1,18 +1,25 @@
 {
   "id": "mail_claim_all",
-  "name": "Mail: claim all",
+  "name": "Mail: claim all (AP above the cap, resources)",
+  "order": 90,
   "after": ["spend_ap"],
   "status": "wip",
   "needs_ocr": false,
   "notes": [
-    "AP cannot be held above 999, so claim only after AP is spent.",
-    "Templates to capture: mail_claim_all.png (the claim-all button; text, per language).",
-    "The reward result screen is a popup (popups/), not part of this task.",
-    "verify: the claim-all button is greyed out when there is nothing to claim; if the grey state still matches, add a separate template for the active state."
+    "Runs after spend_ap: AP above the 999 cap waits in the mailbox; spend_ap_rest spends it afterwards.",
+    "The claim-all button is yellow when something can be claimed and grey otherwise (colour check).",
+    "The reward result screen is a popup (popups/), not part of this task."
   ],
   "steps": [
     { "action": "goto", "page": "mail" },
-    { "action": "click_if_present", "template": "mail_claim_all.png", "timeout_ms": 3000, "sleep_ms": 1500 },
+    {
+      "action": "loop",
+      "max": 3,
+      "until": {
+        "no_color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [2000, 20000], "roi": { "x": 1030, "y": 640, "w": 215, "h": 60 } }
+      },
+      "steps": [{ "action": "click", "x": 1136, "y": 668, "sleep_ms": 3000 }]
+    },
     { "action": "return_home" }
   ]
 }

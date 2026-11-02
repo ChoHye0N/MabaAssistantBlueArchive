@@ -119,8 +119,20 @@ Frame SteamController::CaptureRegion(Rect normalized) {
 bool SteamController::PrepareInput() {
     if (!EnsureWindow()) return false;
     if (options_.bring_to_front && GetForegroundWindow() != hwnd_) {
+        if (IsIconic(hwnd_)) ShowWindow(hwnd_, SW_RESTORE);
         SetForegroundWindow(hwnd_);
         Pause(kForegroundSettleMs);
+        if (RootOf(GetForegroundWindow()) != RootOf(hwnd_)) {
+            // Windows refuses focus changes from a background process unless it just received
+            // input; a lone Alt press counts as such input and has no effect in the game.
+            INPUT alt[2] = {};
+            alt[0].type = alt[1].type = INPUT_KEYBOARD;
+            alt[0].ki.wVk = alt[1].ki.wVk = VK_MENU;
+            alt[1].ki.dwFlags = KEYEVENTF_KEYUP;
+            SendInput(2, alt, sizeof(INPUT));
+            SetForegroundWindow(hwnd_);
+            Pause(kForegroundSettleMs);
+        }
     }
     // Real mouse input goes to whatever window is in front: refuse instead of clicking elsewhere.
     if (RootOf(GetForegroundWindow()) != RootOf(hwnd_)) {

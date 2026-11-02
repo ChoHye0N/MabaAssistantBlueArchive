@@ -1,0 +1,13 @@
+{
+  "id": "event",
+  "notes": [
+    "Event page. Tabs: Story, Quest, Challenge; the selected tab changes their look, so they are not anchors. Opened from the campaign banner; which event opens depends on the banner shown at the time of the click.",
+    "An event whose play period has ended still opens, with 'the event period has ended' on the right and a reward-claim period on the left."
+  ],
+  "anchors": [
+    { "template": "event_title.png", "roi": { "x": 80, "y": 0, "w": 130, "h": 55 }, "threshold": 0.9 }
+  ],
+  "transitions": [
+    { "to": "main_menu", "click": { "template": "common_home_button.png", "roi": { "x": 1195, "y": 0, "w": 85, "h": 55 }, "threshold": 0.9 } }
+  ]
+}

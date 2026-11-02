@@ -1,0 +1,7 @@
+{
+  "id": "schedule_report",
+  "notes": ["Schedule report after a schedule run."],
+  "priority": 5,
+  "anchors": [{ "template": "popup_schedule_report.png", "roi": { "x": 530, "y": 95, "w": 220, "h": 90 }, "threshold": 0.9 }],
+  "dismiss": { "x": 640, "y": 556 }
+}

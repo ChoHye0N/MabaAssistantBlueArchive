@@ -32,6 +32,15 @@ PopupDef ParsePopupJson(const json& root) {
         p.anchors.push_back(
             ParseTemplateRef(anchors[i], where + ".anchors[" + std::to_string(i) + "]"));
 
+    for (const char* key : {"colors", "no_colors"}) {
+        auto it = root.find(key);
+        if (it == root.end() || it->is_null()) continue;
+        if (!it->is_array()) throw ParseError(where + ": '" + key + "' must be an array");
+        auto& out = std::string(key) == "colors" ? p.colors : p.no_colors;
+        for (std::size_t i = 0; i < it->size(); ++i)
+            out.push_back(ParseColor((*it)[i], where + "." + key + "[" + std::to_string(i) + "]"));
+    }
+
     p.priority = OptInt(root, "priority", where, 0, -1000, 1000);
 
     const json& dismiss = Require(root, "dismiss", where);
@@ -110,7 +119,11 @@ PopupHandler::PopupHandler(IMatcher& matcher, std::vector<PopupDef> popups, Popu
 const PopupDef* PopupHandler::Detect(const Frame& frame) {
     if (frame.empty()) return nullptr;
     for (const auto& p : popups_) {
-        if (CheckAnchors(matcher_, frame, p.anchors).detected) return &p;
+        if (!CheckAnchors(matcher_, frame, p.anchors).detected) continue;
+        const auto seen = [&](const ColorSpec& c) { return !FindColorBlobs(frame, c, 1).empty(); };
+        if (!std::all_of(p.colors.begin(), p.colors.end(), seen)) continue;
+        if (std::any_of(p.no_colors.begin(), p.no_colors.end(), seen)) continue;
+        return &p;
     }
     return nullptr;
 }

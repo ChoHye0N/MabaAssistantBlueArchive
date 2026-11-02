@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
 // Task definitions and the task runner.
+#include <algorithm>
 #include <atomic>
 #include <string>
 #include <vector>
@@ -126,6 +127,45 @@ MABA_TEST(RunOrdersSkipsAndBlocksDependents) {
     CHECK(events.size() == 5);  // spend_ap running + 4 results
 }
 
+MABA_TEST(OrderSetsRunOrderWithoutBlocking) {
+    NavRig rig;
+    std::vector<maba::TaskSpec> tasks = {
+        Task(R"({"id": "a_last", "order": 30, "steps": [{"action": "goto", "page": "mail"}]})"),
+        Task(R"({"id": "b_first", "order": 10, "steps": [{"action": "click", "template": "missing.png", "timeout_ms": 500}]})"),
+        Task(R"({"id": "c_second", "order": 20, "steps": [{"action": "goto", "page": "shop"}]})"),
+        Task(R"({"id": "d_default"})"),
+    };
+    CHECK(tasks[3].order == maba::kDefaultTaskOrder);
+    maba::SortTasksByOrder(tasks);
+    CHECK(tasks[0].id == "b_first" && tasks[1].id == "c_second" && tasks[2].id == "a_last");
+    maba::TaskRunner runner(rig.Nav(), nullptr);
+    const maba::RunReport report = runner.Run(tasks, {"a_last", "b_first", "c_second"});
+    CHECK(report.tasks.size() == 3);
+    if (report.tasks.size() == 3) {
+        CHECK(report.tasks[0].id == "b_first" && report.tasks[0].status == maba::TaskStatus::kFailed);
+        // order alone does not block: later tasks still run after a failure
+        CHECK(report.tasks[1].id == "c_second" && report.tasks[1].status == maba::TaskStatus::kSucceeded);
+        CHECK(report.tasks[2].id == "a_last" && report.tasks[2].status == maba::TaskStatus::kSucceeded);
+    }
+    CHECK(!maba::ParseTask(R"({"id": "x", "order": -1})").ok);
+}
+
+MABA_TEST(RunEntersGameBeforeFirstTask) {
+    NavRig rig;
+    rig.pages["main_menu"].enter = maba::EnterSpec{{640, 100}, 5, std::chrono::milliseconds{100}};
+    rig.controller.scene = NavRig::kUnknownScene;
+    rig.controller.clicks_to.push_back({NavRig::kUnknownScene, {640, 100}, NavRig::kMainScene});
+    maba::TaskRunner runner(rig.Nav(), nullptr);
+    const std::vector<maba::TaskSpec> tasks = {
+        Task(R"({"id": "mail", "steps": [{"action": "goto", "page": "mail"}]})"),
+    };
+    const maba::RunReport report = runner.Run(tasks, {"mail"});
+    CHECK(report.ok);
+    CHECK(rig.controller.backs == 0);  // tapped through, never pressed back
+    CHECK(!rig.controller.clicks.empty() && rig.controller.clicks[0].x == 640 &&
+          rig.controller.clicks[0].y == 100);
+}
+
 MABA_TEST(NotImplementedDependencyDoesNotBlock) {
     NavRig rig;
     maba::TaskRunner runner(rig.Nav(), nullptr);
@@ -171,7 +211,16 @@ MABA_TEST(RepoTaskFilesLoad) {
     CHECK(set.tasks.size() >= 6);
     std::vector<maba::TaskDef> defs;
     for (const auto& t : set.tasks) defs.push_back(t.Order());
-    CHECK(maba::ResolveOrder(defs).ok);
+    const maba::OrderResult order = maba::ResolveOrder(defs);
+    CHECK(order.ok);
+    // The owner's run order (docs/ROADMAP.md); a task file that breaks it fails here.
+    const std::vector<std::string> expected = {
+        "cafe", "schedule", "circle", "free_package", "shop", "bounty", "spend_ap",
+        "tactical_challenge", "mail_claim_all", "spend_ap_rest", "mission_claim_all"};
+    std::vector<std::string> known;
+    for (const auto& id : order.order)
+        if (std::find(expected.begin(), expected.end(), id) != expected.end()) known.push_back(id);
+    CHECK(known == expected);
     const auto pages = maba::LoadPageDir(std::string(MABA_SOURCE_DIR) + "/pages");
     CHECK(pages.ok);
     const auto problems = maba::ValidateTasks(set.tasks, pages.pages);

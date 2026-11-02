@@ -1,0 +1,15 @@
+{
+  "id": "campaign",
+  "notes": [
+    "Campaign hub (bottom right 'campaign' button on the main screen). Event banners sit at the top left under the back button; with several events the banner rotates and the first dot is the most recent event.",
+    "Also holds bounty, commissions, scrimmage, total assault, joint firing drill, grand assault and limit-release showdown."
+  ],
+  "anchors": [{ "template": "campaign_title.png", "roi": { "x": 80, "y": 0, "w": 110, "h": 55 }, "threshold": 0.9 }],
+  "transitions": [
+    { "to": "main_menu", "click": { "template": "common_home_button.png", "roi": { "x": 1195, "y": 0, "w": 85, "h": 55 }, "threshold": 0.9 } },
+    { "to": "bounty", "click": { "x": 725, "y": 400 } },
+    { "to": "mission_area", "click": { "x": 830, "y": 210 } },
+    { "to": "scrimmage", "click": { "x": 710, "y": 600 } },
+    { "to": "tactical", "click": { "x": 850, "y": 600 } }
+  ]
+}

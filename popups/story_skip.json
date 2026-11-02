@@ -1,0 +1,7 @@
+{
+  "id": "story_skip",
+  "notes": ["Story skip confirmation ('skip this story?') opened by back during a story; confirmed."],
+  "priority": 9,
+  "anchors": [{ "template": "story_skip_title.png", "roi": { "x": 560, "y": 100, "w": 160, "h": 90 }, "threshold": 0.9 }],
+  "dismiss": { "template": "dialog_ok_button.png", "roi": { "x": 660, "y": 440, "w": 240, "h": 200 }, "threshold": 0.9 }
+}

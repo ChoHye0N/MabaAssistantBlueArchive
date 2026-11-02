@@ -1,0 +1,7 @@
+{
+  "id": "story_playing",
+  "notes": ["A story scene (MENU at the top right). Back opens the skip confirmation (story_skip)."],
+  "priority": 8,
+  "anchors": [{ "template": "story_menu.png", "roi": { "x": 1120, "y": 0, "w": 160, "h": 80 }, "threshold": 0.9 }],
+  "dismiss": "back"
+}

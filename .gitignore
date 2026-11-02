@@ -44,3 +44,6 @@ secrets.*
 assets-local/
 captures/
 *.log
+
+# Per-account records (UID, owned students, resources)
+local-data/

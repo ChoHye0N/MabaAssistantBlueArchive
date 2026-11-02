@@ -1,0 +1,12 @@
+{
+  "id": "news_board",
+  "notes": [
+    "Web news board that opens on the main screen a few seconds after login. The anchor is the 'main news' header (text, per language).",
+    "verify: the header moves if the board is scrolled; it is not scrolled when the board opens."
+  ],
+  "priority": 12,
+  "anchors": [
+    { "template": "popup_news_board.png", "roi": { "x": 130, "y": 435, "w": 140, "h": 70 }, "threshold": 0.9 }
+  ],
+  "dismiss": { "x": 1121, "y": 113 }
+}

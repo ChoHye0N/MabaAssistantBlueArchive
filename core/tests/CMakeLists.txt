@@ -4,6 +4,7 @@ add_executable(maba_core_tests
     test_main.cpp
     adb_tests.cpp
     core_tests.cpp
+    flow_tests.cpp
     geometry_tests.cpp
     navigator_tests.cpp
     ocr_sidecar_tests.cpp

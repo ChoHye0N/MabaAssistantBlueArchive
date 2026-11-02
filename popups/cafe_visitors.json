@@ -1,0 +1,7 @@
+{
+  "id": "cafe_visitors",
+  "notes": ["Visiting students list shown when entering the second cafe."],
+  "priority": 5,
+  "anchors": [{ "template": "popup_cafe_visitors.png", "roi": { "x": 530, "y": 220, "w": 220, "h": 70 }, "threshold": 0.9 }],
+  "dismiss": { "x": 920, "y": 187 }
+}

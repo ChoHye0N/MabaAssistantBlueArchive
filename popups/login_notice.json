@@ -1,0 +1,12 @@
+{
+  "id": "login_notice",
+  "notes": [
+    "Image notices on the title screen before login (one or more in a row). The anchor is the 'do not show today' checkbox at the bottom left (text, per language).",
+    "Closed by the X at the top right; its position is fixed but it sits on the banner image, so a fixed point is used."
+  ],
+  "priority": 20,
+  "anchors": [
+    { "template": "popup_title_notice.png", "roi": { "x": 230, "y": 500, "w": 155, "h": 65 }, "threshold": 0.9 }
+  ],
+  "dismiss": { "x": 1010, "y": 135 }
+}

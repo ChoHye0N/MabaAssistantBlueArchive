@@ -23,7 +23,8 @@ struct SteamControllerOptions {
     std::wstring window_title = L"Blue Archive";
     bool bring_to_front = true;  // SetForegroundWindow before input
     bool restore_cursor = true;  // put the cursor back after each click/swipe
-    int move_settle_ms = 30;     // pause after moving, before pressing
+    int move_settle_ms = 100;    // pause after moving, before pressing (the game reads the
+                                 // cursor once per frame; a quicker press lands at the old spot)
     int click_hold_ms = 60;      // button held down
     int swipe_step_ms = 16;      // time between swipe moves
 };
@@ -48,6 +49,7 @@ public:
 
     // Why the last operation failed (empty after a success).
     const std::string& LastError() const { return last_error_; }
+    std::string Error() const override { return last_error_; }
 
 private:
     bool EnsureWindow();

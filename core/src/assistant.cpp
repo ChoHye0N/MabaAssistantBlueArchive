@@ -65,6 +65,10 @@ bool Assistant::Load(std::string& error) {
     popups_ = popups.popups;
     tasks_ = tasks.tasks;
     languages_ = languages.config;
+    if (std::string why; !LoadStrings(config_.root, config_.language, strings_, why)) {
+        error = why;
+        return false;
+    }
     for (const auto& p : ValidatePageGraph(pages_, config_.navigator.home))
         Log(log_, LogLevel::kWarn, "data: " + p);
     for (const auto& p : ValidateTasks(tasks_, pages_)) Log(log_, LogLevel::kWarn, "data: " + p);
@@ -76,7 +80,8 @@ bool Assistant::Load(std::string& error) {
 
 RunReport Assistant::Run(const std::vector<std::string>& selected, const std::atomic<bool>* cancel,
                          std::function<void(const TaskRunResult&)> on_task,
-                         std::function<void(const Frame&, const std::string&)> on_failure) {
+                         std::function<void(const Frame&, const std::string&)> on_failure,
+                         const std::string& settings_json) {
     RunReport report;
     if (!controller_) {
         report.error = "not connected";
@@ -102,6 +107,9 @@ RunReport Assistant::Run(const std::vector<std::string>& selected, const std::at
     runner_options.language = config_.language;
     runner_options.cancel = cancel;
     runner_options.on_task = std::move(on_task);
+    runner_options.strings = strings_;
+    runner_options.data_dir = config_.data_dir;
+    if (!ResolveSettings(tasks_, settings_json, runner_options.settings, report.error)) return report;
     TaskRunner runner(navigator, ocr_.get(), runner_options, log_);
     return runner.Run(tasks_, selected);
 }

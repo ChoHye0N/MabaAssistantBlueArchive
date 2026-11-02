@@ -1,17 +1,40 @@
 {
   "id": "mission_claim_all",
-  "name": "Missions: claim all daily missions (pyroxene)",
-  "after": ["mail_claim_all"],
+  "name": "Missions: claim all",
+  "order": 110,
+  "after": [],
   "status": "wip",
   "needs_ocr": false,
   "notes": [
-    "Position after mail follows the owner's task list order.",
-    "verify: do mission rewards include AP? Adjust order if they do.",
-    "Templates to capture: mission_claim_all.png (the claim-all button; text, per language)."
+    "Runs last: the other tasks complete daily missions.",
+    "'Claim all' is pressed until it is grey: claiming can complete further missions. The bonus for 8 daily missions (bottom bar) is claimed when its button is yellow.",
+    "Both buttons are told apart by colour: yellow when claimable, grey otherwise."
   ],
   "steps": [
     { "action": "goto", "page": "mission" },
-    { "action": "click_if_present", "template": "mission_claim_all.png", "timeout_ms": 3000, "sleep_ms": 1500 },
+    {
+      "action": "loop",
+      "max": 8,
+      "steps": [
+        {
+          "action": "if",
+          "when": {
+            "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [2000, 20000], "roi": { "x": 1045, "y": 642, "w": 210, "h": 58 } }
+          },
+          "then": [{ "action": "click", "x": 1150, "y": 670, "sleep_ms": 3000 }],
+          "else": [
+            {
+              "action": "if",
+              "when": {
+                "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [1500, 10000], "roi": { "x": 925, "y": 642, "w": 100, "h": 48 } }
+              },
+              "then": [{ "action": "click", "x": 975, "y": 668, "sleep_ms": 3000 }],
+              "else": [{ "action": "break" }]
+            }
+          ]
+        }
+      ]
+    },
     { "action": "return_home" }
   ]
 }

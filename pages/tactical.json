@@ -1,0 +1,6 @@
+{
+  "id": "tactical",
+  "notes": ["Tactical challenge. The left panel shows the own nickname and the list shows other players' names: never capture them into templates."],
+  "anchors": [{ "template": "tactical_title.png", "roi": { "x": 80, "y": 0, "w": 180, "h": 55 }, "threshold": 0.9 }],
+  "transitions": [{ "to": "main_menu", "click": { "template": "common_home_button.png", "roi": { "x": 1195, "y": 0, "w": 85, "h": 55 }, "threshold": 0.9 } }]
+}

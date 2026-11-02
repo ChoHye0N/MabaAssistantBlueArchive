@@ -1,0 +1,7 @@
+{
+  "id": "circle_attendance",
+  "notes": ["Circle attendance reward (10 AP to the mailbox) on the first circle visit of the day."],
+  "priority": 5,
+  "anchors": [{ "template": "popup_circle_attendance_title.png", "roi": { "x": 520, "y": 115, "w": 240, "h": 80 }, "threshold": 0.9 }],
+  "dismiss": { "template": "popup_confirm_button.png", "roi": { "x": 480, "y": 420, "w": 320, "h": 160 }, "threshold": 0.9 }
+}

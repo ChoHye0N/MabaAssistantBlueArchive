@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
 // Popup handler, page graph and Navigator against scene fakes.
 #include <atomic>
+#include <chrono>
 #include <map>
 #include <string>
 
@@ -96,6 +97,52 @@ MABA_TEST(GoToStopsWhenCancelled) {
     CHECK(!r.ok);
     CHECK(r.cancelled);
     CHECK(rig.controller.clicks.empty());
+}
+
+MABA_TEST(EnterGameTapsThroughStartUpScreens) {
+    NavRig rig;
+    rig.pages["main_menu"].enter = maba::EnterSpec{{640, 100}, 5, std::chrono::milliseconds{100}};
+    rig.controller.scene = NavRig::kUnknownScene;  // e.g. an event splash: back does nothing
+    rig.controller.clicks_to.push_back({NavRig::kUnknownScene, {640, 100}, NavRig::kMainScene});
+    const maba::NavResult r = rig.Nav().EnterGame();
+    CHECK(r.ok);
+    CHECK(r.page == "main_menu");
+    CHECK(r.steps == 1);
+    CHECK(rig.controller.clicks.size() == 1);
+    CHECK(rig.controller.backs == 0);
+}
+
+MABA_TEST(EnterGameGivesUpAfterMaxTaps) {
+    NavRig rig;
+    rig.pages["main_menu"].enter = maba::EnterSpec{{640, 100}, 5, std::chrono::milliseconds{100}};
+    rig.controller.scene = NavRig::kUnknownScene;  // taps do nothing
+    int failures = 0;
+    rig.nav_options.on_failure = [&](const maba::Frame&, const std::string&) { ++failures; };
+    const maba::NavResult r = rig.Nav().EnterGame();
+    CHECK(!r.ok);
+    CHECK(rig.controller.clicks.size() == 5);
+    CHECK(failures == 1);
+    CHECK(r.error.find("no known page") != std::string::npos);
+}
+
+MABA_TEST(EnterGameDoesNotTapOnKnownPagesOrWithoutEnter) {
+    NavRig known;
+    known.pages["main_menu"].enter = maba::EnterSpec{{640, 100}, 5, std::chrono::milliseconds{100}};
+    known.controller.scene = NavRig::kMailScene;
+    const maba::NavResult a = known.Nav().EnterGame();
+    CHECK(a.ok && a.page == "mail");
+    CHECK(known.controller.clicks.empty());
+
+    NavRig popup;  // a popup over the home page is dismissed, not tapped through
+    popup.pages["main_menu"].enter = maba::EnterSpec{{640, 100}, 5, std::chrono::milliseconds{100}};
+    popup.controller.scene = NavRig::kPopupScene;
+    const maba::NavResult b = popup.Nav().EnterGame();
+    CHECK(b.ok && b.page == "main_menu" && b.steps == 0);
+
+    NavRig plain;  // no enter entry: nothing to do
+    plain.controller.scene = NavRig::kUnknownScene;
+    CHECK(plain.Nav().EnterGame().ok);
+    CHECK(plain.controller.clicks.empty());
 }
 
 MABA_TEST(PopupSettleGivesUpOnStuckPopup) {

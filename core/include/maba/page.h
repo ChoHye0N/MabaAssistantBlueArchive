@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
 // Page definitions loaded from pages/*.json (format: docs/PAGE_FORMAT.md).
-// Fields read: id, anchors, transitions, rois. Other fields (notes, strings, ...) are ignored.
+// Fields read: id, anchors, transitions, rois, enter. Other fields (notes, strings, ...) are ignored.
 #pragma once
 
+#include <chrono>
 #include <filesystem>
 #include <map>
 #include <optional>
@@ -29,11 +30,20 @@ struct Transition {
     std::optional<Point> click_point;           // a fixed normalized point
 };
 
+// Start-up screens (title, event splash, loading) have no stable anchors: tap `tap` until a known
+// page is visible. Read on the home page only.
+struct EnterSpec {
+    Point tap;
+    int max_taps = 30;
+    std::chrono::milliseconds interval{2000};  // pause after each tap
+};
+
 struct PageDef {
     std::string id;
     std::vector<TemplateRef> anchors;  // the page is detected when every anchor matches
     std::vector<Transition> transitions;
     std::map<std::string, Rect> rois;  // named regions (e.g. OCR targets); unset ones are skipped
+    std::optional<EnterSpec> enter;
 
     const Transition* FindTransition(const std::string& to) const;
 };

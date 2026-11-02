@@ -22,6 +22,9 @@
 
 namespace maba {
 
+// "<what> failed" plus the controller's reason when it has one.
+std::string Failed(const char* what, const IController& controller);
+
 // Shortest page path from `from` to `to` (both included) over page transitions (BFS).
 // Transitions to unknown pages are ignored. Empty if unreachable or a page is unknown;
 // {from} when from == to.
@@ -40,6 +43,8 @@ struct NavigatorOptions {
     WaitOptions detect{std::chrono::milliseconds{4000}, std::chrono::milliseconds{300}, 30};
     WaitOptions arrive{std::chrono::milliseconds{8000}, std::chrono::milliseconds{300}, 40};
     std::chrono::milliseconds after_back{800};
+    // Pause after arriving by a click: the game ignores input while a page is still sliding in.
+    std::chrono::milliseconds after_arrive{700};
     const std::atomic<bool>* cancel = nullptr;
     // Called with the last frame when GoTo fails (e.g. save it under captures/).
     std::function<void(const Frame&, const std::string& reason)> on_failure;
@@ -78,6 +83,11 @@ public:
 
     NavResult GoTo(const std::string& target);
     NavResult ReturnHome() { return GoTo(options_.home); }
+
+    // Start-up: while no known page is visible (title, event splash, loading), tap the home
+    // page's `enter` point, at most `max_taps` times. Popups are settled on every look. Stops at
+    // the first known page; succeeds at once when the home page has no `enter` entry.
+    NavResult EnterGame();
 
     // Wait until `ref` is visible (popups settled on every attempt). nullopt on timeout.
     std::optional<MatchResult> WaitForTemplate(const TemplateRef& ref, const WaitOptions& wait);

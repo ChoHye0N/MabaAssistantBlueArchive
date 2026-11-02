@@ -6,9 +6,9 @@
     "common_home_button.png: the home button in the top bar, shared by every sub page (verify its position)."
   ],
   "anchors": [
-    { "template": "mail_title.png", "roi": { "x": 0, "y": 0, "w": 0, "h": 0 }, "threshold": 0.9 }
+    { "template": "mail_title.png", "roi": { "x": 80, "y": 0, "w": 130, "h": 55 }, "threshold": 0.9 }
   ],
   "transitions": [
-    { "to": "main_menu", "click": { "template": "common_home_button.png", "roi": { "x": 0, "y": 0, "w": 0, "h": 0 }, "threshold": 0.9 } }
+    { "to": "main_menu", "click": { "template": "common_home_button.png", "roi": { "x": 1195, "y": 0, "w": 85, "h": 55 }, "threshold": 0.9 } }
   ]
 }

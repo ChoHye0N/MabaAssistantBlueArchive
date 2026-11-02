@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
 #pragma once
 
+#include <string>
+
 #include "maba/types.h"
 
 namespace maba {
@@ -26,6 +28,9 @@ public:
     virtual bool Click(Point normalized) = 0;
     virtual bool Swipe(Point from, Point to, int duration_ms) = 0;
     virtual bool Back() = 0;
+
+    // Why the last operation failed (empty when unknown). Used in error messages.
+    virtual std::string Error() const { return {}; }
 };
 
 }  // namespace maba

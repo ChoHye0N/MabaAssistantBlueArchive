@@ -1,4 +1,17 @@
 {
   "language": "ko",
-  "strings": {}
+  "strings": {
+    "schedule.location.schale_office": "샬레 업무관",
+    "schedule.location.schale_residence": "샬레 생활관",
+    "schedule.location.gehenna_central": "게헨나 중앙구",
+    "schedule.location.abydos_main": "아비도스 본관",
+    "schedule.location.millennium_science": "밀레니엄 학습관",
+    "schedule.location.trinity_square": "트리니티 광장구역",
+    "schedule.location.red_winter": "붉은겨울연방학원",
+    "schedule.location.hyakkiyako_center": "백귀야행 중심부",
+    "schedule.location.du_shiratori": "D.U. 시라토리구",
+    "schedule.location.shanhaijing_center": "산해경 중앙 특구",
+    "schedule.location.haruhabara": "하루하바라 전자상가",
+    "schedule.location.wildhunt_arts": "와일드헌트 종합 예술 지구"
+  }
 }

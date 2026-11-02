@@ -61,6 +61,7 @@ public:
     bool Back() override;
 
     const std::string& LastError() const { return last_error_; }
+    std::string Error() const override { return last_error_; }
     AdbScreencap ScreencapMethod() const { return method_; }
     const AdbControllerOptions& Options() const { return options_; }
 

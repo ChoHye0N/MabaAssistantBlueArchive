@@ -1,0 +1,12 @@
+{
+  "id": "attendance_reward",
+  "notes": [
+    "Attendance reward dialog after login ('rewards can be claimed in the mailbox'). Information only; the confirm button closes it.",
+    "popup_confirm_button.png is the shared blue confirm button; it is clicked only after this popup's title matched."
+  ],
+  "priority": 15,
+  "anchors": [
+    { "template": "popup_attendance_title.png", "roi": { "x": 550, "y": 120, "w": 180, "h": 90 }, "threshold": 0.9 }
+  ],
+  "dismiss": { "template": "popup_confirm_button.png", "roi": { "x": 500, "y": 420, "w": 280, "h": 140 }, "threshold": 0.9 }
+}

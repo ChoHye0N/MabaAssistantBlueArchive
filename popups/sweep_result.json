@@ -1,0 +1,10 @@
+{
+  "id": "sweep_result",
+  "notes": [
+    "Sweep result ('sweep complete'). Back closes it and leaves the stage info dialog open.",
+    "The dialog shows the nickname at the top: never capture it."
+  ],
+  "priority": 5,
+  "anchors": [{ "template": "popup_sweep_result.png", "roi": { "x": 540, "y": 55, "w": 200, "h": 90 }, "threshold": 0.9 }],
+  "dismiss": "back"
+}

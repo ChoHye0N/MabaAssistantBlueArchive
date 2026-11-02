@@ -1,0 +1,22 @@
+{
+  "id": "circle",
+  "name": "Circle: daily visit (attendance reward)",
+  "order": 30,
+  "after": [],
+  "status": "wip",
+  "needs_ocr": false,
+  "notes": [
+    "Only for circle members: without the member list tab the task ends as skipped.",
+    "The first visit of the day shows the circle attendance reward (10 AP, delivered to the mailbox); popups/circle_attendance.json closes it.",
+    "The circle page shows the circle name and ID on the left: never save it into templates or committed screenshots."
+  ],
+  "steps": [
+    { "action": "goto", "page": "circle" },
+    {
+      "action": "if",
+      "when": { "absent": { "template": "circle_member_list.png", "roi": { "x": 980, "y": 70, "w": 160, "h": 70 }, "threshold": 0.9 } },
+      "then": [{ "action": "return_home" }, { "action": "end", "status": "skipped", "message": "not a circle member" }]
+    },
+    { "action": "return_home" }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "shop",
+  "notes": [
+    "Shop (general tab first)."
+  ],
+  "anchors": [
+    { "template": "shop_title.png", "roi": { "x": 80, "y": 0, "w": 110, "h": 55 }, "threshold": 0.9 }
+  ],
+  "transitions": [
+    { "to": "main_menu", "click": { "template": "common_home_button.png", "roi": { "x": 1195, "y": 0, "w": 85, "h": 55 }, "threshold": 0.9 } }
+  ]
+}

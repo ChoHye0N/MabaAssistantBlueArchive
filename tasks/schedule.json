@@ -1,11 +1,137 @@
 {
   "id": "schedule",
-  "name": "Schedule: enter and spend tickets",
+  "name": "Schedule: spend tickets",
+  "order": 20,
   "after": [],
-  "status": "todo",
+  "status": "wip",
   "needs_ocr": true,
   "notes": [
-    "First version: fixed location or priority list.",
-    "Choosing by a specific student is hard to recognize: defer."
+    "Route: main screen bottom bar -> schedule -> location -> 'all schedules' list -> room -> 'start schedule'.",
+    "Locations are the checked ones of 'locations', in list order; each is found by its name (strings/<lang>.json, schedule.location.*) with OCR. The list opens where it was left, so it is scrolled to the top first.",
+    "Tickets are read with OCR ('tickets 7/7'); one room per ticket, rooms in list order, rooms done today are skipped. Spending stops at 0 tickets.",
+    "Preferring rooms with chosen students is on the roadmap."
+  ],
+  "settings": [
+    {
+      "key": "locations",
+      "type": "list",
+      "default": ["schale_office"],
+      "choices": [
+        "schale_office",
+        "schale_residence",
+        "gehenna_central",
+        "abydos_main",
+        "millennium_science",
+        "trinity_square",
+        "red_winter",
+        "hyakkiyako_center",
+        "du_shiratori",
+        "shanhaijing_center",
+        "haruhabara",
+        "wildhunt_arts"
+      ],
+      "label_key": "schedule.location.",
+      "ui": "checklist",
+      "description": "Locations to use, in list order (check boxes)."
+    }
+  ],
+  "steps": [
+    { "action": "goto", "page": "schedule" },
+    { "action": "read_number", "roi": { "x": 60, "y": 80, "w": 190, "h": 44 }, "store": "tickets", "lenient": true, "optional": true },
+    {
+      "action": "if",
+      "when": { "value": "tickets", "lt": 1 },
+      "then": [{ "action": "return_home" }, { "action": "end", "message": "no tickets left" }]
+    },
+    {
+      "action": "each",
+      "setting": "locations",
+      "steps": [
+        { "action": "if", "when": { "value": "tickets", "lt": 1 }, "then": [{ "action": "break" }] },
+        { "action": "goto", "page": "schedule" },
+        {
+          "action": "loop",
+          "max": 3,
+          "steps": [
+            { "action": "swipe", "from": { "x": 940, "y": 250 }, "to": { "x": 940, "y": 600 }, "duration_ms": 500 },
+            { "action": "sleep", "sleep_ms": 600 }
+          ]
+        },
+        {
+          "action": "click_text",
+          "text_key": "schedule.location.{value}",
+          "roi": { "x": 740, "y": 135, "w": 300, "h": 550 },
+          "max_scrolls": 3,
+          "duration_ms": 500,
+          "optional": true,
+          "from": { "x": 940, "y": 600 },
+          "to": { "x": 940, "y": 250 }
+        },
+        {
+          "action": "if",
+          "when": {
+            "absent": { "template": "schedule_select_title.png", "roi": { "x": 80, "y": 0, "w": 180, "h": 55 }, "threshold": 0.9 },
+            "timeout_ms": 6000
+          },
+          "then": [{ "action": "break" }]
+        },
+        {
+          "action": "click",
+          "template": "schedule_all_button.png",
+          "roi": { "x": 1060, "y": 620, "w": 220, "h": 100 },
+          "threshold": 0.9,
+          "expect": { "template": "schedule_all_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 80 }, "threshold": 0.9 }
+        },
+        { "action": "read_number", "roi": { "x": 630, "y": 130, "w": 110, "h": 42 }, "store": "tickets", "lenient": true, "optional": true },
+        {
+          "action": "loop",
+          "max": 7,
+          "until": { "value": "tickets", "lt": 1 },
+          "steps": [
+            {
+              "action": "click",
+              "points": [
+                { "x": 297, "y": 215 },
+                { "x": 640, "y": 215 },
+                { "x": 985, "y": 215 },
+                { "x": 297, "y": 367 },
+                { "x": 640, "y": 367 },
+                { "x": 985, "y": 367 },
+                { "x": 297, "y": 519 }
+              ],
+              "expect": { "template": "schedule_info_title.png", "roi": { "x": 540, "y": 90, "w": 200, "h": 70 }, "threshold": 0.9 },
+              "timeout_ms": 2500,
+              "retries": 1,
+              "optional": true
+            },
+            {
+              "action": "if",
+              "when": { "present": { "template": "schedule_info_title.png", "roi": { "x": 540, "y": 90, "w": 200, "h": 70 }, "threshold": 0.9 } },
+              "then": [
+                {
+                  "action": "click",
+                  "template": "schedule_start.png",
+                  "roi": { "x": 530, "y": 510, "w": 220, "h": 80 },
+                  "threshold": 0.9,
+                  "sleep_ms": 4000
+                },
+                {
+                  "action": "loop",
+                  "max": 6,
+                  "until": { "absent": { "template": "schedule_info_title.png", "roi": { "x": 540, "y": 90, "w": 200, "h": 70 }, "threshold": 0.9 } },
+                  "steps": [{ "action": "sleep", "sleep_ms": 2000 }]
+                },
+                { "action": "read_number", "roi": { "x": 630, "y": 130, "w": 110, "h": 42 }, "store": "tickets", "lenient": true, "optional": true }
+              ]
+            }
+          ]
+        },
+        {
+          "action": "back",
+          "when": { "present": { "template": "schedule_all_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 80 }, "threshold": 0.9 } }
+        }
+      ]
+    },
+    { "action": "return_home" }
   ]
 }

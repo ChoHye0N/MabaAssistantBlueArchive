@@ -1,0 +1,8 @@
+{
+  "id": "account",
+  "notes": [
+    "Account info, opened by the level/nickname panel at the top left of the main screen. Shows the UID at the bottom left: personal data, never captured into templates."
+  ],
+  "anchors": [{ "template": "account_title.png", "roi": { "x": 80, "y": 0, "w": 160, "h": 55 }, "threshold": 0.9 }],
+  "transitions": [{ "to": "main_menu", "click": { "template": "common_home_button.png", "roi": { "x": 1195, "y": 0, "w": 85, "h": 55 }, "threshold": 0.9 } }]
+}

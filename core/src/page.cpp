@@ -59,6 +59,17 @@ PageDef ParsePageJson(const json& root) {
             if (auto r = ParseRoi(wrapper, where + ".rois." + name)) page.rois[name] = *r;
         }
     }
+
+    if (auto it = root.find("enter"); it != root.end() && !it->is_null()) {
+        if (!it->is_object()) throw ParseError(where + ": 'enter' must be an object");
+        const std::string at = where + ".enter";
+        EnterSpec enter;
+        enter.tap = ParsePoint(Require(*it, "tap", at), at + ".tap");
+        enter.max_taps = OptInt(*it, "max_taps", at, enter.max_taps, 1, 100);
+        enter.interval = std::chrono::milliseconds{
+            OptInt(*it, "interval_ms", at, static_cast<int>(enter.interval.count()), 100, 10000)};
+        page.enter = enter;
+    }
     return page;
 }
 

@@ -1,0 +1,55 @@
+{
+  "id": "free_package",
+  "name": "Pyroxene purchase: daily free package",
+  "order": 40,
+  "after": [],
+  "status": "wip",
+  "needs_ocr": false,
+  "notes": [
+    "Route: main screen -> pyroxene purchase (loads for a few seconds) -> packages tab -> 'daily free package'.",
+    "Safety: the dialog sells real-money items. A buy button is pressed only where the 'free' price label matches, and the purchase is confirmed only when the confirmation shows the price 'free'.",
+    "Contents seen on 2026-11-02: 10,000 credits and 10 AP."
+  ],
+  "steps": [
+    { "action": "goto", "page": "gem_shop" },
+    {
+      "action": "click",
+      "x": 897,
+      "y": 182,
+      "expect": { "template": "gem_shop_package_tab_active.png", "roi": { "x": 750, "y": 150, "w": 300, "h": 70 }, "threshold": 0.9 },
+      "timeout_ms": 6000
+    },
+    {
+      "action": "if",
+      "when": { "color": { "hsv_min": [170, 120, 110], "hsv_max": [180, 255, 200], "area": [1000, 8000], "roi": { "x": 258, "y": 416, "w": 250, "h": 30 } } },
+      "then": [{ "action": "return_home" }, { "action": "end", "message": "already claimed today" }]
+    },
+    {
+      "action": "if",
+      "when": { "absent": { "template": "gem_shop_free_price.png", "roi": { "x": 250, "y": 430, "w": 800, "h": 80 }, "threshold": 0.95 } },
+      "then": [{ "action": "return_home" }, { "action": "end", "message": "no free package offered" }]
+    },
+    {
+      "action": "click",
+      "template": "gem_shop_free_price.png",
+      "roi": { "x": 250, "y": 430, "w": 800, "h": 80 },
+      "threshold": 0.95,
+      "expect": { "template": "gem_shop_confirm_question.png", "roi": { "x": 440, "y": 110, "w": 400, "h": 80 }, "threshold": 0.9 }
+    },
+    {
+      "action": "if",
+      "when": { "present": { "template": "gem_shop_confirm_price_free.png", "roi": { "x": 780, "y": 400, "w": 150, "h": 80 }, "threshold": 0.95 } },
+      "then": [
+        {
+          "action": "click",
+          "template": "dialog_ok_button.png",
+          "roi": { "x": 660, "y": 440, "w": 240, "h": 200 },
+          "threshold": 0.9,
+          "sleep_ms": 2500
+        }
+      ],
+      "else": [{ "action": "back" }, { "action": "fail", "message": "the confirmation does not show a free price" }]
+    },
+    { "action": "return_home" }
+  ]
+}

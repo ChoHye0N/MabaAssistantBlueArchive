@@ -1,11 +1,445 @@
 {
   "id": "cafe",
-  "name": "Cafe: enter, collect resources, tap students",
+  "name": "Cafe: collect income, invite, tap students",
+  "order": 10,
   "after": [],
-  "status": "todo",
-  "needs_ocr": false,
+  "status": "wip",
+  "needs_ocr": true,
   "notes": [
-    "Daily tap count is capped: make it a setting.",
-    "verify: does cafe income include AP? If yes, order after spend_ap."
+    "Run order (owner): cafe, schedule, circle, free package, shop, bounty, AP spending, tactical challenge, mail, remaining AP spending, missions. 'order' fixes it without blocking.",
+    "Cafe income includes AP (646/740 seen on 2026-11-02); one claim covers both cafes.",
+    "Only owned students can be touched, and only those show the marker: three yellow strokes at the left of the head. The marker animates, so it is found by colour (click_color). The touch area is the head.",
+    "The cafe is larger than the screen: after the opening view the view is dragged to the four corners and each view is searched again.",
+    "Invitation: the ticket opens a list of owned students (MomoTalk). The configured names are searched with OCR while scrolling; the first one found is invited. A student that is not owned is not listed and is skipped. A student visiting the other cafe (marked with that cafe in the list) asks twice to be brought over, and another version of a visiting student asks to replace it: all are confirmed, so the configured student is invited.",
+    "A ticket on cooldown shows a timer instead of 'available' and is not used.",
+    "The bottom-left buttons (edit mode, store all) must never be clicked: taps stay above y = 600 and right of the left buttons."
+  ],
+  "settings": [
+    { "key": "tap_students", "type": "bool", "default": true, "description": "Tap students that have a yellow mark." },
+    { "key": "second_cafe", "type": "bool", "default": true, "description": "Also visit the second cafe." },
+    { "key": "invite", "type": "bool", "default": true, "description": "Use the invitation ticket of each cafe." },
+    {
+      "key": "invite_first",
+      "type": "list",
+      "default": [],
+      "description": "Students to invite to the first cafe, in order of preference (names as shown in the game)."
+    },
+    { "key": "invite_second", "type": "list", "default": [], "description": "Students to invite to the second cafe, in order of preference." }
+  ],
+  "steps": [
+    { "action": "goto", "page": "cafe" },
+    {
+      "action": "click",
+      "x": 1175,
+      "y": 668,
+      "expect": { "template": "cafe_income_title.png", "roi": { "x": 540, "y": 110, "w": 200, "h": 80 }, "threshold": 0.9 },
+      "retries": 3,
+      "timeout_ms": 4000,
+      "optional": true
+    },
+    {
+      "action": "if",
+      "when": { "present": { "template": "cafe_income_title.png", "roi": { "x": 540, "y": 110, "w": 200, "h": 80 }, "threshold": 0.9 } },
+      "then": [
+        {
+          "action": "click_if_present",
+          "template": "cafe_income_claim.png",
+          "roi": { "x": 500, "y": 480, "w": 280, "h": 100 },
+          "threshold": 0.9,
+          "sleep_ms": 2500
+        },
+        {
+          "action": "back",
+          "when": { "present": { "template": "cafe_income_title.png", "roi": { "x": 540, "y": 110, "w": 200, "h": 80 }, "threshold": 0.9 } }
+        },
+        { "action": "sleep", "sleep_ms": 1500 }
+      ]
+    },
+    {
+      "action": "if",
+      "when": { "setting": "invite", "equals": true },
+      "then": [
+        {
+          "action": "if",
+          "when": {
+            "present": { "template": "cafe_ticket_available.png", "roi": { "x": 820, "y": 560, "w": 140, "h": 70 }, "threshold": 0.9 },
+            "timeout_ms": 3000
+          },
+          "then": [
+            {
+              "action": "click",
+              "x": 885,
+              "y": 650,
+              "expect": { "template": "cafe_momotalk.png", "roi": { "x": 410, "y": 60, "w": 250, "h": 80 }, "threshold": 0.9 },
+              "timeout_ms": 5000,
+              "optional": true
+            },
+            {
+              "action": "if",
+              "when": { "present": { "template": "cafe_momotalk.png", "roi": { "x": 410, "y": 60, "w": 250, "h": 80 }, "threshold": 0.9 } },
+              "then": [
+                {
+                  "action": "click_text",
+                  "text_setting": "invite_first",
+                  "roi": { "x": 410, "y": 180, "w": 460, "h": 420 },
+                  "click_x": 770,
+                  "offset": { "x": 0, "y": 10 },
+                  "max_scrolls": 60,
+                  "from": { "x": 640, "y": 520 },
+                  "to": { "x": 640, "y": 230 },
+                  "sleep_ms": 2000,
+                  "optional": true
+                },
+                {
+                  "action": "loop",
+                  "max": 3,
+                  "steps": [
+                    {
+                      "action": "if",
+                      "when": {
+                        "present": { "template": "dialog_ok_button.png", "roi": { "x": 660, "y": 440, "w": 240, "h": 200 }, "threshold": 0.9 },
+                        "timeout_ms": 3000
+                      },
+                      "then": [
+                        {
+                          "action": "click",
+                          "template": "dialog_ok_button.png",
+                          "roi": { "x": 660, "y": 440, "w": 240, "h": 200 },
+                          "threshold": 0.9,
+                          "sleep_ms": 2500
+                        }
+                      ],
+                      "else": [{ "action": "break" }]
+                    }
+                  ]
+                },
+                {
+                  "action": "back",
+                  "when": { "present": { "template": "cafe_momotalk.png", "roi": { "x": 410, "y": 60, "w": 250, "h": 80 }, "threshold": 0.9 } }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "action": "if",
+      "when": { "setting": "tap_students", "equals": true },
+      "then": [
+        {
+          "action": "click_color",
+          "color": {
+            "hsv_min": [20, 200, 230],
+            "hsv_max": [30, 255, 255],
+            "width": [30, 40],
+            "height": [9, 15],
+            "area": [240, 330],
+            "roi": { "x": 115, "y": 60, "w": 1165, "h": 540 }
+          },
+          "offset": { "x": 55, "y": 0 },
+          "retry_offset": { "x": 45, "y": 25 },
+          "max": 15,
+          "sleep_ms": 3500
+        },
+        {
+          "action": "loop",
+          "max": 2,
+          "steps": [
+            { "action": "swipe", "from": { "x": 400, "y": 250 }, "to": { "x": 900, "y": 500 }, "duration_ms": 500 },
+            { "action": "sleep", "sleep_ms": 600 }
+          ]
+        },
+        { "action": "sleep", "sleep_ms": 800 },
+        {
+          "action": "click_color",
+          "color": {
+            "hsv_min": [20, 200, 230],
+            "hsv_max": [30, 255, 255],
+            "width": [30, 40],
+            "height": [9, 15],
+            "area": [240, 330],
+            "roi": { "x": 115, "y": 60, "w": 1165, "h": 540 }
+          },
+          "offset": { "x": 55, "y": 0 },
+          "retry_offset": { "x": 45, "y": 25 },
+          "max": 15,
+          "sleep_ms": 3500
+        },
+        {
+          "action": "loop",
+          "max": 3,
+          "steps": [
+            { "action": "swipe", "from": { "x": 900, "y": 300 }, "to": { "x": 300, "y": 300 }, "duration_ms": 500 },
+            { "action": "sleep", "sleep_ms": 600 }
+          ]
+        },
+        { "action": "sleep", "sleep_ms": 800 },
+        {
+          "action": "click_color",
+          "color": {
+            "hsv_min": [20, 200, 230],
+            "hsv_max": [30, 255, 255],
+            "width": [30, 40],
+            "height": [9, 15],
+            "area": [240, 330],
+            "roi": { "x": 115, "y": 60, "w": 1165, "h": 540 }
+          },
+          "offset": { "x": 55, "y": 0 },
+          "retry_offset": { "x": 45, "y": 25 },
+          "max": 15,
+          "sleep_ms": 3500
+        },
+        {
+          "action": "loop",
+          "max": 2,
+          "steps": [
+            { "action": "swipe", "from": { "x": 640, "y": 500 }, "to": { "x": 640, "y": 200 }, "duration_ms": 500 },
+            { "action": "sleep", "sleep_ms": 600 }
+          ]
+        },
+        { "action": "sleep", "sleep_ms": 800 },
+        {
+          "action": "click_color",
+          "color": {
+            "hsv_min": [20, 200, 230],
+            "hsv_max": [30, 255, 255],
+            "width": [30, 40],
+            "height": [9, 15],
+            "area": [240, 330],
+            "roi": { "x": 115, "y": 60, "w": 1165, "h": 540 }
+          },
+          "offset": { "x": 55, "y": 0 },
+          "retry_offset": { "x": 45, "y": 25 },
+          "max": 15,
+          "sleep_ms": 3500
+        },
+        {
+          "action": "loop",
+          "max": 3,
+          "steps": [
+            { "action": "swipe", "from": { "x": 300, "y": 300 }, "to": { "x": 900, "y": 300 }, "duration_ms": 500 },
+            { "action": "sleep", "sleep_ms": 600 }
+          ]
+        },
+        { "action": "sleep", "sleep_ms": 800 },
+        {
+          "action": "click_color",
+          "color": {
+            "hsv_min": [20, 200, 230],
+            "hsv_max": [30, 255, 255],
+            "width": [30, 40],
+            "height": [9, 15],
+            "area": [240, 330],
+            "roi": { "x": 115, "y": 60, "w": 1165, "h": 540 }
+          },
+          "offset": { "x": 55, "y": 0 },
+          "retry_offset": { "x": 45, "y": 25 },
+          "max": 15,
+          "sleep_ms": 3500
+        }
+      ]
+    },
+    {
+      "action": "if",
+      "when": { "setting": "second_cafe", "equals": true },
+      "then": [
+        {
+          "action": "click",
+          "template": "cafe_move_to_second.png",
+          "roi": { "x": 30, "y": 70, "w": 220, "h": 70 },
+          "threshold": 0.9,
+          "expect": { "template": "cafe_move_to_first.png", "roi": { "x": 30, "y": 70, "w": 220, "h": 70 }, "threshold": 0.9 },
+          "timeout_ms": 15000
+        },
+        { "action": "sleep", "sleep_ms": 2000 },
+        {
+          "action": "if",
+          "when": { "setting": "invite", "equals": true },
+          "then": [
+            {
+              "action": "if",
+              "when": {
+                "present": { "template": "cafe_ticket_available.png", "roi": { "x": 820, "y": 560, "w": 140, "h": 70 }, "threshold": 0.9 },
+                "timeout_ms": 3000
+              },
+              "then": [
+                {
+                  "action": "click",
+                  "x": 885,
+                  "y": 650,
+                  "expect": { "template": "cafe_momotalk.png", "roi": { "x": 410, "y": 60, "w": 250, "h": 80 }, "threshold": 0.9 },
+                  "timeout_ms": 5000,
+                  "optional": true
+                },
+                {
+                  "action": "if",
+                  "when": { "present": { "template": "cafe_momotalk.png", "roi": { "x": 410, "y": 60, "w": 250, "h": 80 }, "threshold": 0.9 } },
+                  "then": [
+                    {
+                      "action": "click_text",
+                      "text_setting": "invite_second",
+                      "roi": { "x": 410, "y": 180, "w": 460, "h": 420 },
+                      "click_x": 770,
+                      "offset": { "x": 0, "y": 10 },
+                      "max_scrolls": 60,
+                      "from": { "x": 640, "y": 520 },
+                      "to": { "x": 640, "y": 230 },
+                      "sleep_ms": 2000,
+                      "optional": true
+                    },
+                    {
+                      "action": "loop",
+                      "max": 3,
+                      "steps": [
+                        {
+                          "action": "if",
+                          "when": {
+                            "present": { "template": "dialog_ok_button.png", "roi": { "x": 660, "y": 440, "w": 240, "h": 200 }, "threshold": 0.9 },
+                            "timeout_ms": 3000
+                          },
+                          "then": [
+                            {
+                              "action": "click",
+                              "template": "dialog_ok_button.png",
+                              "roi": { "x": 660, "y": 440, "w": 240, "h": 200 },
+                              "threshold": 0.9,
+                              "sleep_ms": 2500
+                            }
+                          ],
+                          "else": [{ "action": "break" }]
+                        }
+                      ]
+                    },
+                    {
+                      "action": "back",
+                      "when": { "present": { "template": "cafe_momotalk.png", "roi": { "x": 410, "y": 60, "w": 250, "h": 80 }, "threshold": 0.9 } }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "action": "if",
+          "when": { "setting": "tap_students", "equals": true },
+          "then": [
+            {
+              "action": "click_color",
+              "color": {
+                "hsv_min": [20, 200, 230],
+                "hsv_max": [30, 255, 255],
+                "width": [30, 40],
+                "height": [9, 15],
+                "area": [240, 330],
+                "roi": { "x": 115, "y": 60, "w": 1165, "h": 540 }
+              },
+              "offset": { "x": 55, "y": 0 },
+              "retry_offset": { "x": 45, "y": 25 },
+              "max": 15,
+              "sleep_ms": 3500
+            },
+            {
+              "action": "loop",
+              "max": 2,
+              "steps": [
+                { "action": "swipe", "from": { "x": 400, "y": 250 }, "to": { "x": 900, "y": 500 }, "duration_ms": 500 },
+                { "action": "sleep", "sleep_ms": 600 }
+              ]
+            },
+            { "action": "sleep", "sleep_ms": 800 },
+            {
+              "action": "click_color",
+              "color": {
+                "hsv_min": [20, 200, 230],
+                "hsv_max": [30, 255, 255],
+                "width": [30, 40],
+                "height": [9, 15],
+                "area": [240, 330],
+                "roi": { "x": 115, "y": 60, "w": 1165, "h": 540 }
+              },
+              "offset": { "x": 55, "y": 0 },
+              "retry_offset": { "x": 45, "y": 25 },
+              "max": 15,
+              "sleep_ms": 3500
+            },
+            {
+              "action": "loop",
+              "max": 3,
+              "steps": [
+                { "action": "swipe", "from": { "x": 900, "y": 300 }, "to": { "x": 300, "y": 300 }, "duration_ms": 500 },
+                { "action": "sleep", "sleep_ms": 600 }
+              ]
+            },
+            { "action": "sleep", "sleep_ms": 800 },
+            {
+              "action": "click_color",
+              "color": {
+                "hsv_min": [20, 200, 230],
+                "hsv_max": [30, 255, 255],
+                "width": [30, 40],
+                "height": [9, 15],
+                "area": [240, 330],
+                "roi": { "x": 115, "y": 60, "w": 1165, "h": 540 }
+              },
+              "offset": { "x": 55, "y": 0 },
+              "retry_offset": { "x": 45, "y": 25 },
+              "max": 15,
+              "sleep_ms": 3500
+            },
+            {
+              "action": "loop",
+              "max": 2,
+              "steps": [
+                { "action": "swipe", "from": { "x": 640, "y": 500 }, "to": { "x": 640, "y": 200 }, "duration_ms": 500 },
+                { "action": "sleep", "sleep_ms": 600 }
+              ]
+            },
+            { "action": "sleep", "sleep_ms": 800 },
+            {
+              "action": "click_color",
+              "color": {
+                "hsv_min": [20, 200, 230],
+                "hsv_max": [30, 255, 255],
+                "width": [30, 40],
+                "height": [9, 15],
+                "area": [240, 330],
+                "roi": { "x": 115, "y": 60, "w": 1165, "h": 540 }
+              },
+              "offset": { "x": 55, "y": 0 },
+              "retry_offset": { "x": 45, "y": 25 },
+              "max": 15,
+              "sleep_ms": 3500
+            },
+            {
+              "action": "loop",
+              "max": 3,
+              "steps": [
+                { "action": "swipe", "from": { "x": 300, "y": 300 }, "to": { "x": 900, "y": 300 }, "duration_ms": 500 },
+                { "action": "sleep", "sleep_ms": 600 }
+              ]
+            },
+            { "action": "sleep", "sleep_ms": 800 },
+            {
+              "action": "click_color",
+              "color": {
+                "hsv_min": [20, 200, 230],
+                "hsv_max": [30, 255, 255],
+                "width": [30, 40],
+                "height": [9, 15],
+                "area": [240, 330],
+                "roi": { "x": 115, "y": 60, "w": 1165, "h": 540 }
+              },
+              "offset": { "x": 55, "y": 0 },
+              "retry_offset": { "x": 45, "y": 25 },
+              "max": 15,
+              "sleep_ms": 3500
+            }
+          ]
+        }
+      ]
+    },
+    { "action": "return_home" }
   ]
 }

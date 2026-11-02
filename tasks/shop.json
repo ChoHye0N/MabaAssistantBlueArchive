@@ -1,11 +1,121 @@
 {
   "id": "shop",
-  "name": "Shop: buy daily items",
+  "name": "Shop: buy from the general list",
+  "order": 50,
   "after": [],
-  "status": "todo",
-  "needs_ocr": true,
+  "status": "wip",
+  "needs_ocr": false,
   "notes": [
-    "Purchase list comes from a config file.",
-    "Rotating stock: item templates need ongoing upkeep."
+    "Route: main screen bottom bar -> shop (general tab). Prices are credits.",
+    "'all': 'select all' then 'buy selected'. 'selected': ticks the listed items (first screen of the list only).",
+    "Activity reports (first row) are poor value for credits: with 'buy_reports' off, 'all' unticks them after 'select all' (a ticked box shows a green check).",
+    "Never press 'refresh now' (it costs pyroxene)."
+  ],
+  "settings": [
+    {
+      "key": "mode",
+      "type": "choice",
+      "default": "all",
+      "choices": ["all", "selected"],
+      "description": "Buy the whole general list or only the selected items."
+    },
+    {
+      "key": "items",
+      "type": "list",
+      "default": [],
+      "choices": ["report_basic", "report_normal", "report_advanced", "report_superior", "stone_low", "stone_normal", "stone_high", "stone_superior"],
+      "description": "Items to buy in 'selected' mode."
+    },
+    { "key": "buy_reports", "type": "bool", "default": false, "description": "In 'all' mode, also buy the activity reports (first row)." }
+  ],
+  "steps": [
+    { "action": "goto", "page": "shop" },
+    {
+      "action": "if",
+      "when": { "setting": "mode", "equals": "all" },
+      "then": [
+        {
+          "action": "click",
+          "template": "shop_select_all.png",
+          "roi": { "x": 1080, "y": 55, "w": 190, "h": 70 },
+          "threshold": 0.9,
+          "expect": { "template": "shop_buy_selected.png", "roi": { "x": 1070, "y": 620, "w": 200, "h": 90 }, "threshold": 0.9 },
+          "optional": true
+        },
+        {
+          "action": "if",
+          "when": { "setting": "buy_reports", "equals": false },
+          "then": [
+            {
+              "action": "click",
+              "x": 647,
+              "y": 197,
+              "sleep_ms": 300,
+              "when": {
+                "color": { "hsv_min": [30, 120, 150], "hsv_max": [50, 255, 255], "area": [60, 500], "roi": { "x": 633, "y": 183, "w": 28, "h": 28 } }
+              }
+            },
+            {
+              "action": "click",
+              "x": 798,
+              "y": 197,
+              "sleep_ms": 300,
+              "when": {
+                "color": { "hsv_min": [30, 120, 150], "hsv_max": [50, 255, 255], "area": [60, 500], "roi": { "x": 784, "y": 183, "w": 28, "h": 28 } }
+              }
+            },
+            {
+              "action": "click",
+              "x": 949,
+              "y": 197,
+              "sleep_ms": 300,
+              "when": {
+                "color": { "hsv_min": [30, 120, 150], "hsv_max": [50, 255, 255], "area": [60, 500], "roi": { "x": 935, "y": 183, "w": 28, "h": 28 } }
+              }
+            },
+            {
+              "action": "click",
+              "x": 1099,
+              "y": 197,
+              "sleep_ms": 300,
+              "when": {
+                "color": { "hsv_min": [30, 120, 150], "hsv_max": [50, 255, 255], "area": [60, 500], "roi": { "x": 1085, "y": 183, "w": 28, "h": 28 } }
+              }
+            }
+          ]
+        }
+      ],
+      "else": [
+        {
+          "action": "each",
+          "setting": "items",
+          "steps": [
+            {
+              "action": "click_if_present",
+              "template": "shop_item_{value}.png",
+              "roi": { "x": 620, "y": 130, "w": 620, "h": 300 },
+              "threshold": 0.9,
+              "offset": { "x": -50, "y": 41 },
+              "timeout_ms": 1500,
+              "sleep_ms": 300
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "action": "if",
+      "when": { "absent": { "template": "shop_buy_selected.png", "roi": { "x": 1070, "y": 620, "w": 200, "h": 90 }, "threshold": 0.9 } },
+      "then": [{ "action": "return_home" }, { "action": "end", "message": "nothing left to buy" }]
+    },
+    {
+      "action": "click",
+      "template": "shop_buy_selected.png",
+      "roi": { "x": 1070, "y": 620, "w": 200, "h": 90 },
+      "threshold": 0.9,
+      "expect": { "template": "shop_confirm_question.png", "roi": { "x": 440, "y": 130, "w": 400, "h": 80 }, "threshold": 0.9 }
+    },
+    { "action": "click", "template": "dialog_ok_button.png", "roi": { "x": 660, "y": 440, "w": 240, "h": 200 }, "threshold": 0.9, "sleep_ms": 2500 },
+    { "action": "return_home" }
   ]
 }

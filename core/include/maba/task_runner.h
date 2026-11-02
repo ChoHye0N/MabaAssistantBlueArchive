@@ -5,6 +5,7 @@
 #pragma once
 
 #include <atomic>
+#include <filesystem>
 #include <functional>
 #include <map>
 #include <string>
@@ -13,6 +14,7 @@
 #include "maba/log.h"
 #include "maba/navigator.h"
 #include "maba/ocr.h"
+#include "maba/strings.h"
 #include "maba/task.h"
 
 namespace maba {
@@ -41,6 +43,10 @@ struct RunnerOptions {
     // Return to the home page before each task and after a failure (recovery).
     bool return_home_between_tasks = true;
     std::function<void(const TaskRunResult&)> on_task;  // status changes (running, finished)
+    // Setting values per task id (see ResolveSettings); a task without an entry uses its defaults.
+    std::map<std::string, TaskSettings> settings;
+    StringTable strings;               // compared UI text of the language (click_text text_key)
+    std::filesystem::path data_dir;    // where save steps write records; empty = saving fails
 };
 
 class TaskRunner {
@@ -58,7 +64,14 @@ public:
     TaskRunResult RunTask(const TaskSpec& task);
 
 private:
-    bool RunStep(const Step& step, TaskRunResult& result, std::string& error);
+    enum class Flow { kNext, kBreak, kEnd, kFail, kCancel };
+    struct Context;
+
+    Flow RunSteps(const std::vector<Step>& steps, Context& ctx);
+    Flow RunAction(const Step& step, Context& ctx, std::string& error);
+    bool RunStep(const Step& step, Context& ctx, std::string& error);
+    bool Holds(const Condition& c, Context& ctx);
+    bool ClickTemplate(const Step& s, Context& ctx, std::string& error);
     bool Cancelled() const { return options_.cancel && options_.cancel->load(); }
     void Notify(const TaskRunResult& r);
 

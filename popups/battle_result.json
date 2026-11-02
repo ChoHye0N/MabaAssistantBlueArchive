@@ -1,0 +1,7 @@
+{
+  "id": "battle_result",
+  "notes": ["Tactical challenge result. A win shows rewards and is taller than a loss, so the title and the button move."],
+  "priority": 5,
+  "anchors": [{ "template": "popup_battle_result.png", "roi": { "x": 540, "y": 100, "w": 200, "h": 170 }, "threshold": 0.9 }],
+  "dismiss": { "template": "popup_confirm_button.png", "roi": { "x": 480, "y": 400, "w": 320, "h": 200 }, "threshold": 0.9 }
+}

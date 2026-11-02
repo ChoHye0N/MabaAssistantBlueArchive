@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 
+#include "maba/color.h"
 #include "maba/controller.h"
 #include "maba/log.h"
 #include "maba/matcher.h"
@@ -22,7 +23,9 @@ enum class DismissKind { kClick, kBack };
 
 struct PopupDef {
     std::string id;
-    std::vector<TemplateRef> anchors;  // detected when every anchor matches
+    std::vector<TemplateRef> anchors;  // detected when every anchor matches,
+    std::vector<ColorSpec> colors;     // every one of these colours is visible,
+    std::vector<ColorSpec> no_colors;  // and none of these is (e.g. "AUTO is not lit")
     DismissKind dismiss = DismissKind::kClick;
     std::optional<TemplateRef> click_template;  // kClick: center of this match, or
     std::optional<Point> click_point;           // a fixed point

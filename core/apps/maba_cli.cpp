@@ -12,6 +12,8 @@
 #include <ctime>
 #include <cwchar>
 #include <filesystem>
+#include <fstream>
+#include <iterator>
 #include <map>
 #include <sstream>
 #include <string>
@@ -222,6 +224,8 @@ int CmdRun(const Args& args) {
     maba::AssistantConfig config;
     config.root = root;
     config.language = Get(args, "lang", "ko");
+    // Per-account records hold personal data: kept in a gitignored folder.
+    config.data_dir = Utf8Path(Get(args, "data", maba::PathToUtf8(root / "local-data")));
     maba::Assistant assistant(config, PrintLog);
     std::string error;
     if (!assistant.Load(error)) {
@@ -269,13 +273,23 @@ int CmdRun(const Args& args) {
             launcher, maba::SidecarOptions{maba::DefaultOcrCommand(root)}, assistant.Languages(), PrintLog));
     }
 
+    std::string settings_json;
+    if (args.count("settings")) {
+        std::ifstream in(Utf8Path(Get(args, "settings", "")), std::ios::binary);
+        if (!in) {
+            std::fprintf(stderr, "cannot read %s\n", Get(args, "settings", "").c_str());
+            return 2;
+        }
+        settings_json.assign(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+    }
+
     std::atomic<bool> cancel{false};
     const maba::RunReport report = assistant.Run(
         tasks, &cancel, {}, [&](const maba::Frame& frame, const std::string&) {
             if (frame.empty()) return;
             const fs::path out = root / "captures" / ("run_fail_" + Timestamp() + ".png");
             if (maba::SavePng(frame, out)) std::printf("saved failure frame to %s\n", maba::PathToUtf8(out).c_str());
-        });
+        }, settings_json);
     if (!report.error.empty()) {
         std::fprintf(stderr, "run failed: %s\n", report.error.c_str());
         return 1;
@@ -295,7 +309,9 @@ void Usage() {
                  "  maba_cli devices [--adb PATH]\n"
                  "  maba_cli run [--tasks id,id] [--controller steam|adb] [--capture ...]\n"
                  "               [--adb PATH] [--serial 127.0.0.1:16384] [--maatouch FILE]\n"
-                 "               [--lang ko] [--root DIR] [--no-ocr]\n");
+                 "               [--lang ko] [--root DIR] [--no-ocr] [--settings FILE] [--data DIR]\n"
+                 "               DIR: per-account records (default ROOT/local-data, gitignored)\n"
+                 "               FILE: {\"<task id>\": {\"<setting>\": value}}\n");
 }
 
 }  // namespace

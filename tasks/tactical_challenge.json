@@ -1,0 +1,122 @@
+{
+  "id": "tactical_challenge",
+  "name": "Tactical challenge: claim rewards, use the tickets",
+  "order": 80,
+  "after": [],
+  "status": "wip",
+  "needs_ocr": true,
+  "notes": [
+    "Route: main screen -> campaign -> tactical challenge.",
+    "Claims the time and daily rewards, then plays matches: opponent -> attack formation -> battle skip ticked if it is not -> sortie with the preset team.",
+    "Without a preset team the formation cannot sortie and the task fails instead of building one.",
+    "Tickets are read with OCR ('tickets 5/5'); the loop stops at 0 or at the configured count."
+  ],
+  "settings": [
+    { "key": "claim_rewards", "type": "bool", "default": true, "description": "Claim the tactical challenge rewards." },
+    { "key": "matches", "type": "int", "default": 5, "min": 0, "max": 5, "description": "Matches to play (stops earlier when tickets run out)." },
+    {
+      "key": "opponent",
+      "type": "choice",
+      "default": "1",
+      "choices": ["1", "2", "3"],
+      "description": "Which of the three listed opponents to attack (top to bottom)."
+    }
+  ],
+  "steps": [
+    { "action": "goto", "page": "tactical" },
+    {
+      "action": "if",
+      "when": { "setting": "claim_rewards", "equals": true },
+      "then": [
+        {
+          "action": "click_if_present",
+          "template": "tactical_claim.png",
+          "roi": { "x": 290, "y": 350, "w": 130, "h": 80 },
+          "threshold": 0.9,
+          "timeout_ms": 1500,
+          "sleep_ms": 2500
+        },
+        {
+          "action": "click_if_present",
+          "template": "tactical_claim.png",
+          "roi": { "x": 290, "y": 430, "w": 130, "h": 80 },
+          "threshold": 0.9,
+          "timeout_ms": 1500,
+          "sleep_ms": 2500
+        }
+      ]
+    },
+    { "action": "read_number", "roi": { "x": 75, "y": 470, "w": 140, "h": 34 }, "store": "tickets", "lenient": true },
+    {
+      "action": "loop",
+      "max_setting": "matches",
+      "until": { "value": "tickets", "lt": 1 },
+      "steps": [
+        {
+          "action": "click",
+          "x": 640,
+          "y": 250,
+          "expect": { "template": "tactical_opponent_title.png", "roi": { "x": 540, "y": 60, "w": 200, "h": 80 }, "threshold": 0.9 },
+          "timeout_ms": 5000,
+          "when": { "setting": "opponent", "equals": "1" }
+        },
+        {
+          "action": "click",
+          "x": 640,
+          "y": 410,
+          "expect": { "template": "tactical_opponent_title.png", "roi": { "x": 540, "y": 60, "w": 200, "h": 80 }, "threshold": 0.9 },
+          "timeout_ms": 5000,
+          "when": { "setting": "opponent", "equals": "2" }
+        },
+        {
+          "action": "click",
+          "x": 640,
+          "y": 570,
+          "expect": { "template": "tactical_opponent_title.png", "roi": { "x": 540, "y": 60, "w": 200, "h": 80 }, "threshold": 0.9 },
+          "timeout_ms": 5000,
+          "when": { "setting": "opponent", "equals": "3" }
+        },
+        {
+          "action": "click",
+          "template": "tactical_attack_formation.png",
+          "roi": { "x": 540, "y": 530, "w": 200, "h": 80 },
+          "threshold": 0.9,
+          "expect": { "template": "tactical_formation_title.png", "roi": { "x": 80, "y": 0, "w": 160, "h": 55 }, "threshold": 0.9 },
+          "timeout_ms": 8000
+        },
+        {
+          "action": "click",
+          "x": 1148,
+          "y": 604,
+          "sleep_ms": 500,
+          "when": {
+            "no_color": { "hsv_min": [88, 140, 235], "hsv_max": [100, 255, 255], "area": [20, 400], "roi": { "x": 1130, "y": 586, "w": 38, "h": 38 } }
+          }
+        },
+        {
+          "action": "click",
+          "template": "tactical_sortie.png",
+          "roi": { "x": 1080, "y": 620, "w": 190, "h": 90 },
+          "threshold": 0.9,
+          "sleep_ms": 5000
+        },
+        {
+          "action": "loop",
+          "max": 20,
+          "until": { "absent": { "template": "popup_battle_result.png", "roi": { "x": 540, "y": 100, "w": 200, "h": 170 }, "threshold": 0.9 } },
+          "steps": [{ "action": "sleep", "sleep_ms": 3000 }]
+        },
+        {
+          "action": "wait_template",
+          "template": "tactical_season.png",
+          "roi": { "x": 430, "y": 115, "w": 200, "h": 70 },
+          "threshold": 0.9,
+          "timeout_ms": 30000
+        },
+        { "action": "read_number", "roi": { "x": 75, "y": 470, "w": 140, "h": 34 }, "store": "tickets", "lenient": true, "optional": true },
+        { "action": "sleep", "sleep_ms": 10000, "repeat": 3, "when": { "value": "tickets", "gt": 0 } }
+      ]
+    },
+    { "action": "return_home" }
+  ]
+}

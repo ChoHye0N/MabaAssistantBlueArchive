@@ -82,6 +82,7 @@ public:
     struct Entry {
         std::set<std::uint8_t> scenes;
         maba::Rect box;
+        std::vector<maba::Rect> more;  // further matches returned by FindAll
     };
 
     void Add(const std::string& file, std::set<std::uint8_t> scenes, maba::Rect box = {10, 10, 20, 20}) {
@@ -101,7 +102,16 @@ public:
     }
     std::vector<maba::MatchResult> FindAll(const maba::Frame& f, const maba::TemplateRef& ref,
                                            int) override {
-        return {Find(f, ref)};
+        std::vector<maba::MatchResult> out{Find(f, ref)};
+        auto it = entries.find(ref.file);
+        if (it == entries.end() || !out.front().found) return out;
+        for (const auto& box : it->second.more) {
+            maba::MatchResult r = out.front();
+            r.box = box;
+            r.center = {box.x + box.width / 2, box.y + box.height / 2};
+            out.push_back(r);
+        }
+        return out;
     }
     const std::string& LastError() const override { return error; }
 
