@@ -1,0 +1,22 @@
+#!/bin/sh
+# Blocks commits that expose personal data or secrets.
+# Enable once per clone:  git config core.hooksPath .githooks
+
+# 1) The commit author email must be a GitHub noreply address, not a real mailbox.
+EMAIL=$(git config user.email)
+case "$EMAIL" in
+  *@users.noreply.github.com) ;;
+  *)
+    if [ -z "$MABA_ALLOW_ANY_EMAIL" ]; then
+      echo "ERROR: git user.email is not a GitHub noreply address." >&2
+      echo "Use <ID>+<username>@users.noreply.github.com (GitHub > Settings > Emails)." >&2
+      echo "Set it with: git config user.email <that address>" >&2
+      exit 1
+    fi
+    ;;
+esac
+
+# 2) Scan staged content for personal data and secrets.
+# python3 may be a non-working Store alias on Windows: probe that it actually runs.
+if python3 -c "" >/dev/null 2>&1; then PY=python3; else PY=python; fi
+exec "$PY" tools/privacy_check.py --staged

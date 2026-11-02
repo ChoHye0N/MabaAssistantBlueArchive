@@ -1,0 +1,10 @@
+{
+  "id": "mail_claim_all",
+  "name": "Mail: claim all",
+  "after": ["spend_ap"],
+  "status": "todo",
+  "needs_ocr": false,
+  "notes": [
+    "AP cannot be held above 999, so claim only after AP is spent."
+  ]
+}

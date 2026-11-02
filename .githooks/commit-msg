@@ -1,0 +1,6 @@
+#!/bin/sh
+# Enforces the commit message format and rejects AI attribution lines.
+# Enabled by: git config core.hooksPath .githooks
+# python3 may be a non-working Store alias on Windows: probe that it actually runs.
+if python3 -c "" >/dev/null 2>&1; then PY=python3; else PY=python; fi
+exec "$PY" tools/git_rules.py commit-msg "$1"

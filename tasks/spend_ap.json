@@ -1,0 +1,12 @@
+{
+  "id": "spend_ap",
+  "name": "Spend AP (event maps, multiplier events)",
+  "after": [],
+  "status": "todo",
+  "needs_ocr": true,
+  "notes": [
+    "Stage priority is a setting.",
+    "Sweeping requires a 3-star clear: skip and log when not cleared.",
+    "Remaining AP is read with OCR."
+  ]
+}

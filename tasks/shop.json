@@ -1,0 +1,11 @@
+{
+  "id": "shop",
+  "name": "Shop: buy daily items",
+  "after": [],
+  "status": "todo",
+  "needs_ocr": true,
+  "notes": [
+    "Purchase list comes from a config file.",
+    "Rotating stock: item templates need ongoing upkeep."
+  ]
+}

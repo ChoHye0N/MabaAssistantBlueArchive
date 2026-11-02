@@ -1,0 +1,11 @@
+{
+  "id": "schedule",
+  "name": "Schedule: enter and spend tickets",
+  "after": [],
+  "status": "todo",
+  "needs_ocr": true,
+  "notes": [
+    "First version: fixed location or priority list.",
+    "Choosing by a specific student is hard to recognize: defer."
+  ]
+}

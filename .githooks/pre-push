@@ -1,0 +1,9 @@
+#!/bin/sh
+# Last line of defense before anything leaves the machine:
+#  1) privacy scan of the working tree
+#  2) every new commit: message format, no AI attribution, noreply author/committer email, no force push
+# Enabled by: git config core.hooksPath .githooks
+# python3 may be a non-working Store alias on Windows: probe that it actually runs.
+if python3 -c "" >/dev/null 2>&1; then PY=python3; else PY=python; fi
+"$PY" tools/privacy_check.py < /dev/null || exit 1
+exec "$PY" tools/git_rules.py pre-push

@@ -1,0 +1,11 @@
+{
+  "id": "cafe",
+  "name": "Cafe: enter, collect resources, tap students",
+  "after": [],
+  "status": "todo",
+  "needs_ocr": false,
+  "notes": [
+    "Daily tap count is capped: make it a setting.",
+    "verify: does cafe income include AP? If yes, order after spend_ap."
+  ]
+}

@@ -1,0 +1,46 @@
+# Build outputs
+build/
+out/
+bin/
+obj/
+vcpkg_installed/
+CMakeUserPresets.json
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Python
+__pycache__/
+.venv/
+*.pyc
+
+# Agent files: AGENTS.md and .agents/skills/ are shared; everything personal or tool-specific stays local
+.agents/local/
+AGENTS.local.md
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+GEMINI.md
+.cursor/
+.cursorrules
+.windsurf/
+.aider*
+.continue/
+.github/copilot-instructions.md
+
+# Personal / secret data: never commit
+.env
+.env.*
+*.pem
+*.key
+*.pfx
+secrets.*
+.privacy-terms.local
+
+# Local-only data
+assets-local/
+captures/
+*.log

@@ -1,0 +1,12 @@
+{
+  "note": "Korean (ko) is the baseline for behavior and design; other languages are added later. Languages of the Steam global client: 'confirmed' = consistent across Nexon's launch statement and store listings; 'unverified' = sources disagree, check the Steam page before enabling. ocr_lang is the PaddleOCR language code (PP-OCRv5). zh-Hant and ja have no dedicated model listed (default config covers them): verify accuracy before promising support.",
+  "primary": "ko",
+  "servers": ["global"],
+  "languages": [
+    { "code": "ko",      "name": "한국어",   "status": "confirmed",  "ocr_lang": "korean" },
+    { "code": "en",      "name": "English",  "status": "confirmed",  "ocr_lang": "en" },
+    { "code": "zh-Hant", "name": "繁體中文", "status": "confirmed",  "ocr_lang": "chinese_cht" },
+    { "code": "th",      "name": "ไทย",      "status": "confirmed",  "ocr_lang": "th" },
+    { "code": "ja",      "name": "日本語",   "status": "unverified", "ocr_lang": "japan" }
+  ]
+}
