@@ -81,12 +81,36 @@ def page_templates(pages: Dict[str, dict], path: List[str]) -> Set[str]:
     return needed
 
 
+def all_steps(obj: object):
+    """Every step (a dict with "action") anywhere inside a JSON value, nested ones included."""
+    if isinstance(obj, dict):
+        if "action" in obj:
+            yield obj
+        for v in obj.values():
+            yield from all_steps(v)
+    elif isinstance(obj, list):
+        for v in obj:
+            yield from all_steps(v)
+
+
+def expand_values(names: Set[str], task: dict) -> Set[str]:
+    """"{value}" in a template name stands for each choice of the task's list settings."""
+    choices = [c for s in task.get("settings", []) if s.get("type") == "list" for c in s.get("choices", [])]
+    out: Set[str] = set()
+    for name in names:
+        if "{value}" in name:
+            out |= {name.replace("{value}", c) for c in choices}
+        else:
+            out.add(name)
+    return out
+
+
 def task_templates(task: dict, pages: Dict[str, dict], popups: List[dict]) -> Set[str]:
-    needed = templates_in(task.get("steps", []))
+    needed = expand_values(templates_in(task.get("steps", [])), task)
     needed |= templates_in([p.get("anchors", []) for p in popups])
     needed |= templates_in([p.get("dismiss", {}) for p in popups])
     needed |= page_templates(pages, [HOME]) if HOME in pages else set()
-    for step in task.get("steps", []):
+    for step in all_steps(task.get("steps", [])):
         target = step.get("page")
         if step.get("action") in ("goto", "wait_page") and target:
             needed |= page_templates(pages, shortest_path(pages, HOME, target))

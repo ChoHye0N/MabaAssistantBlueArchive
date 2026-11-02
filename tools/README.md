@@ -14,7 +14,7 @@ Batch mode for scripted captures: `python tools/template_capture.py SHOT.png --c
 Tests: `python -m unittest discover tools/tests`.
 
 ## Template check and language matrix (`check_templates.py`)
-Lists, per task and language, the templates the task needs (its steps, the pages on its route from and back to `main_menu`, and all popups) and whether each resolves like Core resolves it (`assets-local/<lang>`, `assets/<lang>`, `assets-local/common`, `assets/common`). Standard library only.
+Lists, per task and language, the templates the task needs (its steps including nested ones, the pages on its route from and back to `main_menu`, and all popups; `{value}` in a template name is expanded to every choice of the task's list settings) and whether each resolves like Core resolves it (`assets-local/<lang>`, `assets/<lang>`, `assets-local/common`, `assets/common`). Standard library only.
 
 - `python tools/check_templates.py`: Markdown matrix plus the missing templates.
 - `--committed`: ignore `assets-local/` (what CI sees). `--json`: machine-readable.

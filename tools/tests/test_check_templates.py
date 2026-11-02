@@ -53,6 +53,18 @@ class MatrixTests(unittest.TestCase):
         self.assertEqual(self.row(m, "mail")["languages"]["ja"]["missing"], ["claim.png", "mail_title.png"])
         self.assertEqual(self.row(m, "cafe")["languages"]["ko"]["state"], "n/a")
 
+    def test_nested_steps_and_value_placeholders(self):
+        task = {"id": "shop", "settings": [{"key": "items", "type": "list", "default": [], "choices": ["a", "b"]}],
+                "steps": [{"action": "if", "when": {"setting": "items", "contains": "a"}, "then": [
+                    {"action": "goto", "page": "mail"},
+                    {"action": "each", "setting": "items", "steps": [{"action": "click", "template": "item_{value}.png"}]}]}]}
+        pages = {p["id"]: p for p in ct.load_dir(self.root / "pages")}
+        needed = ct.task_templates(task, pages, [])
+        self.assertIn("item_a.png", needed)
+        self.assertIn("item_b.png", needed)
+        self.assertNotIn("item_{value}.png", needed)
+        self.assertIn("mail_title.png", needed)  # route of the nested goto
+
     def test_committed_only_ignores_assets_local(self):
         m = ct.build_matrix(self.root, committed_only=True)
         self.assertEqual(self.row(m, "mail")["languages"]["ko"]["missing"], ["claim.png"])
