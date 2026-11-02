@@ -2,6 +2,8 @@
 
 Dependencies used by this project, with their copyright notices and license texts. Keep the README "Open-source libraries" table in sync. Libraries are not bundled in this repository; they are installed by vcpkg (Windows), the system package manager (Linux), NuGet (`gui/Maba.Gui/Maba.Gui.csproj`) or pip (`tools/requirements.txt`, `ocr/requirements.txt`).
 
+Release archives (Windows) bundle the built libraries so that nothing has to be installed: the .NET runtime (self-contained GUI), the OpenCV DLLs with zlib, libpng and libjpeg-turbo, an embeddable Python with the OCR packages listed below, and the OCR models. The license texts of the bundled Python and .NET runtime ship with them (`ocr/python/LICENSE.txt`; the .NET runtime notices at the link below).
+
 | Name | Version checked | License | Used by |
 |---|---|---|---|
 | OpenCV | 4.12.0 | Apache-2.0 | Core (Vision, image I/O, frame scaling) |
@@ -11,10 +13,15 @@ Dependencies used by this project, with their copyright notices and license text
 | CommunityToolkit.Mvvm | 8.4.2 | MIT | GUI (MVVM) |
 | RapidOCR | 3.10.0 | Apache-2.0 | OCR sidecar (`ocr/server.py`) |
 | ONNX Runtime | 1.31.1 | MIT | OCR sidecar (model inference) |
-| PaddleOCR models: PP-OCRv6 small det/rec, PP-OCRv5 mobile rec (korean, en, th), PP-OCRv4 mobile rec (chinese_cht, japan), ch_ppocr_mobile_v2.0_cls | as fetched by RapidOCR 3.10.0 | Apache-2.0 | OCR sidecar; downloaded at first use, not in this repository |
+| PaddleOCR models: PP-OCRv6 small det/rec, PP-OCRv5 mobile rec (korean, en, th), PP-OCRv4 mobile rec (chinese_cht, japan), ch_ppocr_mobile_v2.0_cls | as fetched by RapidOCR 3.10.0 | Apache-2.0 | OCR sidecar; downloaded at first use, not in this repository; release archives include the fetched models |
 | MaaTouch | supplied by the user | Apache-2.0 | optional emulator touch helper; not bundled |
+| .NET runtime (Microsoft.NETCore.App, Microsoft.WindowsDesktop.App) | 10.0 | MIT | GUI; bundled in release archives (https://github.com/dotnet/runtime/blob/main/THIRD-PARTY-NOTICES.TXT) |
+| Python (embeddable package) | 3.12.10 | PSF-2.0 | OCR sidecar runtime; bundled in release archives |
+| zlib | as built by vcpkg | Zlib | OpenCV dependency (`z.dll`) |
+| libpng | as built by vcpkg | libpng-2.0 | OpenCV dependency (`libpng16.dll`) |
+| libjpeg-turbo | as built by vcpkg | IJG AND BSD-3-Clause AND Zlib | OpenCV dependency (`jpeg62.dll`) |
 
-Python packages installed with RapidOCR (checked 2026-11-02 in `ocr/.venv`; not bundled):
+Python packages installed with RapidOCR (checked 2026-11-02 in `ocr/.venv`; bundled in release archives, not in this repository):
 
 | Package | Version | License |
 |---|---|---|
@@ -44,7 +51,7 @@ All are compatible with AGPL-3.0-only (MPL-2.0 allows combination with GPL-famil
 Logged in `docs/SOURCES.md`; ported files carry a note in their headers.
 
 ## Not covered by the project license
-Game-related image resources belong to NEXON Korea Corp. and NEXON GAMES Co., Ltd.
+Game-related image resources belong to NEXON Korea Corp. and NEXON GAMES Co., Ltd. Release archives include small pieces of the game's interface captured by the project owner (`assets/` in the archive) so the program works out of the box; they are not covered by the project license and are not in this repository.
 
 ---
 

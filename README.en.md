@@ -41,11 +41,9 @@ Also: scheduled runs keyed to the server reset, automatic handling of login noti
 
 ## Install
 
-1. Download the archive from the releases page and unpack it anywhere.
-2. Install the [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0) if you do not have it.
-3. Prepare the templates (small pieces of game screens). Game images are not distributed for copyright reasons: make them with the [template capture tool](tools/README.md) and put them in `assets-local/`.
-4. Tasks that read numbers (schedule, AP, ...) need OCR. Follow [OCR setup](ocr/README.md) to create the Python environment.
-5. Run `MabaAssistantBlueArchive.exe`.
+Download the archive from the releases page, unpack it anywhere and run `MabaAssistantBlueArchive.exe`. .NET, Python, the OCR models and the templates for screen recognition are all included; nothing else needs to be installed.
+
+The templates were captured from the Korean client. Where your screen differs, capture again with the [template capture tool](tools/README.md) and put the files in `assets-local/`, which takes precedence.
 
 Settings are stored in `%appdata%\MabaAssistantBlueArchive`.
 
@@ -89,6 +87,8 @@ Further reading: [architecture](docs/ARCHITECTURE.md) · [task format](docs/PAGE
 | PaddleOCR models | downloaded by RapidOCR | Apache-2.0 | text detection and recognition |
 | Pillow | 12.3.0 | MIT-CMU | template capture tool |
 | MaaTouch | supplied by the user | Apache-2.0 | emulator touch (optional, not included) |
+| .NET runtime | 10.0 | MIT | runs the GUI (included in releases) |
+| Python | 3.12.10 | PSF-2.0 | runs OCR (included in releases) |
 
 Full notices: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
@@ -102,4 +102,4 @@ Please read the [contributing guide](CONTRIBUTING.md) first: it covers the commi
 
 The code is [AGPL-3.0-only](LICENSE).
 
-Blue Archive and its images belong to NEXON Korea Corp. and NEXON GAMES Co., Ltd. and are not covered by this license. This project is not affiliated with or endorsed by NEXON. Using automation may break the terms of service; any consequence, including account penalties, is your own responsibility.
+Blue Archive and its images belong to NEXON Korea Corp. and NEXON GAMES Co., Ltd. and are not covered by this license; this includes the templates (pieces of game screens) shipped in the releases. This project is not affiliated with or endorsed by NEXON. Using automation may break the terms of service; any consequence, including account penalties, is your own responsibility.

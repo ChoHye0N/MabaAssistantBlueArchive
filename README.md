@@ -41,11 +41,9 @@
 
 ## 설치
 
-1. 릴리스에서 압축 파일을 받아 원하는 폴더에 풉니다.
-2. [.NET 10 데스크톱 런타임](https://dotnet.microsoft.com/download/dotnet/10.0)이 없다면 설치합니다.
-3. 템플릿(게임 화면 조각)을 준비합니다. 게임 이미지는 저작권 때문에 함께 배포하지 않습니다. [템플릿 캡처 도구](tools/README.md)로 직접 만들어 `assets-local/` 폴더에 넣어 주세요.
-4. 숫자를 읽는 숙제(스케줄, 활동력 등)에는 OCR이 필요합니다. [OCR 설치](ocr/README.md)를 따라 Python 환경을 만들어 주세요.
-5. `MabaAssistantBlueArchive.exe`를 실행합니다.
+릴리스에서 압축 파일을 받아 원하는 폴더에 풀고 `MabaAssistantBlueArchive.exe`를 실행하면 됩니다. .NET, Python, OCR 모델, 화면 인식용 템플릿이 모두 들어 있어서 따로 설치할 것은 없습니다.
+
+템플릿은 한국어 클라이언트에서 캡처한 것입니다. 화면이 달라 인식이 안 되는 부분은 [템플릿 캡처 도구](tools/README.md)로 다시 캡처해 `assets-local/`에 넣으면 그쪽이 우선합니다.
 
 설정은 `%appdata%\MabaAssistantBlueArchive` 폴더에 저장됩니다.
 
@@ -89,6 +87,8 @@ Windows 빌드에는 Visual Studio 2022와 `VCPKG_ROOT`가 필요합니다. 리�
 | PaddleOCR 모델 | RapidOCR가 내려받음 | Apache-2.0 | 글자 검출과 인식 |
 | Pillow | 12.3.0 | MIT-CMU | 템플릿 캡처 도구 |
 | MaaTouch | 사용자가 준비 | Apache-2.0 | 에뮬레이터 터치(선택, 포함하지 않음) |
+| .NET 런타임 | 10.0 | MIT | GUI 실행(릴리스에 포함) |
+| Python | 3.12.10 | PSF-2.0 | OCR 실행(릴리스에 포함) |
 
 전체 고지는 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)에 있습니다.
 
@@ -102,4 +102,4 @@ Windows 빌드에는 Visual Studio 2022와 `VCPKG_ROOT`가 필요합니다. 리�
 
 코드는 [AGPL-3.0-only](LICENSE)입니다.
 
-블루 아카이브와 게임 이미지의 저작권은 NEXON Korea Corp.와 NEXON GAMES Co., Ltd.에 있으며 이 라이선스에 포함되지 않습니다. 이 프로젝트는 NEXON과 관련이 없고 승인받지 않았습니다. 자동화 도구 사용은 이용약관에 어긋날 수 있으며, 계정 제재를 포함한 결과는 사용자 책임입니다.
+블루 아카이브와 게임 이미지의 저작권은 NEXON Korea Corp.와 NEXON GAMES Co., Ltd.에 있으며 이 라이선스에 포함되지 않습니다. 릴리스에 들어 있는 템플릿(게임 화면 조각)도 마찬가지입니다. 이 프로젝트는 NEXON과 관련이 없고 승인받지 않았습니다. 자동화 도구 사용은 이용약관에 어긋날 수 있으며, 계정 제재를 포함한 결과는 사용자 책임입니다.
