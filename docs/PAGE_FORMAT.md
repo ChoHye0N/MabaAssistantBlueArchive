@@ -22,6 +22,10 @@ Pages are data, not code. The schema below is a draft; values shown are placehol
 ```
 
 Rules:
+- **Location**: one file per page in `pages/<id>.json`. Implemented so far (`page.h`): `id`, `anchors`, `transitions`; other fields (`rois`, `roi_by_lang`, `strings`, `notes`) are accepted and ignored until used.
+- **Anchors**: a page is detected when every anchor matches. `threshold` defaults to 0.9 and must be in (0, 1]. A `roi` with zero width or height means "whole frame".
+- **Transitions**: `click` is either `{ "template": ..., "roi"?, "threshold"? }` (click the center of the match) or a fixed point `{ "x": ..., "y": ... }`.
+- **Templates with masks**: transparent pixels (alpha 0, e.g. masked nicknames) are ignored by matching.
 - **Templates** resolve in this order: `assets-local/<lang>/`, `assets/<lang>/`, `assets-local/common/`, `assets/common/`. Language-neutral anchors (icons, layout) belong in `common/`.
 - **ROIs** for OCR should be tight around digits (AP value, ticket counts). Digits are language-independent. Identify text items by icon templates instead of OCR where possible.
 - **`roi_by_lang`** is an optional per-language override, needed only when text length changes the layout. Without an entry the base `rois` apply.

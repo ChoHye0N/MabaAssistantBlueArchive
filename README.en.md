@@ -39,6 +39,8 @@ ctest --preset linux-dev
 ```
 On Windows use `cmake --preset windows-msvc` with `VCPKG_ROOT` set (needed for the Windows controller and the GUI).
 
+The Windows build includes `maba_cli`. `maba_cli info` checks the game window and both capture methods, `maba_cli grab` saves a 1280x720 frame under `captures/`, and `maba_cli smoke --dry-run` checks main-screen detection and the mail button position. For capturing templates see [tools/README.md](tools/README.md).
+
 ## Architecture
 | Layer | Language | Folder |
 |---|---|---|

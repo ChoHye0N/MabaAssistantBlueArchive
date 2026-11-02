@@ -8,10 +8,11 @@
 - [x] Task definitions for the six daily tasks, `languages.json`, asset folders
 
 ## M0: first end-to-end on one platform
-- [ ] Windows Steam controller behind `IController`: BitBlt and PrintWindow capture (selectable), real mouse input, normalize to 1280x720
-- [ ] Template matching in Vision (OpenCV), ROI support
-- [ ] Template capture tool (`tools/`): screenshot -> crop -> save with metadata
-- [ ] Main-screen detection and "open mail" click as a smoke test
+- [x] Windows Steam controller behind `IController`: BitBlt and PrintWindow capture (selectable), real mouse input, normalize to 1280x720 (`core/src/platform/windows/`)
+- [x] Template matching in Vision (OpenCV), ROI support (`vision.h`)
+- [x] Template capture tool (`tools/template_capture.py`): screenshot -> crop -> mask -> save with metadata
+- [x] Main-screen detection and "open mail" click as a smoke test (`maba_cli smoke`, unit-tested with a fake controller)
+- [ ] Run against the real Steam client: capture the templates, `maba_cli info`, `maba_cli smoke --dry-run`, then `maba_cli smoke`, with both capture methods, at 100/125/150% display scale
 
 ## M1: navigation + simplest tasks
 - [ ] Navigator: page graph, global popup handler, return-to-main
@@ -30,6 +31,10 @@
 - [ ] Language matrix + CI template check
 
 ## Open questions to verify in the real game
+- Steam client window: class `UnityWndClass`, title `Blue Archive`? Is the client area always 16:9 in windowed mode?
+- Which capture method works (BitBlt needs an unobscured window; PrintWindow may return black frames for some DirectX windows)?
+- Does the game accept `SendInput` mouse input, and does Esc act as "back" on every page (on the main screen it may open the quit dialog)?
+- Does the mail button keep its position on the main screen? Which login popups (notices, attendance) appear before it?
 - Does cafe income include AP? (decides ordering vs AP spending)
 - Do daily-mission rewards include AP?
 - Server reset time per server.

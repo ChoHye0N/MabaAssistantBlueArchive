@@ -39,6 +39,8 @@ ctest --preset linux-dev
 ```
 윈도우에서는 `VCPKG_ROOT`를 설정하고 `cmake --preset windows-msvc`를 사용합니다(윈도우 컨트롤러와 GUI에 필요).
 
+윈도우 빌드에는 `maba_cli`가 포함됩니다. `maba_cli info`는 게임 창과 두 캡처 방식을 점검하고, `maba_cli grab`은 1280x720 화면을 `captures/`에 저장하며, `maba_cli smoke --dry-run`은 메인 화면 감지와 우편 버튼 위치를 확인합니다. 템플릿 캡처 방법은 [tools/README.md](tools/README.md)를 참고하세요.
+
 ## 구조
 | 계층 | 언어 | 폴더 |
 |---|---|---|
