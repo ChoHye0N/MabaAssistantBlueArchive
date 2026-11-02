@@ -9,7 +9,7 @@ Engine: RapidOCR on ONNX Runtime with PaddleOCR models. Same models as PaddleOCR
 python -m venv ocr/.venv
 ocr/.venv/Scripts/python -m pip install -r ocr/requirements.txt
 ```
-Core uses `ocr/.venv` automatically (`DefaultOcrCommand`), otherwise `python` on PATH. The first request per language downloads its models (a few MB to ~20 MB) into the rapidocr package folder.
+Core uses `ocr/.venv` automatically (`DefaultOcrCommand`), then the Python runtime bundled with a release (`ocr/python/`), otherwise `python` on PATH. The first request per language downloads its models (a few MB to ~20 MB) into the rapidocr package folder.
 
 ## Languages
 `config/languages.json` maps each game language to a recognition model code (`ocr_lang`). The sidecar tries PP-OCRv5 mobile, then PP-OCRv4 mobile, then PP-OCRv6 small, and uses the first model RapidOCR has:

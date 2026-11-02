@@ -17,11 +17,19 @@ namespace fs = std::filesystem;
 std::vector<std::string> DefaultOcrCommand(const fs::path& root) {
     std::error_code ec;
 #ifdef _WIN32
-    const fs::path venv = root / "ocr" / ".venv" / "Scripts" / "python.exe";
+    // A development venv first, then the Python runtime bundled with a release.
+    const fs::path candidates[] = {root / "ocr" / ".venv" / "Scripts" / "python.exe",
+                                   root / "ocr" / "python" / "python.exe"};
 #else
-    const fs::path venv = root / "ocr" / ".venv" / "bin" / "python";
+    const fs::path candidates[] = {root / "ocr" / ".venv" / "bin" / "python"};
 #endif
-    const std::string python = fs::exists(venv, ec) ? PathToUtf8(venv) : std::string("python");
+    std::string python = "python";
+    for (const auto& c : candidates) {
+        if (fs::exists(c, ec)) {
+            python = PathToUtf8(c);
+            break;
+        }
+    }
     return {python, PathToUtf8(root / "ocr" / "server.py")};
 }
 

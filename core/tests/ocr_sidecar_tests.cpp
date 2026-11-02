@@ -5,6 +5,8 @@
 #define _CRT_SECURE_NO_WARNINGS  // std::getenv in a test
 #endif
 #include <cstdlib>
+#include <filesystem>
+#include <fstream>
 #include <string>
 
 #include <nlohmann/json.hpp>
@@ -128,6 +130,24 @@ MABA_TEST(SidecarRestartsAfterCrashWithinLimit) {
     current->running = false;  // crash again: limit reached
     CHECK(ocr.Recognize(maba_test::BlankFrame(10, 10), {}, "ko").empty());
     CHECK(ocr.LastError().find("restart limit") != std::string::npos);
+}
+
+MABA_TEST(DefaultOcrCommandFindsBundledPython) {
+    namespace fs = std::filesystem;
+    std::error_code ec;
+    const fs::path root = fs::temp_directory_path() / "maba_ocr_cmd_test";
+    fs::remove_all(root, ec);
+    CHECK(maba::DefaultOcrCommand(root).front() == "python");  // nothing bundled: PATH
+#ifdef _WIN32
+    fs::create_directories(root / "ocr" / "python", ec);
+    std::ofstream(root / "ocr" / "python" / "python.exe") << "";
+    const auto bundled = maba::DefaultOcrCommand(root);
+    CHECK(bundled.front().find("python") != std::string::npos && bundled.front() != "python");
+    fs::create_directories(root / "ocr" / ".venv" / "Scripts", ec);
+    std::ofstream(root / "ocr" / ".venv" / "Scripts" / "python.exe") << "";
+    CHECK(maba::DefaultOcrCommand(root).front().find(".venv") != std::string::npos);  // venv wins
+#endif
+    fs::remove_all(root, ec);
 }
 
 // End to end with the real Python sidecar (fake engine, so no models are needed).
