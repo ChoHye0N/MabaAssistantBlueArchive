@@ -7,7 +7,7 @@
 스팀 PC 클라이언트와 에뮬레이터에서 하루 숙제를 한 번에 끝냅니다.
 
 ![license](https://img.shields.io/badge/license-AGPL--3.0--only-blue)
-![core](https://img.shields.io/badge/core-C%2B%2B17-00599C)
+![core](https://img.shields.io/badge/core-C%2B%2B20-00599C)
 ![gui](https://img.shields.io/badge/GUI-C%23%20WPF-512BD4)
 ![ocr](https://img.shields.io/badge/OCR-RapidOCR%20%2B%20PaddleOCR%20models-2932E1)
 ![platform](https://img.shields.io/badge/platform-Windows-lightgrey)

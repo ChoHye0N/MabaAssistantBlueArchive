@@ -31,6 +31,7 @@
 #include "maba/process.h"
 #include "maba/smoke.h"
 #include "maba/types.h"
+#include "maba/utf8.h"
 #include "maba/vision.h"
 #include "steam_controller.h"
 
@@ -94,7 +95,7 @@ std::string Timestamp() {
     return buf;
 }
 
-fs::path Utf8Path(const std::string& s) { return fs::u8path(s); }
+fs::path Utf8Path(const std::string& s) { return maba::PathFromUtf8(s); }
 
 int CmdInfo() {
     maba::win::SteamController controller;
@@ -140,11 +141,11 @@ int CmdGrab(const Args& args) {
     }
     const fs::path out = Utf8Path(Get(args, "out", "captures/grab_" + Timestamp() + ".png"));
     if (!maba::SavePng(frame, out)) {
-        std::fprintf(stderr, "cannot write %s\n", out.u8string().c_str());
+        std::fprintf(stderr, "cannot write %s\n", maba::PathToUtf8(out).c_str());
         return 1;
     }
     std::printf("saved %dx%d frame (%s) to %s\n", frame.width, frame.height,
-                region.empty() ? "normalized" : "native region", out.u8string().c_str());
+                region.empty() ? "normalized" : "native region", maba::PathToUtf8(out).c_str());
     return 0;
 }
 
@@ -173,7 +174,7 @@ int CmdSmoke(const Args& args) {
         if (frame.empty()) return;
         // Failure frames stay under captures/ (gitignored): they may show personal data.
         const fs::path out = root / "captures" / ("smoke_fail_" + Timestamp() + ".png");
-        if (maba::SavePng(frame, out)) std::printf("saved failure frame to %s\n", out.u8string().c_str());
+        if (maba::SavePng(frame, out)) std::printf("saved failure frame to %s\n", maba::PathToUtf8(out).c_str());
     };
 
     std::printf("smoke: %s -> %s, capture %s, lang %s%s\n", options.from_page.c_str(),
@@ -273,7 +274,7 @@ int CmdRun(const Args& args) {
         tasks, &cancel, {}, [&](const maba::Frame& frame, const std::string&) {
             if (frame.empty()) return;
             const fs::path out = root / "captures" / ("run_fail_" + Timestamp() + ".png");
-            if (maba::SavePng(frame, out)) std::printf("saved failure frame to %s\n", out.u8string().c_str());
+            if (maba::SavePng(frame, out)) std::printf("saved failure frame to %s\n", maba::PathToUtf8(out).c_str());
         });
     if (!report.error.empty()) {
         std::fprintf(stderr, "run failed: %s\n", report.error.c_str());

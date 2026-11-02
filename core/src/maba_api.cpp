@@ -17,6 +17,7 @@
 #include "maba/ocr_sidecar.h"
 #include "maba/process.h"
 #include "maba/schedule.h"
+#include "maba/utf8.h"
 
 #if defined(MABA_WITH_OPENCV)
 #include "maba/adb_controller.h"
@@ -70,7 +71,7 @@ namespace {
 
 thread_local std::string g_thread_result;
 
-fs::path Utf8Path(const std::string& s) { return fs::u8path(s); }
+fs::path Utf8Path(const std::string& s) { return maba::PathFromUtf8(s); }
 
 #if defined(MABA_WITH_OPENCV)
 std::string Timestamp() {
@@ -278,7 +279,7 @@ MABA_API int MABA_CALL MabaStart(MabaHandle h, const char* json_text) {
             const fs::path out =
                 h->assistant->Config().root / "captures" / ("fail_" + Timestamp() + ".png");
             if (maba::SavePng(frame, out))
-                h->Emit({{"type", "failure_frame"}, {"path", out.u8string()}, {"reason", reason}});
+                h->Emit({{"type", "failure_frame"}, {"path", maba::PathToUtf8(out)}, {"reason", reason}});
 #else
             (void)frame;
             (void)reason;

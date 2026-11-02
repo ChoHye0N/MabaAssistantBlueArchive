@@ -4,6 +4,8 @@
 
 #include <system_error>
 
+#include "maba/utf8.h"
+
 #if defined(MABA_WITH_OPENCV)
 #include "maba/vision.h"
 #endif
@@ -19,8 +21,8 @@ std::vector<std::string> DefaultOcrCommand(const fs::path& root) {
 #else
     const fs::path venv = root / "ocr" / ".venv" / "bin" / "python";
 #endif
-    const std::string python = fs::exists(venv, ec) ? venv.u8string() : std::string("python");
-    return {python, (root / "ocr" / "server.py").u8string()};
+    const std::string python = fs::exists(venv, ec) ? PathToUtf8(venv) : std::string("python");
+    return {python, PathToUtf8(root / "ocr" / "server.py")};
 }
 
 Assistant::Assistant(AssistantConfig config, LogFn log)

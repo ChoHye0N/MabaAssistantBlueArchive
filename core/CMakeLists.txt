@@ -35,7 +35,7 @@ else()
 endif()
 
 target_include_directories(maba_core PUBLIC include)
-target_compile_features(maba_core PUBLIC cxx_std_17)
+target_compile_features(maba_core PUBLIC cxx_std_20)
 set_target_properties(maba_core PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 if(MSVC)

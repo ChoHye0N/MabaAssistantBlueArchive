@@ -11,6 +11,7 @@
 #include <opencv2/imgproc.hpp>
 
 #include "maba/geometry.h"
+#include "maba/utf8.h"
 #include "maba/vision.h"
 #include "test_framework.h"
 
@@ -134,7 +135,7 @@ MABA_TEST(VisionLoadTemplateAlphaAndIo) {
     cv::Mat bgra(20, 30, CV_8UC4, cv::Scalar(10, 20, 30, 255));
     bgra(cv::Rect(0, 0, 10, 20)).setTo(cv::Scalar(0, 0, 0, 0));
     // Non-ASCII directory name: file I/O must not depend on the ANSI code page.
-    const fs::path sub = dir.path / fs::u8path(u8"템플릿");
+    const fs::path sub = dir.path / maba::PathFromUtf8("템플릿");
     fs::create_directories(sub);
     std::vector<unsigned char> png;
     CHECK(cv::imencode(".png", bgra, png));

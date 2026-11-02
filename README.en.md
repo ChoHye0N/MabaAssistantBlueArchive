@@ -7,7 +7,7 @@
 Finish the day's routine in one click, on the Steam PC client and on emulators.
 
 ![license](https://img.shields.io/badge/license-AGPL--3.0--only-blue)
-![core](https://img.shields.io/badge/core-C%2B%2B17-00599C)
+![core](https://img.shields.io/badge/core-C%2B%2B20-00599C)
 ![gui](https://img.shields.io/badge/GUI-C%23%20WPF-512BD4)
 ![ocr](https://img.shields.io/badge/OCR-RapidOCR%20%2B%20PaddleOCR%20models-2932E1)
 ![platform](https://img.shields.io/badge/platform-Windows-lightgrey)

@@ -18,6 +18,7 @@ Fixed choices. Change one only with a note here.
 | 12 | GUI: WPF on .NET 10 (LTS; .NET 8 support ends 2026-11-10) with HandyControls for theme and controls and CommunityToolkit.Mvvm for MVVM (maintained, source-generated, no IL weaving). Talks to Core only through the C ABI. |
 | 13 | Emulator control: own ADB controller written from behavior notes (`docs/notes/emulator-adb.md`), `adb shell input` by default and MaaTouch as an optional faster helper the user supplies. A full automation framework with its own controllers was considered and not adopted: it would bring a second OpenCV/ONNX stack and its own task model. |
 | 14 | Child processes (adb, OCR sidecar) get only their own std handles (explicit inheritance list), and a timed-out command is killed with its process tree. |
+| 15 | C++20 for Core (changed 2026-11-02 from C++17): supported by MSVC 2022 and GCC 13 (Ubuntu 24.04, CI). UTF-8 paths go through `maba/utf8.h` because `path::u8string()` returns `std::u8string` since C++20. |
 
 ## Checklist before going public
 - [ ] `python tools/privacy_check.py` passes, and the whole history is scanned (`git log -p` for personal data, paths, keys).
