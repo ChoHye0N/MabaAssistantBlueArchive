@@ -4,7 +4,11 @@
 # Portable logic (no OS or OpenCV dependency by default), unit-testable on any platform.
 add_library(maba_core STATIC
     src/coords.cpp
-    src/task_order.cpp)
+    src/geometry.cpp
+    src/page.cpp
+    src/task_order.cpp
+    src/template_resolver.cpp
+    src/wait.cpp)
 
 target_include_directories(maba_core PUBLIC include)
 target_compile_features(maba_core PUBLIC cxx_std_17)
@@ -15,6 +19,10 @@ if(MSVC)
 else()
     target_compile_options(maba_core PRIVATE -Wall -Wextra)
 endif()
+
+# JSON for page/task data. Header-only; vcpkg on Windows, nlohmann-json3-dev on Linux.
+find_package(nlohmann_json CONFIG REQUIRED)
+target_link_libraries(maba_core PUBLIC nlohmann_json::nlohmann_json)
 
 if(MABA_WITH_OPENCV)
     find_package(OpenCV CONFIG REQUIRED)
