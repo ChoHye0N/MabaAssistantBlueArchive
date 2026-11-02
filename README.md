@@ -31,7 +31,7 @@
 당분간 계획에 없는 것: 총력전, 제약해제결전, 스토리.
 
 ## 빠른 시작
-아직 릴리스는 없습니다. 코어를 빌드하려면:
+아직 릴리스는 없습니다. 코어를 빌드하려면(Linux/WSL: `cmake g++ nlohmann-json3-dev` 필요, 비전 테스트용 `linux-opencv` 프리셋은 `libopencv-dev`도 필요):
 ```
 cmake --preset linux-dev
 cmake --build --preset linux-dev
@@ -60,7 +60,9 @@ ctest --preset linux-dev
 ## 오픈소스 라이브러리
 | 이름 | 버전 | 라이선스 | 용도 | 상태 |
 |---|---|---|---|---|
-| OpenCV | vcpkg 베이스라인에 고정 | Apache-2.0 | 템플릿 매칭 | 예정 |
+| OpenCV | 4.12.0 (vcpkg 베이스라인) | Apache-2.0 | 템플릿 매칭, 이미지 입출력 | 사용 중 |
+| nlohmann-json | 3.12.0 (vcpkg 베이스라인) | MIT | 페이지·작업 JSON 읽기 | 사용 중 |
+| Pillow | 12.3.0 | MIT-CMU | 템플릿 캡처 도구 (`tools/`) | 사용 중 |
 | PaddleOCR | 미정 | Apache-2.0 | OCR | 예정 |
 | ONNX Runtime | 미정 | MIT | 네이티브 OCR 추론 | 예정 |
 | ModernWpfUI | 미정 | MIT | GUI 테마 | 예정 |

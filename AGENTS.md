@@ -13,6 +13,7 @@ cmake --preset linux-dev
 cmake --build --preset linux-dev
 ctest --preset linux-dev --output-on-failure
 ```
+Linux packages: `cmake g++ nlohmann-json3-dev`; add `libopencv-dev` for the `linux-opencv` preset (Vision tests, same commands with `linux-opencv`).
 Windows-only code (window capture, input injection, WPF GUI) does not build on Linux. Keep it under `core/src/platform/windows/` and `gui/`, guarded by `_WIN32`, and keep everything else portable so it stays unit-testable.
 Windows build: `cmake --preset windows-msvc` (needs `VCPKG_ROOT`).
 

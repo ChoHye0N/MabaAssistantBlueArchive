@@ -1,6 +1,10 @@
 {
   "version": 3,
-  "cmakeMinimumRequired": { "major": 3, "minor": 21, "patch": 0 },
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
   "configurePresets": [
     {
       "name": "linux-dev",
@@ -13,34 +17,72 @@
       }
     },
     {
+      "name": "linux-opencv",
+      "displayName": "Linux dev with system OpenCV (vision tests)",
+      "binaryDir": "${sourceDir}/build/linux-opencv",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "MABA_BUILD_TESTS": "ON",
+        "MABA_WITH_OPENCV": "ON"
+      }
+    },
+    {
       "name": "windows-msvc",
       "displayName": "Windows MSVC + vcpkg (OpenCV on)",
       "generator": "Visual Studio 17 2022",
-      "architecture": { "value": "x64" },
+      "architecture": {
+        "value": "x64"
+      },
       "binaryDir": "${sourceDir}/build/windows-msvc",
       "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
       "cacheVariables": {
         "MABA_BUILD_TESTS": "ON",
         "MABA_WITH_OPENCV": "ON"
       },
-      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" }
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
     }
   ],
   "buildPresets": [
-    { "name": "linux-dev", "configurePreset": "linux-dev" },
-    { "name": "windows-msvc", "configurePreset": "windows-msvc", "configuration": "Release" }
+    {
+      "name": "linux-dev",
+      "configurePreset": "linux-dev"
+    },
+    {
+      "name": "linux-opencv",
+      "configurePreset": "linux-opencv"
+    },
+    {
+      "name": "windows-msvc",
+      "configurePreset": "windows-msvc",
+      "configuration": "Release"
+    }
   ],
   "testPresets": [
     {
       "name": "linux-dev",
       "configurePreset": "linux-dev",
-      "output": { "outputOnFailure": true }
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "linux-opencv",
+      "configurePreset": "linux-opencv",
+      "output": {
+        "outputOnFailure": true
+      }
     },
     {
       "name": "windows-msvc",
       "configurePreset": "windows-msvc",
       "configuration": "Release",
-      "output": { "outputOnFailure": true }
+      "output": {
+        "outputOnFailure": true
+      }
     }
   ]
 }

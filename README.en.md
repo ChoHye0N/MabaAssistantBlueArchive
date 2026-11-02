@@ -31,7 +31,7 @@ Finish the day's routine in one click, on the Steam PC client and on emulators.
 Not planned for now: Total Assault, Limit-Release Showdown, story.
 
 ## Quick start
-Releases are not available yet. To build the core:
+Releases are not available yet. To build the core (Linux/WSL needs `cmake g++ nlohmann-json3-dev`; the `linux-opencv` preset for vision tests also needs `libopencv-dev`):
 ```
 cmake --preset linux-dev
 cmake --build --preset linux-dev
@@ -60,7 +60,9 @@ Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Task file format: [docs/P
 ## Open-source libraries
 | Name | Version | License | Purpose | Status |
 |---|---|---|---|---|
-| OpenCV | pinned by vcpkg baseline | Apache-2.0 | template matching | planned |
+| OpenCV | 4.12.0 (vcpkg baseline) | Apache-2.0 | template matching, image I/O | in use |
+| nlohmann-json | 3.12.0 (vcpkg baseline) | MIT | reading page/task JSON | in use |
+| Pillow | 12.3.0 | MIT-CMU | template capture tool (`tools/`) | in use |
 | PaddleOCR | TBD | Apache-2.0 | OCR | planned |
 | ONNX Runtime | TBD | MIT | native OCR inference | planned |
 | ModernWpfUI | TBD | MIT | GUI theme | planned |
