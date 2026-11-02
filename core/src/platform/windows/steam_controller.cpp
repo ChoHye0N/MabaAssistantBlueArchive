@@ -1,0 +1,203 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
+#ifdef _WIN32
+
+#include "steam_controller.h"
+
+#include <algorithm>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "dpi_scope.h"
+#include "maba/coords.h"
+#include "maba/geometry.h"
+#include "maba/vision.h"
+#include "send_input.h"
+
+namespace maba::win {
+
+namespace {
+
+constexpr WORD kScanEsc = 0x01;
+constexpr int kMaxPauseMs = 2000;
+constexpr int kMaxSwipeMs = 5000;
+constexpr int kForegroundSettleMs = 80;
+
+void Pause(int ms) { ::Sleep(static_cast<DWORD>(std::clamp(ms, 0, kMaxPauseMs))); }
+
+HWND RootOf(HWND hwnd) { return hwnd ? GetAncestor(hwnd, GA_ROOT) : nullptr; }
+
+// PrintWindow returns an all-black image for some DirectX windows; treat that as a failure.
+bool IsBlack(const cv::Mat& bgr) {
+    double max_value = 0;
+    cv::minMaxLoc(bgr.reshape(1), nullptr, &max_value);
+    return max_value < 8;
+}
+
+class CursorRestore {
+public:
+    explicit CursorRestore(bool enabled) : enabled_(enabled && GetCursorPos(&saved_)) {}
+    ~CursorRestore() {
+        if (enabled_) MoveCursorTo(saved_);
+    }
+
+private:
+    POINT saved_{};
+    bool enabled_;
+};
+
+}  // namespace
+
+SteamController::SteamController(SteamControllerOptions options) : options_(std::move(options)) {}
+
+bool SteamController::Fail(std::string message) {
+    last_error_ = std::move(message);
+    return false;
+}
+
+bool SteamController::Connect() {
+    const wchar_t* cls = options_.window_class.empty() ? nullptr : options_.window_class.c_str();
+    const wchar_t* title = options_.window_title.empty() ? nullptr : options_.window_title.c_str();
+    hwnd_ = FindWindowW(cls, title);
+    if (!hwnd_) return Fail("game window not found (is the Steam client running?)");
+    last_error_.clear();
+    return true;
+}
+
+bool SteamController::EnsureWindow() {
+    if (!hwnd_ || !IsWindow(hwnd_)) {
+        if (!Connect()) return false;
+    }
+    if (IsIconic(hwnd_)) return Fail("game window is minimized");
+    RECT rc{};
+    if (!GetClientRect(hwnd_, &rc)) return Fail("cannot read the client size");
+    const Size size{rc.right - rc.left, rc.bottom - rc.top};
+    if (!IsSupportedAspect(size)) {
+        return Fail("client area " + std::to_string(size.width) + "x" + std::to_string(size.height) +
+                    " is not 16:9; set a 16:9 window size in the game");
+    }
+    native_ = size;
+    return true;
+}
+
+bool SteamController::CaptureNative(cv::Mat& out) {
+    DpiAwareScope dpi;
+    if (!EnsureWindow()) return false;
+    std::string error;
+    if (!capture_.Capture(hwnd_, options_.capture, out, error)) {
+        return Fail(std::string(ToString(options_.capture)) + ": " + error);
+    }
+    if (out.cols != native_.width || out.rows != native_.height) {
+        return Fail("window size changed during capture");
+    }
+    if (IsBlack(out)) {
+        return Fail(std::string(ToString(options_.capture)) +
+                    ": captured an all-black frame (try the other capture method)");
+    }
+    last_error_.clear();
+    return true;
+}
+
+Frame SteamController::Screenshot() {
+    cv::Mat native;
+    if (!CaptureNative(native)) return {};
+    return NormalizeFrame(native);
+}
+
+Frame SteamController::CaptureRegion(Rect normalized) {
+    cv::Mat native;
+    if (!CaptureNative(native)) return {};
+    const Rect r = NormalizedRectToNative(normalized, native_);
+    if (!IsValid(r)) {
+        Fail("region lies outside the screen");
+        return {};
+    }
+    return FrameFromMat(native(cv::Rect(r.x, r.y, r.width, r.height)));
+}
+
+bool SteamController::PrepareInput() {
+    if (!EnsureWindow()) return false;
+    if (options_.bring_to_front && GetForegroundWindow() != hwnd_) {
+        SetForegroundWindow(hwnd_);
+        Pause(kForegroundSettleMs);
+    }
+    // Real mouse input goes to whatever window is in front: refuse instead of clicking elsewhere.
+    if (RootOf(GetForegroundWindow()) != RootOf(hwnd_)) {
+        return Fail("game window is not in the foreground; click the game once and retry");
+    }
+    return true;
+}
+
+bool SteamController::ToScreen(Point normalized, POINT& screen) {
+    const Point native = ToNative(normalized, native_);
+    screen = {native.x, native.y};
+    if (!ClientToScreen(hwnd_, &screen)) return Fail("ClientToScreen failed");
+    // Another top-level window (overlay, notification) over the target point would get the click.
+    if (RootOf(WindowFromPoint(screen)) != RootOf(hwnd_)) {
+        return Fail("another window covers the target point");
+    }
+    return true;
+}
+
+bool SteamController::Click(Point normalized) {
+    DpiAwareScope dpi;
+    if (!PrepareInput()) return false;
+    POINT pt{};
+    if (!ToScreen(normalized, pt)) return false;
+
+    CursorRestore restore(options_.restore_cursor);
+    if (!MoveCursorTo(pt)) return Fail("SendInput move failed (is the game running as administrator?)");
+    Pause(options_.move_settle_ms);
+    if (!LeftButton(true)) return Fail("SendInput button down failed");
+    Pause(options_.click_hold_ms);
+    const bool up = LeftButton(false);
+    Pause(options_.move_settle_ms);
+    if (!up) return Fail("SendInput button up failed");
+    last_error_.clear();
+    return true;
+}
+
+bool SteamController::Swipe(Point from, Point to, int duration_ms) {
+    DpiAwareScope dpi;
+    if (!PrepareInput()) return false;
+    duration_ms = std::clamp(duration_ms, 0, kMaxSwipeMs);
+    const auto path = SwipePath(from, to, duration_ms, std::max(options_.swipe_step_ms, 1));
+
+    std::vector<POINT> screen(path.size());
+    for (std::size_t i = 0; i < path.size(); ++i) {
+        const Point native = ToNative(path[i], native_);
+        screen[i] = {native.x, native.y};
+        if (!ClientToScreen(hwnd_, &screen[i])) return Fail("ClientToScreen failed");
+    }
+    if (RootOf(WindowFromPoint(screen.front())) != RootOf(hwnd_)) {
+        return Fail("another window covers the swipe start point");
+    }
+
+    CursorRestore restore(options_.restore_cursor);
+    if (!MoveCursorTo(screen.front())) return Fail("SendInput move failed");
+    Pause(options_.move_settle_ms);
+    if (!LeftButton(true)) return Fail("SendInput button down failed");
+    bool ok = true;
+    for (std::size_t i = 1; i < screen.size() && ok; ++i) {
+        Pause(options_.swipe_step_ms);
+        ok = MoveCursorTo(screen[i]);
+    }
+    Pause(options_.move_settle_ms);
+    const bool up = LeftButton(false);  // always release, even after a failed move
+    if (!ok || !up) return Fail("SendInput failed during swipe");
+    last_error_.clear();
+    return true;
+}
+
+bool SteamController::Back() {
+    DpiAwareScope dpi;
+    if (!PrepareInput()) return false;
+    if (!PressScanCode(kScanEsc)) return Fail("SendInput key press failed");
+    last_error_.clear();
+    return true;
+}
+
+}  // namespace maba::win
+
+#endif  // _WIN32

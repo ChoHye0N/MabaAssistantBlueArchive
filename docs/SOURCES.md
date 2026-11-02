@@ -22,4 +22,7 @@ Add one row per ported or heavily adapted file.
 
 | Date | Source (repo / file / commit) | Destination | Original license | Notes |
 |---|---|---|---|---|
-| | | | | |
+| 2026-11-02 | Auto-Affection-Skip (project owner's earlier project) / `Core/imageProcessing.cpp` / `14cafd5` | `core/src/platform/windows/gdi_capture.{h,cpp}` | AGPL-3.0 (same author) | Window capture (BitBlt, PrintWindow), reused memory DC. Changed: client origin from `ClientToScreen` instead of symmetric borders, BitBlt copies the client area only, no global state. |
+| 2026-11-02 | Auto-Affection-Skip (project owner's earlier project) / `Core/macro.cpp` / `14cafd5` (`MouseClick`, `KeyPressScan`) | `core/src/platform/windows/send_input.{h,cpp}` | AGPL-3.0 (same author) | SendInput mouse and scan-code keys. Changed: virtual-desktop coordinates for multiple monitors, separate move/down/up. |
+| 2026-11-02 | Auto-Affection-Skip (project owner's earlier project) / `Core/dllmain.cpp` / `14cafd5` | `core/src/platform/windows/dpi_scope.h` | AGPL-3.0 (same author) | Per-monitor DPI awareness. Changed: per-thread scope instead of process-wide. |
+| 2026-11-02 | Auto-Affection-Skip (project owner's earlier project) / `Core/macro.cpp` / `14cafd5` (`LoadTemplate`, `FindImage`, `FindMultiImage`) | `core/src/vision.cpp` | AGPL-3.0 (same author) | Alpha-mask templates, single/multiple matching with ROI. Changed: normalized 1280x720 space, per-instance cache, Unicode-safe file I/O, NaN-safe scores. |

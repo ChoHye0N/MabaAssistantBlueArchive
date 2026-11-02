@@ -42,4 +42,20 @@ set_target_properties(MabaCore PROPERTIES
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN ON)
 
-# Windows-only platform code (window capture, input) goes in src/platform/windows/ and is added here under if(WIN32).
+# Windows-only platform code: Steam PC controller (GDI capture, SendInput) and the CLI driver.
+# Needs OpenCV for frame scaling.
+if(WIN32 AND MABA_WITH_OPENCV)
+    add_library(maba_platform_windows STATIC
+        src/platform/windows/gdi_capture.cpp
+        src/platform/windows/send_input.cpp
+        src/platform/windows/steam_controller.cpp)
+    target_include_directories(maba_platform_windows PUBLIC src/platform/windows)
+    target_link_libraries(maba_platform_windows PUBLIC maba_core)
+    target_compile_definitions(maba_platform_windows PUBLIC
+        UNICODE _UNICODE NOMINMAX WIN32_LEAN_AND_MEAN)
+    target_compile_options(maba_platform_windows PRIVATE /utf-8 /W4 /permissive-)
+
+    add_executable(maba_cli apps/maba_cli.cpp)
+    target_link_libraries(maba_cli PRIVATE maba_platform_windows)
+    target_compile_options(maba_cli PRIVATE /utf-8 /W4 /permissive-)
+endif()
