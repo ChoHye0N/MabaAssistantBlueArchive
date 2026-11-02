@@ -1,9 +1,34 @@
-# OCR sidecar (Python, PaddleOCR) - planned
+# OCR sidecar (Python, RapidOCR)
 
-Implements `IOcr` (`core/include/maba/ocr.h`) as a local process reached over IPC (named pipe, gRPC or localhost HTTP: decide at M3).
+`server.py` implements the OCR side of `IOcr` (`core/include/maba/ocr_sidecar.h`): Core starts it as a child process and talks one JSON object per line over stdin/stdout. Protocol: `docs/ARCHITECTURE.md`, "OCR sidecar protocol".
 
-- Input: a normalized 1280x720 frame (or an encoded crop), an ROI and a language code from `config/languages.json`.
-- Output: list of `{text, box, confidence}`.
-- Pin dependency versions in `requirements.txt` when created; check each license (PaddleOCR code and models) and update the README table.
-- Check PaddleOCR model availability for each language (Korean, English, Traditional Chinese, Thai) before promising support.
-- Later: export models to ONNX and run them in C++ so users need no Python runtime. Keep Python for training and tooling.
+Engine: RapidOCR on ONNX Runtime with PaddleOCR models. Same models as PaddleOCR, without the PaddlePaddle framework; the ONNX files can later run natively in C++ through ONNX Runtime so users need no Python.
+
+## Setup
+```
+python -m venv ocr/.venv
+ocr/.venv/Scripts/python -m pip install -r ocr/requirements.txt
+```
+Core uses `ocr/.venv` automatically (`DefaultOcrCommand`), otherwise `python` on PATH. The first request per language downloads its models (a few MB to ~20 MB) into the rapidocr package folder.
+
+## Languages
+`config/languages.json` maps each game language to a recognition model code (`ocr_lang`). The sidecar tries PP-OCRv5 mobile, then PP-OCRv4 mobile, then PP-OCRv6 small, and uses the first model RapidOCR has:
+
+| Game language | `ocr_lang` | Model used |
+|---|---|---|
+| Korean | `korean` | PP-OCRv5 mobile (verified on synthetic digits: `120/240`, `1,234`) |
+| English | `en` | PP-OCRv5 mobile |
+| Thai | `th` | PP-OCRv5 mobile |
+| Traditional Chinese | `chinese_cht` | PP-OCRv4 mobile |
+| Japanese | `japan` | PP-OCRv4 mobile |
+
+Accuracy on real game crops is not measured yet (roadmap M3). Read digits where possible: they are language-independent.
+
+## Tests
+```
+python -m unittest discover ocr/tests                        # fake engine, needs numpy
+MABA_OCR_MODEL_TESTS=1 python -m unittest discover ocr/tests # also runs RapidOCR (downloads models)
+```
+`maba_core_tests` runs the C++ client against this server (fake engine) when `MABA_PYTHON_TESTS=1`.
+
+Licenses: RapidOCR and the PaddleOCR models are Apache-2.0, ONNX Runtime is MIT; the full list of installed packages is in `THIRD_PARTY_NOTICES.md`.

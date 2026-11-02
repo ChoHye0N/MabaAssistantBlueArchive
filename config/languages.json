@@ -1,5 +1,5 @@
 {
-  "note": "Korean (ko) is the baseline for behavior and design; other languages are added later. Languages of the Steam global client: 'confirmed' = consistent across Nexon's launch statement and store listings; 'unverified' = sources disagree, check the Steam page before enabling. ocr_lang is the PaddleOCR language code (PP-OCRv5). zh-Hant and ja have no dedicated model listed (default config covers them): verify accuracy before promising support.",
+  "note": "Korean (ko) is the baseline for behavior and design; other languages are added later. Languages of the Steam global client: 'confirmed' = consistent across Nexon's launch statement and store listings; 'unverified' = sources disagree, check the Steam page before enabling. ocr_lang is the recognition model code passed to RapidOCR (PaddleOCR models): PP-OCRv5 mobile has dedicated korean, en and th models; chinese_cht and japan fall back to PP-OCRv4 mobile (see ocr/README.md). Verify accuracy on game crops before promising support.",
   "primary": "ko",
   "servers": ["global"],
   "languages": [

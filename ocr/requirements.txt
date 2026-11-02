@@ -1,0 +1,7 @@
+# OCR sidecar (ocr/server.py). Versions pinned; licenses recorded in THIRD_PARTY_NOTICES.md.
+# Install into ocr/.venv (gitignored) so Core finds it: see ocr/README.md.
+# Transitive packages (numpy, opencv-python-headless, shapely, pyclipper, omegaconf, ...) come
+# with rapidocr; the versions resolved and checked on 2026-11-02 are listed in
+# THIRD_PARTY_NOTICES.md.
+rapidocr==3.10.0
+onnxruntime==1.31.1
