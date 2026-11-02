@@ -1,7 +1,17 @@
-# Tools - planned
+# Tools
 
-## Template capture tool (needed at M0)
-Take a screenshot from a controller, normalize to 1280x720, crop a region, and save to `assets/common/` or `assets/<lang>/` with metadata (task, element, language, source client, game version, capture date). Templates are captured by the project owner, or taken from public sources recorded in `assets/PROVENANCE.md`. The tool should offer cropping/masking of personal areas (nickname, UID) before saving.
+## Template capture (`template_capture.py`)
+Needs Python 3.10+ with tkinter and `pip install -r tools/requirements.txt`.
+
+1. Take a normalized 1280x720 screenshot from the game with `maba_cli grab` (saved under `captures/`, gitignored). Any other 16:9 screenshot also works; it is scaled to 1280x720.
+2. `python tools/template_capture.py captures/<file>.png`: left-drag selects the template, right-drag adds a mask over personal data (nickname, UID, friend list, mail contents), Ctrl+Z removes the last mask. Masked pixels are saved as transparent and are ignored by template matching.
+3. Fill in task, element (file name `<task>_<element>.png`, lowercase and underscores), language (`common` for icons and layout, a language code for text) and optionally the game version, then Save. A preview shows exactly what will be written.
+
+Templates go to `assets-local/<lang|common>/` (gitignored) by default; "save to assets/" puts them in the committed tree, so check `assets/PROVENANCE.md` first. Each template gets a `.json` beside it with the crop (`roi`, usable as an anchor ROI), masks, source client, game version, capture date and tool version. The source file path is not recorded.
+
+Batch mode for scripted captures: `python tools/template_capture.py SHOT.png --crop x,y,w,h --mask x,y,w,h --task main_menu --element mail_icon`.
+
+Tests: `python -m unittest discover tools/tests`.
 
 ## Privacy check (available now)
 `python tools/privacy_check.py` scans files that would be committed for emails, local user paths, tokens, keys and any personal terms listed in `.privacy-terms.local` (gitignored). `--staged` checks staged content only. Enable the pre-commit hook once per clone with `git config core.hooksPath .githooks`; it also requires the commit author email to be a GitHub noreply address.

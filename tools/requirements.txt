@@ -1,0 +1,2 @@
+# Python tools (not OCR). Versions pinned; licenses recorded in THIRD_PARTY_NOTICES.md.
+Pillow==12.3.0
