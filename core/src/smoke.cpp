@@ -17,22 +17,6 @@ std::string Score(double s) {
 
 }  // namespace
 
-PageDetection DetectPage(IMatcher& matcher, const Frame& frame, const PageDef& page) {
-    PageDetection d;
-    d.min_score = 1.0;
-    d.detected = !page.anchors.empty();
-    for (const auto& anchor : page.anchors) {
-        const MatchResult r = matcher.Find(frame, anchor);
-        d.min_score = std::min(d.min_score, r.score);
-        if (!r.found && d.detected) {
-            d.detected = false;
-            d.failed_anchor = anchor.file;
-        }
-    }
-    if (page.anchors.empty()) d.min_score = 0;
-    return d;
-}
-
 SmokeResult RunTransitionSmoke(IController& controller, IMatcher& matcher,
                                const std::map<std::string, PageDef>& pages,
                                const SmokeOptions& options, IClock& clock) {

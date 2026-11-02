@@ -3,70 +3,18 @@
 #include "maba/page.h"
 
 #include <algorithm>
-#include <fstream>
-#include <sstream>
-#include <stdexcept>
-#include <system_error>
 
 #include <nlohmann/json.hpp>
+
+#include "json_util.h"
 
 namespace maba {
 
 namespace fs = std::filesystem;
 using nlohmann::json;
+using namespace detail;
 
 namespace {
-
-struct ParseError : std::runtime_error {
-    using std::runtime_error::runtime_error;
-};
-
-const json& Require(const json& obj, const char* key, const std::string& where) {
-    auto it = obj.find(key);
-    if (it == obj.end()) throw ParseError(where + ": missing '" + key + "'");
-    return *it;
-}
-
-std::string RequireString(const json& obj, const char* key, const std::string& where) {
-    const json& v = Require(obj, key, where);
-    if (!v.is_string() || v.get<std::string>().empty())
-        throw ParseError(where + ": '" + key + "' must be a non-empty string");
-    return v.get<std::string>();
-}
-
-int RequireInt(const json& obj, const char* key, const std::string& where) {
-    const json& v = Require(obj, key, where);
-    if (!v.is_number_integer()) throw ParseError(where + ": '" + key + "' must be an integer");
-    return v.get<int>();
-}
-
-// A roi with zero width or height means "not set" (placeholders in the format draft).
-std::optional<Rect> ParseRoi(const json& obj, const std::string& where) {
-    auto it = obj.find("roi");
-    if (it == obj.end() || it->is_null()) return std::nullopt;
-    if (!it->is_object()) throw ParseError(where + ": 'roi' must be an object");
-    const Rect r{RequireInt(*it, "x", where + ".roi"), RequireInt(*it, "y", where + ".roi"),
-                 RequireInt(*it, "w", where + ".roi"), RequireInt(*it, "h", where + ".roi")};
-    if (r.width == 0 || r.height == 0) return std::nullopt;
-    if (r.x < 0 || r.y < 0 || r.width < 0 || r.height < 0 || r.x + r.width > kNormWidth ||
-        r.y + r.height > kNormHeight)
-        throw ParseError(where + ": 'roi' must lie inside 1280x720");
-    return r;
-}
-
-TemplateRef ParseTemplateRef(const json& obj, const std::string& where) {
-    if (!obj.is_object()) throw ParseError(where + ": must be an object");
-    TemplateRef ref;
-    ref.file = RequireString(obj, "template", where);
-    ref.roi = ParseRoi(obj, where);
-    if (auto it = obj.find("threshold"); it != obj.end()) {
-        if (!it->is_number()) throw ParseError(where + ": 'threshold' must be a number");
-        ref.threshold = it->get<double>();
-        if (!(ref.threshold > 0.0 && ref.threshold <= 1.0))
-            throw ParseError(where + ": 'threshold' must be in (0, 1]");
-    }
-    return ref;
-}
 
 Transition ParseTransition(const json& obj, const std::string& where) {
     if (!obj.is_object()) throw ParseError(where + ": must be an object");
@@ -77,11 +25,7 @@ Transition ParseTransition(const json& obj, const std::string& where) {
     if (click.contains("template")) {
         t.click_template = ParseTemplateRef(click, where + ".click");
     } else if (click.contains("x") || click.contains("y")) {
-        const Point p{RequireInt(click, "x", where + ".click"),
-                      RequireInt(click, "y", where + ".click")};
-        if (p.x < 0 || p.y < 0 || p.x >= kNormWidth || p.y >= kNormHeight)
-            throw ParseError(where + ".click: point must lie inside 1280x720");
-        t.click_point = p;
+        t.click_point = ParsePoint(click, where + ".click");
     } else {
         throw ParseError(where + ".click: needs 'template' or 'x'/'y'");
     }
@@ -106,6 +50,14 @@ PageDef ParsePageJson(const json& root) {
         for (std::size_t i = 0; i < it->size(); ++i)
             page.transitions.push_back(
                 ParseTransition((*it)[i], where + ".transitions[" + std::to_string(i) + "]"));
+    }
+
+    if (auto it = root.find("rois"); it != root.end() && !it->is_null()) {
+        if (!it->is_object()) throw ParseError(where + ": 'rois' must be an object");
+        for (const auto& [name, value] : it->items()) {
+            const json wrapper = {{"roi", value}};
+            if (auto r = ParseRoi(wrapper, where + ".rois." + name)) page.rois[name] = *r;
+        }
     }
     return page;
 }
@@ -132,27 +84,26 @@ PageLoadResult ParsePage(const std::string& json_text) {
 }
 
 PageLoadResult LoadPageFile(const fs::path& path) {
-    std::ifstream in(path, std::ios::binary);
-    if (!in) return {false, {}, "cannot open " + path.generic_string()};
-    std::ostringstream text;
-    text << in.rdbuf();
-    PageLoadResult result = ParsePage(text.str());
+    std::string text;
+    try {
+        text = ReadFile(path);
+    } catch (const ParseError& e) {
+        return {false, {}, e.what()};
+    }
+    PageLoadResult result = ParsePage(text);
     if (!result.ok) result.error = path.filename().generic_string() + ": " + result.error;
     return result;
 }
 
 PageSetLoadResult LoadPageDir(const fs::path& dir) {
     PageSetLoadResult result;
-    std::error_code ec;
     std::vector<fs::path> files;
-    for (fs::directory_iterator it(dir, ec), end; !ec && it != end; it.increment(ec)) {
-        if (it->is_regular_file(ec) && it->path().extension() == ".json") files.push_back(it->path());
-    }
-    if (ec) {
-        result.error = "cannot read " + dir.generic_string() + ": " + ec.message();
+    try {
+        files = JsonFilesIn(dir);
+    } catch (const ParseError& e) {
+        result.error = e.what();
         return result;
     }
-    std::sort(files.begin(), files.end());
     for (const auto& f : files) {
         PageLoadResult page = LoadPageFile(f);
         if (!page.ok) {

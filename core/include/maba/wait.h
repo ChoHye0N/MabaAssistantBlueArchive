@@ -3,6 +3,7 @@
 // Bounded waiting. Every wait in Core goes through WaitUntil: it always has a timeout and an attempt cap.
 #pragma once
 
+#include <atomic>
 #include <chrono>
 #include <functional>
 
@@ -27,16 +28,19 @@ struct WaitOptions {
     std::chrono::milliseconds timeout{5000};
     std::chrono::milliseconds interval{200};
     int max_attempts = 100;  // hard cap even if the clock misbehaves
+    // Optional stop request (e.g. the GUI's Stop button); checked before every attempt.
+    const std::atomic<bool>* cancel = nullptr;
 };
 
 struct WaitResult {
     bool ok = false;
+    bool cancelled = false;
     int attempts = 0;
     std::chrono::milliseconds elapsed{0};
 };
 
 // Calls `condition` until it returns true, the timeout passes or max_attempts is reached.
-// The condition is evaluated at least once.
+// The condition is evaluated at least once unless `options.cancel` is already set.
 WaitResult WaitUntil(const std::function<bool()>& condition, const WaitOptions& options,
                      IClock& clock);
 

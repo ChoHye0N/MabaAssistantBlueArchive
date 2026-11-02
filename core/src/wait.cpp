@@ -24,6 +24,10 @@ WaitResult WaitUntil(const std::function<bool()>& condition, const WaitOptions& 
     const auto interval = std::max(options.interval, std::chrono::milliseconds{1});
 
     while (true) {
+        if (options.cancel && options.cancel->load()) {
+            result.cancelled = true;
+            break;
+        }
         ++result.attempts;
         if (condition()) {
             result.ok = true;

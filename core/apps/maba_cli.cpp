@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
-// Command-line driver for the Steam PC controller (Windows only).
+// Command-line driver (Windows only).
 //   maba_cli info
 //   maba_cli grab  [--capture bitblt|printwindow] [--out FILE] [--region x,y,w,h]
 //   maba_cli smoke [--capture ...] [--lang ko] [--root DIR] [--dry-run]
+//   maba_cli devices [--adb PATH]
+//   maba_cli run   [--tasks a,b] [--controller steam|adb] [...]   (see Usage)
 #ifdef _WIN32
 
 #include <cstdio>
@@ -17,7 +19,16 @@
 
 #include <windows.h>
 
+#include <atomic>
+#include <chrono>
+#include <memory>
+
+#include "maba/adb.h"
+#include "maba/adb_controller.h"
+#include "maba/assistant.h"
+#include "maba/ocr_sidecar.h"
 #include "maba/page.h"
+#include "maba/process.h"
 #include "maba/smoke.h"
 #include "maba/types.h"
 #include "maba/vision.h"
@@ -174,12 +185,116 @@ int CmdSmoke(const Args& args) {
     return r.ok ? 0 : 1;
 }
 
+std::vector<std::string> SplitComma(const std::string& s) {
+    std::vector<std::string> out;
+    std::string cur;
+    for (char c : s) {
+        if (c == ',') {
+            if (!cur.empty()) out.push_back(cur);
+            cur.clear();
+        } else {
+            cur += c;
+        }
+    }
+    if (!cur.empty()) out.push_back(cur);
+    return out;
+}
+
+void PrintLog(maba::LogLevel level, const std::string& msg) {
+    std::printf("[%s] %s\n", maba::ToString(level), msg.c_str());
+}
+
+int CmdDevices(const Args& args) {
+    maba::SystemProcessRunner runner;
+    const maba::ProcessResult r =
+        runner.Run(maba::adb::DevicesCommand(Get(args, "adb", "adb")), std::chrono::milliseconds{10000});
+    if (!r.ok()) {
+        std::fprintf(stderr, "adb devices failed: %s%s\n", r.error.c_str(), r.err.c_str());
+        return 1;
+    }
+    for (const auto& d : maba::adb::ParseDevices(r.out)) std::printf("%s\t%s\n", d.serial.c_str(), d.state.c_str());
+    return 0;
+}
+
+int CmdRun(const Args& args) {
+    const fs::path root = Utf8Path(Get(args, "root", "."));
+    maba::AssistantConfig config;
+    config.root = root;
+    config.language = Get(args, "lang", "ko");
+    maba::Assistant assistant(config, PrintLog);
+    std::string error;
+    if (!assistant.Load(error)) {
+        std::fprintf(stderr, "cannot load data: %s (run from the repository root or pass --root)\n",
+                     error.c_str());
+        return 1;
+    }
+    std::vector<std::string> tasks = SplitComma(Get(args, "tasks", ""));
+    if (tasks.empty()) {
+        for (const auto& t : assistant.Tasks()) tasks.push_back(t.id);
+    }
+
+    maba::SystemProcessRunner runner;
+    maba::SystemProcessLauncher launcher;
+    const std::string controller = Get(args, "controller", "steam");
+    if (controller == "adb") {
+        maba::AdbControllerOptions o;
+        o.adb_path = Get(args, "adb", o.adb_path);
+        o.serial = Get(args, "serial", o.serial);
+        if (args.count("maatouch")) {
+            o.touch = maba::AdbTouch::kMaaTouch;
+            o.maatouch_path = Get(args, "maatouch", "");
+        }
+        auto c = std::make_unique<maba::AdbController>(runner, &launcher, o, PrintLog);
+        if (!c->Connect()) {
+            std::fprintf(stderr, "connect failed: %s\n", c->LastError().c_str());
+            return 1;
+        }
+        assistant.SetController(std::move(c));
+    } else if (controller == "steam") {
+        maba::win::SteamControllerOptions o;
+        if (!ParseCapture(args, o.capture)) return 2;
+        auto c = std::make_unique<maba::win::SteamController>(o);
+        if (!c->Connect()) {
+            std::fprintf(stderr, "connect failed: %s\n", c->LastError().c_str());
+            return 1;
+        }
+        assistant.SetController(std::move(c));
+    } else {
+        std::fprintf(stderr, "--controller must be steam or adb\n");
+        return 2;
+    }
+    if (!args.count("no-ocr")) {
+        assistant.SetOcr(std::make_unique<maba::SidecarOcr>(
+            launcher, maba::SidecarOptions{maba::DefaultOcrCommand(root)}, assistant.Languages(), PrintLog));
+    }
+
+    std::atomic<bool> cancel{false};
+    const maba::RunReport report = assistant.Run(
+        tasks, &cancel, {}, [&](const maba::Frame& frame, const std::string&) {
+            if (frame.empty()) return;
+            const fs::path out = root / "captures" / ("run_fail_" + Timestamp() + ".png");
+            if (maba::SavePng(frame, out)) std::printf("saved failure frame to %s\n", out.u8string().c_str());
+        });
+    if (!report.error.empty()) {
+        std::fprintf(stderr, "run failed: %s\n", report.error.c_str());
+        return 1;
+    }
+    for (const auto& t : report.tasks)
+        std::printf("%-20s %-10s %s\n", t.id.c_str(), maba::ToString(t.status), t.message.c_str());
+    std::printf("%s\n", report.ok ? "OK" : "FAILED");
+    return report.ok ? 0 : 1;
+}
+
 void Usage() {
     std::fprintf(stderr,
                  "usage:\n"
                  "  maba_cli info\n"
                  "  maba_cli grab [--capture bitblt|printwindow] [--out FILE] [--region x,y,w,h]\n"
-                 "  maba_cli smoke [--capture bitblt|printwindow] [--lang ko] [--root DIR] [--dry-run]\n");
+                 "  maba_cli smoke [--capture bitblt|printwindow] [--lang ko] [--root DIR] [--dry-run]\n"
+                 "  maba_cli devices [--adb PATH]\n"
+                 "  maba_cli run [--tasks id,id] [--controller steam|adb] [--capture ...]\n"
+                 "               [--adb PATH] [--serial 127.0.0.1:16384] [--maatouch FILE]\n"
+                 "               [--lang ko] [--root DIR] [--no-ocr]\n");
 }
 
 }  // namespace
@@ -196,6 +311,8 @@ int wmain(int argc, wchar_t** argv) {
     if (cmd == "info") return CmdInfo();
     if (cmd == "grab") return CmdGrab(args);
     if (cmd == "smoke") return CmdSmoke(args);
+    if (cmd == "devices") return CmdDevices(args);
+    if (cmd == "run") return CmdRun(args);
     Usage();
     return 2;
 }

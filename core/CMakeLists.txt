@@ -1,15 +1,38 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
 
-# Portable logic (no OS or OpenCV dependency by default), unit-testable on any platform.
+# Portable logic (no OpenCV by default), unit-testable on any platform. The only OS-specific
+# part is child-process handling (Win32 or POSIX), used by the ADB controller and OCR sidecar.
 add_library(maba_core STATIC
+    src/adb.cpp
+    src/assistant.cpp
     src/coords.cpp
+    src/detect.cpp
     src/geometry.cpp
+    src/json_util.cpp
+    src/languages.cpp
+    src/navigator.cpp
+    src/ocr_sidecar.cpp
+    src/ocr_text.cpp
     src/page.cpp
+    src/popup.cpp
+    src/process_common.cpp
+    src/schedule.cpp
     src/smoke.cpp
+    src/task.cpp
     src/task_order.cpp
+    src/task_runner.cpp
     src/template_resolver.cpp
     src/wait.cpp)
+
+if(WIN32)
+    target_sources(maba_core PRIVATE src/platform/windows/process_win32.cpp)
+    target_compile_definitions(maba_core PRIVATE UNICODE _UNICODE NOMINMAX WIN32_LEAN_AND_MEAN)
+else()
+    target_sources(maba_core PRIVATE src/platform/posix/process_posix.cpp)
+    find_package(Threads REQUIRED)
+    target_link_libraries(maba_core PUBLIC Threads::Threads)
+endif()
 
 target_include_directories(maba_core PUBLIC include)
 target_compile_features(maba_core PUBLIC cxx_std_17)
@@ -27,21 +50,11 @@ target_link_libraries(maba_core PUBLIC nlohmann_json::nlohmann_json)
 
 if(MABA_WITH_OPENCV)
     find_package(OpenCV CONFIG REQUIRED)
-    target_sources(maba_core PRIVATE src/vision.cpp)
+    target_sources(maba_core PRIVATE src/vision.cpp src/adb_controller.cpp)
     target_link_libraries(maba_core PUBLIC ${OpenCV_LIBS})
     target_include_directories(maba_core PUBLIC ${OpenCV_INCLUDE_DIRS})
     target_compile_definitions(maba_core PUBLIC MABA_WITH_OPENCV=1)
 endif()
-
-# C ABI shared library consumed by the C# GUI via P/Invoke.
-add_library(MabaCore SHARED src/maba_api.cpp)
-target_link_libraries(MabaCore PRIVATE maba_core)
-target_compile_definitions(MabaCore PRIVATE
-    MABA_BUILDING_DLL
-    MABA_VERSION_STRING="${PROJECT_VERSION}")
-set_target_properties(MabaCore PROPERTIES
-    CXX_VISIBILITY_PRESET hidden
-    VISIBILITY_INLINES_HIDDEN ON)
 
 # Windows-only platform code: Steam PC controller (GDI capture, SendInput) and the CLI driver.
 # Needs OpenCV for frame scaling.
@@ -60,3 +73,20 @@ if(WIN32 AND MABA_WITH_OPENCV)
     target_link_libraries(maba_cli PRIVATE maba_platform_windows)
     target_compile_options(maba_cli PRIVATE /utf-8 /W4 /permissive-)
 endif()
+
+# C ABI shared library consumed by the C# GUI via P/Invoke.
+add_library(MabaCore SHARED src/maba_api.cpp)
+target_link_libraries(MabaCore PRIVATE maba_core)
+target_compile_definitions(MabaCore PRIVATE
+    MABA_BUILDING_DLL
+    MABA_VERSION_STRING="${PROJECT_VERSION}")
+if(TARGET maba_platform_windows)
+    target_link_libraries(MabaCore PRIVATE maba_platform_windows)
+    target_compile_definitions(MabaCore PRIVATE MABA_HAS_WINDOWS_PLATFORM=1)
+endif()
+if(MSVC)
+    target_compile_options(MabaCore PRIVATE /utf-8 /W4 /permissive-)
+endif()
+set_target_properties(MabaCore PROPERTIES
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN ON)

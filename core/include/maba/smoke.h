@@ -11,20 +11,12 @@
 #include <string>
 
 #include "maba/controller.h"
+#include "maba/detect.h"
 #include "maba/matcher.h"
 #include "maba/page.h"
 #include "maba/wait.h"
 
 namespace maba {
-
-struct PageDetection {
-    bool detected = false;
-    double min_score = 0;       // lowest anchor score (the weakest link)
-    std::string failed_anchor;  // first anchor below its threshold
-};
-
-// A page is detected when every anchor matches.
-PageDetection DetectPage(IMatcher& matcher, const Frame& frame, const PageDef& page);
 
 struct SmokeOptions {
     std::string from_page = "main_menu";
