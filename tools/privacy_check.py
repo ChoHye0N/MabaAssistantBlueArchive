@@ -41,8 +41,9 @@ PATTERNS = [
 
 
 def git(*args, binary=False):
-    return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, check=True,
-                          text=not binary).stdout
+    out = subprocess.run(["git", *args], cwd=ROOT, capture_output=True, check=True).stdout
+    # Decode as UTF-8 (paths may be non-ASCII), not with the locale code page.
+    return out if binary else out.decode("utf-8", errors="replace")
 
 
 def in_git_repo():

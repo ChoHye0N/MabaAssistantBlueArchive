@@ -54,7 +54,9 @@ def check_message(text):
 
 
 def git(*args):
-    return subprocess.run(["git", *args], capture_output=True, text=True, check=True).stdout
+    # Git output is UTF-8 (commit messages are Korean); never decode with the locale code page.
+    return subprocess.run(["git", *args], capture_output=True, check=True,
+                          encoding="utf-8", errors="replace").stdout
 
 
 def cmd_commit_msg(path):
