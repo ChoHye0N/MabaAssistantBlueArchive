@@ -1,12 +1,44 @@
 # Third-party notices
 
-Dependencies used by this project, with their copyright notices and license texts. Keep the README "Open-source libraries" table in sync. Libraries are not bundled in this repository; they are installed by vcpkg (Windows), the system package manager (Linux) or pip (`tools/requirements.txt`).
+Dependencies used by this project, with their copyright notices and license texts. Keep the README "Open-source libraries" table in sync. Libraries are not bundled in this repository; they are installed by vcpkg (Windows), the system package manager (Linux), NuGet (`gui/Maba.Gui/Maba.Gui.csproj`) or pip (`tools/requirements.txt`, `ocr/requirements.txt`).
 
 | Name | Version checked | License | Used by |
 |---|---|---|---|
 | OpenCV | 4.12.0 | Apache-2.0 | Core (Vision, image I/O, frame scaling) |
 | nlohmann-json | 3.12.0 | MIT | Core (page and task data) |
 | Pillow | 12.3.0 | MIT-CMU | `tools/template_capture.py` |
+| HandyControls | 3.7.0 | MIT | GUI (theme, controls) |
+| CommunityToolkit.Mvvm | 8.4.2 | MIT | GUI (MVVM) |
+| RapidOCR | 3.10.0 | Apache-2.0 | OCR sidecar (`ocr/server.py`) |
+| ONNX Runtime | 1.31.1 | MIT | OCR sidecar (model inference) |
+| PaddleOCR models: PP-OCRv6 small det/rec, PP-OCRv5 mobile rec (korean, en, th), PP-OCRv4 mobile rec (chinese_cht, japan), ch_ppocr_mobile_v2.0_cls | as fetched by RapidOCR 3.10.0 | Apache-2.0 | OCR sidecar; downloaded at first use, not in this repository |
+| MaaTouch | supplied by the user | Apache-2.0 | optional emulator touch helper; not bundled |
+
+Python packages installed with RapidOCR (checked 2026-11-02 in `ocr/.venv`; not bundled):
+
+| Package | Version | License |
+|---|---|---|
+| numpy | 2.5.4 | BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0 |
+| opencv-python-headless | 5.0.0.93 | Apache-2.0 |
+| shapely | 2.2.0 | BSD-3-Clause |
+| pyclipper | 1.4.0 | MIT |
+| omegaconf | 2.4.0 | BSD |
+| PyYAML | 6.0.3 | MIT |
+| requests | 2.34.2 | Apache-2.0 |
+| urllib3 | 2.8.0 | MIT |
+| idna | 3.20 | BSD-3-Clause |
+| charset-normalizer | 3.5.2 | MIT |
+| certifi | 2026.10.23 | MPL-2.0 |
+| tqdm | 4.70.1 | MPL-2.0 AND MIT |
+| colorlog | 6.12.0 | MIT |
+| colorama | 0.4.6 | BSD |
+| six | 1.17.0 | MIT |
+| pillow | 13.0.0 | MIT-CMU |
+| protobuf | 7.36.2 | BSD-3-Clause |
+| flatbuffers | 25.12.19 | Apache-2.0 |
+| packaging | 26.3 | Apache-2.0 OR BSD-2-Clause |
+
+All are compatible with AGPL-3.0-only (MPL-2.0 allows combination with GPL-family licenses through its secondary-license clause).
 
 ## Code ported from other projects
 Logged in `docs/SOURCES.md`; ported files carry a note in their headers.
@@ -284,3 +316,83 @@ LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
 OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ```
+
+## HandyControls 3.7.0 (MIT)
+Based on HandyControl by HandyOrg. License text as shipped in the 3.7.0 package:
+
+```
+MIT License
+
+Copyright (c) 2018-2019 HandyOrg
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+## CommunityToolkit.Mvvm 8.4.2 (MIT)
+
+```
+.NET Community Toolkit
+
+Copyright © .NET Foundation and Contributors
+
+All rights reserved.
+
+MIT License (MIT)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
+
+## RapidOCR 3.10.0 (Apache License 2.0)
+Copyright (c) 2021 RapidOCR Authors. Licensed under the Apache License, Version 2.0; the full text is reproduced above under OpenCV.
+
+## PaddleOCR models (Apache License 2.0)
+The OCR model weights are copyright Baidu and/or the applicable PaddleOCR rights holders and are licensed under the Apache License, Version 2.0 (full text above under OpenCV). RapidOCR converts them to ONNX and hosts them; they are downloaded on first use into the RapidOCR package folder and are not part of this repository. The Korean PP-OCRv5 mobile recognition model's card (PaddlePaddle) states Apache-2.0.
+
+## ONNX Runtime 1.31.1 (MIT)
+
+```
+MIT License
+
+Copyright (c) Microsoft Corporation
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+## MaaTouch (Apache License 2.0)
+Optional. Not bundled: the user provides the file and sets its path. If a release ever bundles it, add its copyright notice here and ship the Apache-2.0 text with it.

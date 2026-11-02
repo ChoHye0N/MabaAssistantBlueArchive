@@ -11,13 +11,14 @@ Automate Blue Archive daily tasks on the Steam PC client (global) and on emulato
 ## Layers
 
 ```
-GUI (C#) --P/Invoke (C ABI, JSON strings)-- Core (C++)
-                                             |- Controller   capture + input
+GUI (C#, WPF + HandyControls) --P/Invoke (C ABI, JSON strings)-- Core (C++)
+                                             |- Controller   capture + input (Steam PC, ADB emulators)
                                              |- Vision       template matching (OpenCV), calls IOcr
                                              |- Navigator    page detection, page graph, popup handling
-                                             |- Task Engine  task definitions, dependencies, scheduler
-                                             |- OCR Bridge   Python (PaddleOCR) link
+                                             |- Task Engine  task steps, dependencies, schedule
+                                             |- OCR Bridge   Python sidecar (RapidOCR + PaddleOCR models)
 ```
+Entry points: `assistant.h` (composition), `navigator.h`, `popup.h`, `task.h`, `task_runner.h`, `adb_controller.h`, `ocr_sidecar.h`, `maba_api.h`.
 
 - Core and GUI talk only through the C ABI (few functions + JSON), so the GUI can change without touching Core.
 - Python is for OCR and model training/tools only. Do not move game flow control into Python.
@@ -34,7 +35,7 @@ GUI (C#) --P/Invoke (C ABI, JSON strings)-- Core (C++)
 - Every wait/retry/loop has a cap and a timeout. On exceeding it: save a screenshot and fail the task. No infinite loops.
 
 ## OCR rules
-- Core depends only on `IOcr`. Start with a Python sidecar (IPC); it must be replaceable later by PaddleOCR models exported to ONNX and run natively in C++.
+- Core depends only on `IOcr`. The Python sidecar (`ocr/server.py`, line-JSON over stdin/stdout) runs RapidOCR on ONNX Runtime; the same ONNX models can later run natively in C++.
 - Use OCR only where needed (AP value, ticket counts, shop prices/items), and read digits only where possible: digits are language-independent. Icon-identifiable UI uses template matching, which is faster and more stable.
 
 ## Languages

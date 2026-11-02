@@ -2,20 +2,20 @@
 
 ## Overview
 ```
-GUI (C#, WPF)  --P/Invoke, C ABI (functions + JSON)--  Core (C++)
-                                                         |- Controller   capture + input, per platform
-                                                         |- Vision       template matching, calls IOcr
-                                                         |- Navigator    page detection, page graph, popup handler
-                                                         |- Task Engine  tasks.json, dependencies, scheduler
-                                                         '- OCR Bridge   Python sidecar (PaddleOCR) -> later ONNX in C++
+GUI (C#, WPF, HandyControls)  --P/Invoke, C ABI (functions + JSON)--  Core (C++)
+                                                                        |- Controller   capture + input, per platform
+                                                                        |- Vision       template matching, calls IOcr
+                                                                        |- Navigator    page detection, page graph, popup handler
+                                                                        |- Task Engine  tasks/*.json steps, dependencies
+                                                                        '- OCR Bridge   Python sidecar (RapidOCR, ONNX Runtime)
 ```
-The C ABI lives in `core/include/maba/maba_api.h`. Keep it tiny and versioned (`MabaApiVersion`).
+`Assistant` (`assistant.h`) is the composition root: it loads the data (`pages/`, `popups/`, `tasks/`, `config/languages.json`), owns the controller, matcher and OCR, and runs tasks. The C ABI and `maba_cli run` both use it.
 
 ## Controllers
 | Target | Capture | Input | Notes |
 |---|---|---|---|
 | Steam PC client (first) | Window capture: BitBlt and PrintWindow, both implemented and selectable | Real mouse movement (SendInput-style), not window messages | DPI awareness and UI scale must be handled inside the controller. |
-| Emulators (MuMu etc.) (second) | ADB screencap or emulator-specific API | ADB input or a touch helper | One implementation per emulator type/version. |
+| Emulators over ADB (second) | `screencap` raw or PNG, the faster one picked on connect | `adb shell input`, or the MaaTouch helper (minitouch protocol) | `adb_controller.h`; notes in `docs/notes/emulator-adb.md`. |
 
 Steam PC controller (`core/src/platform/windows/steam_controller.h`):
 - Finds the window by class and title (defaults `UnityWndClass` / `Blue Archive`, to verify). Rejects a minimized window or a client area that is not 16:9.
@@ -24,36 +24,73 @@ Steam PC controller (`core/src/platform/windows/steam_controller.h`):
 - DPI: every call runs with per-monitor DPI awareness on its thread, so window rects, client size and cursor coordinates are physical pixels at any display scale.
 - `maba_cli info` checks both capture methods; `maba_cli grab` saves a normalized frame (or a native region) under `captures/`.
 
+ADB controller (`core/include/maba/adb_controller.h`, needs OpenCV):
+- Connect: `adb connect` for `host:port` serials, `adb devices` state check, `wm size` (override wins, larger side is the width), 16:9 check, screencap probe (raw and PNG, keep the faster), optional MaaTouch start.
+- Capture repairs CRLF-mangled output of old adb builds and checks the raw header (12 or 16 bytes) and the alpha of the last pixel. One reconnect attempt per failed capture.
+- Input: `input tap/swipe/keyevent`, or MaaTouch (`d/m/u/c/w` and `k <code> d|u`) scaled to the helper's touch range. `Back` sends keycode 111 (ESCAPE) by default; 4 (BACK) is the alternative (to verify).
+- All adb calls go through `IProcessRunner` with timeouts; a timed-out call is killed with its process tree. The pieces without OpenCV (`adb.h`) are unit-tested on every platform.
+
 Contract (`controller.h`): frames are returned scaled to **1280x720** and all coordinates are normalized. `CaptureRegion(Rect)` returns a crop taken at native resolution, for OCR where the downscaled frame may lose text detail. `coords.h` holds the mapping and is unit-tested. Reason: UI scale mismatches (e.g. Steam UI at ~0.8x of template size) otherwise break every layer above.
 
 ## Navigator
-- Page graph: nodes are pages recognized by anchors, edges are the actions to move between them.
-- **Global popup handler**: runs before/after every action; dismisses known popups. Tasks never handle popups themselves.
-- **Return-to-main routine**: detect the current page and navigate back to the main screen after a failure.
-- Every wait/retry/loop has a cap and timeout; on exceeding: save a screenshot, fail the task.
+- Page graph (`navigator.h`): nodes are pages recognized by anchors, edges are their transitions. `FindPath` is a breadth-first search; ties follow the order of transitions in the file. `ValidatePageGraph` reports transitions to unknown pages.
+- Current page: every page is checked; the detected page with the highest anchor score wins, ties go to the page with more anchors.
+- **Global popup handler** (`popup.h`, data in `popups/*.json`): before every look at the screen, known popups are dismissed (click a template, a fixed point, or Back), at most `max_dismissals` per look. Tasks never handle popups themselves.
+- `GoTo(target)`: look (popups settled) -> unknown screen: press Back -> known page: take the first transition of the shortest path, wait for a different page. Bounded by `max_steps` (clicks + backs) and `max_back_presses`; a transition target that is not visible spends a step (animations). `ReturnHome()` is `GoTo("main_menu")`.
+- Every wait/retry/loop has a cap and timeout; on exceeding: the last frame is passed to `on_failure` (saved under `captures/`) and the task fails. A stop request (`cancel`) ends every wait at its next check.
 
 ## Task engine
-(Page, ROI and string data format: see `PAGE_FORMAT.md`.)
+(Page, popup, task and string data format: see `PAGE_FORMAT.md`.)
 
-- Tasks are data in `tasks/*.json` with `after` dependencies. `ResolveOrder` (`task_order.h`) produces the run order and rejects duplicates, unknown dependencies and cycles.
+- Tasks are data in `tasks/*.json`: `after` dependencies plus a list of declarative `steps` (`goto`, `return_home`, `wait_page`, `click`, `click_if_present`, `wait_template`, `back`, `sleep`, `read_number`). `ResolveOrder` (`task_order.h`) produces the run order and rejects duplicates, unknown dependencies and cycles.
+- `TaskRunner` (`task_runner.h`): returns home before each task and after a failure (recovery); runs the steps with their caps; a step marked `optional` only logs its failure. A task without steps is skipped as "not implemented" and does not block dependents. A selected dependency that failed blocks its dependents (mail after AP spending).
 - Required ordering rule: mail claim runs after AP spending (AP cannot exceed 999).
-- Scheduling is keyed to the server reset time (a setting), not local midnight.
+- Scheduling is keyed to the server reset time (a setting), not local midnight: `schedule.h` computes the daily slot (reset + delay) in UTC; the GUI asks Core through `MabaScheduleNext`.
 
 ## Vision and OCR
 - Template matching (OpenCV) is the default. Icon-identifiable UI never needs OCR.
-- OCR only for AP value, ticket counts, shop items/prices. Prefer reading digits only (tight ROI on the number): digits are language-independent. Identify text items by icon templates instead of OCR where possible. Core depends only on `IOcr`.
-- Plan: Python sidecar (PaddleOCR) over local IPC first; later export the models to ONNX and run them natively. Python is used for OCR and model training only.
+- OCR only for AP value, ticket counts, shop items/prices. Prefer reading digits only (tight ROI on the number): digits are language-independent. `ocr_text.h` turns text into numbers conservatively (`1,234`, `120/240`; anything ambiguous is rejected). Core depends only on `IOcr`.
+- OCR engine: **RapidOCR on ONNX Runtime** with PaddleOCR models (PP-OCRv5 mobile for Korean, English and Thai; PP-OCRv4 for Traditional Chinese and Japanese), run by the Python sidecar `ocr/server.py`. Same models as PaddleOCR without the PaddlePaddle framework, and the ONNX files can later run natively in C++ through ONNX Runtime with no Python.
+
+### OCR sidecar protocol
+One JSON object per line over the child's stdin/stdout (`ocr_sidecar.h`, `ocr/server.py`). stdout belongs to the protocol; logs go to stderr.
+```
+sidecar -> {"ready": true, "engine": "rapidocr", "version": "3.10.0", "protocol": 1}
+core    -> {"id": 1, "op": "recognize", "lang": "korean", "width": W, "height": H,
+            "format": "bgr24", "data": "<base64>", "detect": true}
+sidecar -> {"id": 1, "ok": true, "results": [{"text": "120/240", "box": [x, y, w, h], "score": 0.99}]}
+           {"id": 1, "ok": false, "error": "..."}              (the loop keeps serving)
+core    -> {"id": 2, "op": "ping"} | {"id": 3, "op": "shutdown"}
+```
+A startup failure is reported as `{"error": "..."}` instead of the ready line. Core skips stale responses by id, restarts a crashed sidecar at most `max_restarts` times, and times out every request.
+
+## C ABI
+`core/include/maba/maba_api.h`, versioned by `MabaApiVersion()` (currently 2). Functions take and return UTF-8 JSON; returned strings stay valid until the next call on the same handle.
+
+| Function | Purpose |
+|---|---|
+| `MabaCreate(config, callback, user)` | `{"root", "language", "ocr": {"enabled", "command"}}`; loads the data; errors via `MabaLastError` |
+| `MabaGetTasks` | `[{"id", "name", "after", "status", "implemented", "needs_ocr"}]` |
+| `MabaConnect(json)` | `{"type": "steam", "capture"}` or `{"type": "adb", "adb_path", "serial", "screencap", "touch", "maatouch_path", "back_keycode"}` |
+| `MabaStart({"tasks": [...]})`, `MabaStop`, `MabaIsRunning` | run on a worker thread; stop is cooperative and bounded |
+| `MabaListAdbDevices(adb_path)` | `[{"serial", "state"}]` |
+| `MabaScheduleNext(json)` | `{"due", "next", "slot"}` for the daily schedule |
+
+Events (callback, worker thread): `{"type": "log", "level", "message"}`, `{"type": "task", "id", "status", "message", "values"}`, `{"type": "run", "status": "started" | "finished", "ok", "cancelled", "error"}`, `{"type": "failure_frame", "path", "reason"}`.
+
+## GUI
+`gui/Maba.Gui` (WPF, .NET 10, HandyControls theme and controls, CommunityToolkit.Mvvm). It talks to Core only through the C ABI (`Native/NativeMethods.cs`, `Native/CoreClient.cs`). UI text lives in `Resources/Strings.<lang>.xaml` (Korean first). Settings are stored in the user profile (`%APPDATA%\MabaAssistantBlueArchive\settings.json`), never in the repository. The scheduler checks every 30 s whether the daily slot is due and starts the selected tasks; a scheduled day counts as done even after failures (no retry loop).
 
 ## Languages
 - Korean (`ko`) is the baseline for behavior and design; other languages are added later. UI text that logic compares lives in `strings/<lang>.json` by key, never as literals in code.
-- `config/languages.json` lists languages; confirmed for the Steam global client: Korean, English, Traditional Chinese, Thai. Japanese is unverified.
+- `config/languages.json` lists languages and their OCR model codes; confirmed for the Steam global client: Korean, English, Traditional Chinese, Thai. Japanese is unverified.
 - Template lookup: `assets/<lang>/` then `assets/common/`. Language-neutral anchors (icons, layout) go to common.
-- A task x language support matrix is kept up to date; CI should verify required templates exist for every declared language.
+- `tools/check_templates.py` prints the task x language matrix (templates each task needs, including the pages on its route and all popups); CI fails if a task marked `ready` misses a template in a confirmed language.
 
 ## Platforms and testing
-- Portable code (`core/src/*.cpp` except platform) builds and tests on Linux/Windows.
+- Portable code (`core/src/*.cpp` except platform) builds and tests on Linux/Windows. Child processes have a Win32 and a POSIX implementation (`process.h`).
 - Windows-only code lives in `core/src/platform/windows/` and `gui/`.
-- Controllers are faked in tests with screenshot fixtures.
+- Controllers, matchers, clocks, adb and the OCR peer are faked in tests (`core/tests/fakes.h`, `nav_rig.h`); real screenshots are checked by `maba_fixture_tests` when present.
 
 ## Out of scope for now
 Total Assault, Limit-Release Showdown and story automation (need AI/real gameplay). Model selection and training are decided later.
