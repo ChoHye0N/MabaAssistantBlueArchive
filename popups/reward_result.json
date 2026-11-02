@@ -1,0 +1,12 @@
+{
+  "id": "reward_result",
+  "notes": [
+    "Reward result screen after claiming mail or missions. Template to capture: popup_reward_result.png (language-neutral part of the screen, lang common).",
+    "verify: whether a tap anywhere closes it (then a fixed point is enough) or a confirm button is needed."
+  ],
+  "priority": 10,
+  "anchors": [
+    { "template": "popup_reward_result.png", "roi": { "x": 0, "y": 0, "w": 0, "h": 0 }, "threshold": 0.9 }
+  ],
+  "dismiss": { "x": 640, "y": 650 }
+}

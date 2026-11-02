@@ -1,13 +1,14 @@
 {
   "id": "main_menu",
   "notes": [
-    "M0 smoke test start page. Capture main_menu_mail_icon.png with tools/template_capture.py (lang common) and copy its roi here, enlarged by a margin.",
-    "verify: the mail button keeps its position on the main screen across events and UI scales."
+    "Home page of the Navigator. Capture main_menu_mail_icon.png and main_menu_mission_icon.png with tools/template_capture.py (lang common) and copy their roi here, enlarged by a margin.",
+    "verify: the mail and mission buttons keep their positions on the main screen across events and UI scales."
   ],
   "anchors": [
     { "template": "main_menu_mail_icon.png", "roi": { "x": 0, "y": 0, "w": 0, "h": 0 }, "threshold": 0.9 }
   ],
   "transitions": [
-    { "to": "mail", "click": { "template": "main_menu_mail_icon.png", "roi": { "x": 0, "y": 0, "w": 0, "h": 0 }, "threshold": 0.9 } }
+    { "to": "mail", "click": { "template": "main_menu_mail_icon.png", "roi": { "x": 0, "y": 0, "w": 0, "h": 0 }, "threshold": 0.9 } },
+    { "to": "mission", "click": { "template": "main_menu_mission_icon.png", "roi": { "x": 0, "y": 0, "w": 0, "h": 0 }, "threshold": 0.9 } }
   ]
 }

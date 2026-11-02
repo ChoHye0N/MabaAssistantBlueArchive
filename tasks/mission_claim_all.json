@@ -2,10 +2,16 @@
   "id": "mission_claim_all",
   "name": "Missions: claim all daily missions (pyroxene)",
   "after": ["mail_claim_all"],
-  "status": "todo",
+  "status": "wip",
   "needs_ocr": false,
   "notes": [
     "Position after mail follows the owner's task list order.",
-    "verify: do mission rewards include AP? Adjust order if they do."
+    "verify: do mission rewards include AP? Adjust order if they do.",
+    "Templates to capture: mission_claim_all.png (the claim-all button; text, per language)."
+  ],
+  "steps": [
+    { "action": "goto", "page": "mission" },
+    { "action": "click_if_present", "template": "mission_claim_all.png", "timeout_ms": 3000, "sleep_ms": 1500 },
+    { "action": "return_home" }
   ]
 }

@@ -1,0 +1,13 @@
+{
+  "id": "mission",
+  "notes": [
+    "Mission page. mission_title.png is the page header (text: capture per language).",
+    "verify: the daily tab is selected when the page opens; if not, add a click on the daily tab to the task."
+  ],
+  "anchors": [
+    { "template": "mission_title.png", "roi": { "x": 0, "y": 0, "w": 0, "h": 0 }, "threshold": 0.9 }
+  ],
+  "transitions": [
+    { "to": "main_menu", "click": { "template": "common_home_button.png", "roi": { "x": 0, "y": 0, "w": 0, "h": 0 }, "threshold": 0.9 } }
+  ]
+}

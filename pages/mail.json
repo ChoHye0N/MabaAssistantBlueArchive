@@ -2,9 +2,13 @@
   "id": "mail",
   "notes": [
     "Mailbox page. mail_title.png is the page header; it contains text, so capture it per language (assets-local/ko/ first).",
-    "verify: whether a language-neutral icon on this page can replace the text header as the anchor."
+    "verify: whether a language-neutral icon on this page can replace the text header as the anchor.",
+    "common_home_button.png: the home button in the top bar, shared by every sub page (verify its position)."
   ],
   "anchors": [
     { "template": "mail_title.png", "roi": { "x": 0, "y": 0, "w": 0, "h": 0 }, "threshold": 0.9 }
+  ],
+  "transitions": [
+    { "to": "main_menu", "click": { "template": "common_home_button.png", "roi": { "x": 0, "y": 0, "w": 0, "h": 0 }, "threshold": 0.9 } }
   ]
 }

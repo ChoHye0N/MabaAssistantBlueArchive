@@ -2,9 +2,17 @@
   "id": "mail_claim_all",
   "name": "Mail: claim all",
   "after": ["spend_ap"],
-  "status": "todo",
+  "status": "wip",
   "needs_ocr": false,
   "notes": [
-    "AP cannot be held above 999, so claim only after AP is spent."
+    "AP cannot be held above 999, so claim only after AP is spent.",
+    "Templates to capture: mail_claim_all.png (the claim-all button; text, per language).",
+    "The reward result screen is a popup (popups/), not part of this task.",
+    "verify: the claim-all button is greyed out when there is nothing to claim; if the grey state still matches, add a separate template for the active state."
+  ],
+  "steps": [
+    { "action": "goto", "page": "mail" },
+    { "action": "click_if_present", "template": "mail_claim_all.png", "timeout_ms": 3000, "sleep_ms": 1500 },
+    { "action": "return_home" }
   ]
 }
