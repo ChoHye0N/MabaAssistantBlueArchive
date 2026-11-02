@@ -1,0 +1,10 @@
+{
+  "id": "mail",
+  "notes": [
+    "Mailbox page. mail_title.png is the page header; it contains text, so capture it per language (assets-local/ko/ first).",
+    "verify: whether a language-neutral icon on this page can replace the text header as the anchor."
+  ],
+  "anchors": [
+    { "template": "mail_title.png", "roi": { "x": 0, "y": 0, "w": 0, "h": 0 }, "threshold": 0.9 }
+  ]
+}

@@ -6,6 +6,7 @@ add_library(maba_core STATIC
     src/coords.cpp
     src/geometry.cpp
     src/page.cpp
+    src/smoke.cpp
     src/task_order.cpp
     src/template_resolver.cpp
     src/wait.cpp)

@@ -3,6 +3,7 @@
 // Command-line driver for the Steam PC controller (Windows only).
 //   maba_cli info
 //   maba_cli grab  [--capture bitblt|printwindow] [--out FILE] [--region x,y,w,h]
+//   maba_cli smoke [--capture ...] [--lang ko] [--root DIR] [--dry-run]
 #ifdef _WIN32
 
 #include <cstdio>
@@ -16,6 +17,8 @@
 
 #include <windows.h>
 
+#include "maba/page.h"
+#include "maba/smoke.h"
 #include "maba/types.h"
 #include "maba/vision.h"
 #include "steam_controller.h"
@@ -134,11 +137,49 @@ int CmdGrab(const Args& args) {
     return 0;
 }
 
+int CmdSmoke(const Args& args) {
+    maba::win::SteamControllerOptions controller_options;
+    if (!ParseCapture(args, controller_options.capture)) return 2;
+    const fs::path root = Utf8Path(Get(args, "root", "."));
+    const std::string lang = Get(args, "lang", "ko");
+
+    const maba::PageSetLoadResult pages = maba::LoadPageDir(root / "pages");
+    if (!pages.ok) {
+        std::fprintf(stderr, "cannot load pages: %s (run from the repository root or pass --root)\n",
+                     pages.error.c_str());
+        return 1;
+    }
+
+    maba::win::SteamController controller(controller_options);
+    maba::OpenCvMatcher matcher(root, lang);
+    maba::SteadyClock clock;
+    maba::SmokeOptions options;
+    options.dry_run = args.count("dry-run") > 0;
+    options.log = [](const std::string& msg) { std::printf("%s\n", msg.c_str()); };
+    options.on_failure = [&](const maba::Frame& frame, const std::string&) {
+        if (!controller.LastError().empty())
+            std::printf("controller: %s\n", controller.LastError().c_str());
+        if (frame.empty()) return;
+        // Failure frames stay under captures/ (gitignored): they may show personal data.
+        const fs::path out = root / "captures" / ("smoke_fail_" + Timestamp() + ".png");
+        if (maba::SavePng(frame, out)) std::printf("saved failure frame to %s\n", out.u8string().c_str());
+    };
+
+    std::printf("smoke: %s -> %s, capture %s, lang %s%s\n", options.from_page.c_str(),
+                options.to_page.c_str(), maba::win::ToString(controller_options.capture),
+                lang.c_str(), options.dry_run ? ", dry run" : "");
+    const maba::SmokeResult r =
+        maba::RunTransitionSmoke(controller, matcher, pages.pages, options, clock);
+    std::printf("%s\n", r.ok ? "PASS" : "FAIL");
+    return r.ok ? 0 : 1;
+}
+
 void Usage() {
     std::fprintf(stderr,
                  "usage:\n"
                  "  maba_cli info\n"
-                 "  maba_cli grab [--capture bitblt|printwindow] [--out FILE] [--region x,y,w,h]\n");
+                 "  maba_cli grab [--capture bitblt|printwindow] [--out FILE] [--region x,y,w,h]\n"
+                 "  maba_cli smoke [--capture bitblt|printwindow] [--lang ko] [--root DIR] [--dry-run]\n");
 }
 
 }  // namespace
@@ -154,6 +195,7 @@ int wmain(int argc, wchar_t** argv) {
     if (!ParseArgs(argc, argv, 2, args)) return 2;
     if (cmd == "info") return CmdInfo();
     if (cmd == "grab") return CmdGrab(args);
+    if (cmd == "smoke") return CmdSmoke(args);
     Usage();
     return 2;
 }

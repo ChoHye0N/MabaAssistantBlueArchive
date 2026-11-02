@@ -32,6 +32,7 @@ public:
     maba::Size NativeSize() const override { return {1920, 1080}; }
     maba::Frame Screenshot() override {
         ++screenshots;
+        if (before_screenshot) before_screenshot(*this);
         return scenes.at(scene);
     }
     maba::Frame CaptureRegion(maba::Rect r) override {
@@ -48,6 +49,7 @@ public:
     std::vector<maba::Frame> scenes;
     std::size_t scene = 0;
     std::function<void(maba::Point, FakeController&)> on_click;
+    std::function<void(FakeController&)> before_screenshot;
     std::vector<maba::Point> clicks;
     int screenshots = 0;
     int backs = 0;
