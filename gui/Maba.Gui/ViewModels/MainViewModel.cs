@@ -150,10 +150,19 @@ public partial class MainViewModel : ObservableObject, IDisposable
             AddLog("error", error);
         }
         foreach (var t in _core.GetTasks())
-            Tasks.Add(new TaskItemViewModel(t, _settings.SelectedTasks.Contains(t.Id)));
+            Tasks.Add(new TaskItemViewModel(t, _settings.SelectedTasks.Contains(t.Id),
+                                            _settings.TaskSettings.GetValueOrDefault(t.Id), OnTaskSettingsChanged));
         foreach (var t in Tasks) t.PropertyChanged += OnTaskSelectionChanged;
         if (string.IsNullOrEmpty(error)) StatusText = Strings.Get("Status.Ready");
         StartCommand.NotifyCanExecuteChanged();
+    }
+
+    private void OnTaskSettingsChanged()
+    {
+        if (_initializing) return;
+        _settings.TaskSettings = Tasks.Where(t => t.HasSettings).ToDictionary(
+            t => t.Id, t => t.SettingsJson().ToDictionary(kv => kv.Key, kv => kv.Value?.DeepClone()));
+        Save();
     }
 
     private void OnTaskSelectionChanged(object? sender, PropertyChangedEventArgs e)
@@ -263,7 +272,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
         if (selected.Count == 0) return;
         if (!EnsureConnected()) return;
         foreach (var t in Tasks) t.SetStatus(t.IsSelected ? "pending" : "", "");
-        if (!_core.Start(selected))
+        var settings = new JsonObject();
+        foreach (var t in Tasks.Where(t => t.IsSelected && t.HasSettings)) settings[t.Id] = t.SettingsJson();
+        if (!_core.Start(selected, settings))
         {
             StatusText = Strings.Get("Status.StartFailed");
             AddLog("error", _core.LastError);

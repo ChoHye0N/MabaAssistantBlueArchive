@@ -11,7 +11,7 @@ internal static partial class NativeMethods
     private const string Lib = "MabaCore";
 
     // Must match MabaApiVersion() in the native library.
-    public const int ExpectedApiVersion = 2;
+    public const int ExpectedApiVersion = 3;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void EventCallback(IntPtr eventJson, IntPtr userData);

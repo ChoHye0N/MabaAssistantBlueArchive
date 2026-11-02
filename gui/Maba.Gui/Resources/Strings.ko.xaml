@@ -16,15 +16,56 @@
     <sys:String x:Key="Tasks.Reload">데이터 다시 읽기</sys:String>
     <sys:String x:Key="Tasks.After">선행</sys:String>
     <sys:String x:Key="Tasks.Ocr">OCR</sys:String>
-    <sys:String x:Key="Tasks.Hint">순서는 숙제 정의의 선행 관계로 정해집니다. 우편함은 활동력 소비 뒤에 실행됩니다.</sys:String>
+    <sys:String x:Key="Tasks.Hint">숙제는 목록 순서대로 실행됩니다. 활동력을 먼저 모아 소비하고, 우편함(상한 초과 활동력) 뒤에 남은 활동력을 한 번 더 소비합니다.</sys:String>
+    <sys:String x:Key="Tasks.Settings">설정</sys:String>
     <sys:String x:Key="Task.NotImplemented">아직 구현되지 않음</sys:String>
     <!-- Display names by task id (tasks/*.json); a missing id falls back to the task's own name. -->
-    <sys:String x:Key="Task.cafe">카페: 입장, 수익 수령, 학생 터치</sys:String>
-    <sys:String x:Key="Task.schedule">스케줄: 입장, 티켓 소비</sys:String>
-    <sys:String x:Key="Task.shop">상점: 일일 구매</sys:String>
-    <sys:String x:Key="Task.spend_ap">활동력 소비 (이벤트 맵, 배수 이벤트)</sys:String>
+    <sys:String x:Key="Task.cafe">카페: 수익 수령, 학생 초대, 학생 터치</sys:String>
+    <sys:String x:Key="Task.schedule">스케줄: 티켓 소비</sys:String>
+    <sys:String x:Key="Task.circle">서클: 출석 (가입한 경우)</sys:String>
+    <sys:String x:Key="Task.free_package">청휘석 구입: 일일 무료 패키지</sys:String>
+    <sys:String x:Key="Task.shop">상점: 일반 목록 구매</sys:String>
+    <sys:String x:Key="Task.bounty">현상수배: 티켓 소비</sys:String>
+    <sys:String x:Key="Task.spend_ap">활동력 소비 (이벤트 우선)</sys:String>
+    <sys:String x:Key="Task.tactical_challenge">전술 대회: 보상 수령, 티켓 소비</sys:String>
     <sys:String x:Key="Task.mail_claim_all">우편함: 모두 받기</sys:String>
-    <sys:String x:Key="Task.mission_claim_all">미션: 일일 미션 모두 받기</sys:String>
+    <sys:String x:Key="Task.spend_ap_rest">남은 활동력 소비 (우편 수령 후)</sys:String>
+    <sys:String x:Key="Task.mission_claim_all">미션: 모두 받기</sys:String>
+    <sys:String x:Key="Task.account_info">계정 기록: UID별 크레딧, 청휘석, 활동력</sys:String>
+    <!-- Setting labels by task id and key; a missing one falls back to the task file's description. -->
+    <sys:String x:Key="Setting.cafe.tap_students">학생 터치</sys:String>
+    <sys:String x:Key="Setting.cafe.second_cafe">2호점도 진행</sys:String>
+    <sys:String x:Key="Setting.cafe.invite">초대권 사용</sys:String>
+    <sys:String x:Key="Setting.cafe.invite_first">1호점 초대 학생 (우선순위대로, 쉼표로 구분, 게임 표기 그대로)</sys:String>
+    <sys:String x:Key="Setting.cafe.invite_second">2호점 초대 학생 (우선순위대로, 쉼표로 구분)</sys:String>
+    <sys:String x:Key="Setting.shop.buy_reports">전체 구매 시 활동 보고서(1행)도 구매</sys:String>
+    <sys:String x:Key="Setting.spend_ap.clear_quests">이벤트 미클리어 퀘스트 진행</sys:String>
+    <sys:String x:Key="Setting.spend_ap.quest_team">퀘스트 진행 부대 (1~4, 보너스 학생 편성)</sys:String>
+    <sys:String x:Key="Setting.spend_ap_rest.clear_quests">이벤트 미클리어 퀘스트 진행</sys:String>
+    <sys:String x:Key="Setting.spend_ap_rest.quest_team">퀘스트 진행 부대 (1~4, 보너스 학생 편성)</sys:String>
+    <sys:String x:Key="Setting.schedule.locations">사용할 지역 (체크한 지역을 목록 순서대로)</sys:String>
+    <sys:String x:Key="Setting.shop.mode">구매 방식 (all: 전체, selected: 선택)</sys:String>
+    <sys:String x:Key="Setting.shop.items">선택 구매 품목 (쉼표로 구분)</sys:String>
+    <sys:String x:Key="Setting.bounty.location">장소 (목록 위에서부터 1~3)</sys:String>
+    <sys:String x:Key="Setting.spend_ap.targets">활동력 투자 순서 (event, mission, scrimmage)</sys:String>
+    <sys:String x:Key="Setting.spend_ap.event_banner">이벤트 배너 (1 = 가장 최근)</sys:String>
+    <sys:String x:Key="Setting.spend_ap.event_story">이벤트 스토리 진행 (스토리 장면은 스킵)</sys:String>
+    <sys:String x:Key="Setting.spend_ap.academy">학원교류회 학원 (목록 위에서부터 1~3)</sys:String>
+    <sys:String x:Key="Setting.spend_ap_rest.targets">활동력 투자 순서 (event, mission, scrimmage)</sys:String>
+    <sys:String x:Key="Setting.spend_ap_rest.event_banner">이벤트 배너 (1 = 가장 최근)</sys:String>
+    <sys:String x:Key="Setting.spend_ap_rest.event_story">이벤트 스토리 진행 (스토리 장면은 스킵)</sys:String>
+    <sys:String x:Key="Setting.spend_ap_rest.academy">학원교류회 학원 (목록 위에서부터 1~3)</sys:String>
+    <sys:String x:Key="Setting.bounty.stage">소탕 단계 (highest = 별 3개 중 최고 단계, 또는 번호)</sys:String>
+    <sys:String x:Key="Setting.spend_ap.quest_stage">이벤트 소탕 퀘스트 (highest 또는 번호 01~12)</sys:String>
+    <sys:String x:Key="Setting.spend_ap.mission_stage">임무 소탕 단계 (highest 또는 번호)</sys:String>
+    <sys:String x:Key="Setting.spend_ap.scrimmage_stage">학원교류회 소탕 단계 (highest 또는 번호)</sys:String>
+    <sys:String x:Key="Setting.spend_ap_rest.quest_stage">이벤트 소탕 퀘스트 (highest 또는 번호 01~12)</sys:String>
+    <sys:String x:Key="Setting.spend_ap_rest.mission_stage">임무 소탕 단계 (highest 또는 번호)</sys:String>
+    <sys:String x:Key="Setting.spend_ap_rest.scrimmage_stage">학원교류회 소탕 단계 (highest 또는 번호)</sys:String>
+    <sys:String x:Key="Setting.ListExample">예: 아루, 히나(수영복)</sys:String>
+    <sys:String x:Key="Setting.tactical_challenge.claim_rewards">보상 받기</sys:String>
+    <sys:String x:Key="Setting.tactical_challenge.matches">대전 횟수 (최대 5)</sys:String>
+    <sys:String x:Key="Setting.tactical_challenge.opponent">상대 (목록 위에서부터 1~3)</sys:String>
 
     <sys:String x:Key="Status.pending">대기</sys:String>
     <sys:String x:Key="Status.running">실행 중</sys:String>

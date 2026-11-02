@@ -19,6 +19,8 @@ public sealed class AppSettings
     public int BackKeycode { get; set; } = 111;
     public bool OcrEnabled { get; set; } = true;
     public List<string> SelectedTasks { get; set; } = new();
+    // Task settings by task id and key, as JSON values (see tasks/<id>.json "settings").
+    public Dictionary<string, Dictionary<string, System.Text.Json.Nodes.JsonNode?>> TaskSettings { get; set; } = new();
     public bool ScheduleEnabled { get; set; }
     public int ResetHourUtc { get; set; } = 19;      // 04:00 KST; verify in the game
     public int ResetMinuteUtc { get; set; }

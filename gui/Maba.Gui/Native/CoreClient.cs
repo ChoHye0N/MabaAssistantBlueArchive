@@ -7,7 +7,12 @@ using System.Text.Json.Nodes;
 namespace Maba.Gui.Native;
 
 public sealed record CoreTask(string Id, string Name, IReadOnlyList<string> After, string Status,
-                              bool Implemented, bool NeedsOcr);
+                              bool Implemented, bool NeedsOcr, IReadOnlyList<CoreSetting> Settings);
+
+// A task setting declared in tasks/<id>.json (type: bool, int, choice, list).
+public sealed record CoreSetting(string Key, string Type, JsonNode? Default, int? Min, int? Max,
+                                 IReadOnlyList<string> Choices, string Description, string Ui,
+                                 IReadOnlyDictionary<string, string> Labels);
 
 public sealed record AdbDevice(string Serial, string State);
 
@@ -38,6 +43,8 @@ public sealed class CoreClient : IDisposable
         {
             ["root"] = dataRoot,
             ["language"] = language,
+            // Per-account records (UID, owned students, resources) stay in the user profile.
+            ["data_dir"] = System.IO.Path.GetDirectoryName(Services.SettingsStore.FilePath),
             ["ocr"] = new JsonObject { ["enabled"] = ocrEnabled },
         };
         _handle = NativeMethods.MabaCreate(config.ToJsonString(), _callbackPtr, IntPtr.Zero);
@@ -61,16 +68,32 @@ public sealed class CoreClient : IDisposable
                 o["after"]?.AsArray().Select(a => a?.GetValue<string>() ?? "").ToList() ?? new List<string>(),
                 o["status"]?.GetValue<string>() ?? "",
                 o["implemented"]?.GetValue<bool>() ?? false,
-                o["needs_ocr"]?.GetValue<bool>() ?? false));
+                o["needs_ocr"]?.GetValue<bool>() ?? false,
+                (o["settings"]?.AsArray() ?? new JsonArray()).OfType<JsonObject>().Select(s => new CoreSetting(
+                    s["key"]?.GetValue<string>() ?? "",
+                    s["type"]?.GetValue<string>() ?? "",
+                    s["default"]?.DeepClone(),
+                    s["min"]?.GetValue<int>(),
+                    s["max"]?.GetValue<int>(),
+                    s["choices"]?.AsArray().Select(c => c?.GetValue<string>() ?? "").ToList() ?? new List<string>(),
+                    s["description"]?.GetValue<string>() ?? "",
+                    s["ui"]?.GetValue<string>() ?? "",
+                    (s["labels"] as JsonObject)?.ToDictionary(kv => kv.Key, kv => kv.Value?.GetValue<string>() ?? kv.Key)
+                        ?? new Dictionary<string, string>())).ToList()));
         }
         return list;
     }
 
     public bool Connect(JsonObject args) => NativeMethods.MabaConnect(Handle, args.ToJsonString()) != 0;
 
-    public bool Start(IEnumerable<string> taskIds)
+    // `settings`: {"<task id>": {"<key>": value}}; Core rejects unknown keys and wrong types.
+    public bool Start(IEnumerable<string> taskIds, JsonObject settings)
     {
-        var args = new JsonObject { ["tasks"] = new JsonArray(taskIds.Select(t => (JsonNode?)t).ToArray()) };
+        var args = new JsonObject
+        {
+            ["tasks"] = new JsonArray(taskIds.Select(t => (JsonNode?)t).ToArray()),
+            ["settings"] = settings,
+        };
         return NativeMethods.MabaStart(Handle, args.ToJsonString()) != 0;
     }
 

@@ -47,6 +47,7 @@
                                     <Border Margin="0,0,0,6" Padding="10,8" CornerRadius="4"
                                             Background="{DynamicResource RegionBrush}"
                                             BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                                        <StackPanel>
                                         <DockPanel>
                                             <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center"
                                                        MaxWidth="320" TextTrimming="CharacterEllipsis"
@@ -71,6 +72,45 @@
                                                 </StackPanel>
                                             </CheckBox>
                                         </DockPanel>
+                                        <Expander Header="{DynamicResource Tasks.Settings}" Margin="22,6,0,0"
+                                                  Visibility="{Binding HasSettings, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                                  IsEnabled="{Binding DataContext.IsRunning, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource Boolean2BooleanReConverter}}">
+                                            <ItemsControl ItemsSource="{Binding Settings}" Margin="0,6,0,0">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate DataType="{x:Type vm:SettingItemViewModel}">
+                                                        <DockPanel Margin="0,0,0,6">
+                                                            <TextBlock DockPanel.Dock="Left" Width="300" VerticalAlignment="Center"
+                                                                       TextWrapping="Wrap" Text="{Binding Label}" ToolTip="{Binding Key}" />
+                                                            <Grid>
+                                                                <CheckBox IsChecked="{Binding BoolValue}"
+                                                                          Visibility="{Binding IsBool, Converter={StaticResource Boolean2VisibilityConverter}}" />
+                                                                <hc:NumericUpDown Value="{Binding IntValue}" Minimum="{Binding Min}" Maximum="{Binding Max}"
+                                                                                  Increment="1" DecimalPlaces="0" Width="120" HorizontalAlignment="Left"
+                                                                                  Visibility="{Binding IsInt, Converter={StaticResource Boolean2VisibilityConverter}}" />
+                                                                <ComboBox ItemsSource="{Binding Choices}" SelectedItem="{Binding ChoiceValue}"
+                                                                          Width="160" HorizontalAlignment="Left"
+                                                                          Visibility="{Binding IsChoice, Converter={StaticResource Boolean2VisibilityConverter}}" />
+                                                                <ItemsControl ItemsSource="{Binding Items}"
+                                                                              Visibility="{Binding IsChecklist, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                                                    <ItemsControl.ItemsPanel>
+                                                                        <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                                                                    </ItemsControl.ItemsPanel>
+                                                                    <ItemsControl.ItemTemplate>
+                                                                        <DataTemplate DataType="{x:Type vm:ChecklistItem}">
+                                                                            <CheckBox Content="{Binding Label}" IsChecked="{Binding IsChecked}" Margin="0,0,12,4" MinWidth="150" />
+                                                                        </DataTemplate>
+                                                                    </ItemsControl.ItemTemplate>
+                                                                </ItemsControl>
+                                                                <TextBox Text="{Binding ListText, UpdateSourceTrigger=LostFocus}"
+                                                                         hc:InfoElement.Placeholder="{Binding ListHint}" ToolTip="{Binding ListHint}"
+                                                                         Visibility="{Binding IsList, Converter={StaticResource Boolean2VisibilityConverter}}" />
+                                                            </Grid>
+                                                        </DockPanel>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </Expander>
+                                        </StackPanel>
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
