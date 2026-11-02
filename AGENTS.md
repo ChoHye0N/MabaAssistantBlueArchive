@@ -29,12 +29,12 @@ Windows build: `cmake --preset windows-msvc` (needs `VCPKG_ROOT`).
 - Internal coordinates are 1280x720; Controllers normalize (see `core/include/maba/coords.h`).
 - Popups are handled by one global handler, never per task. All waits/retries/loops have caps and timeouts.
 - No game memory access, injection or packet manipulation. Screen capture + ordinary input only.
-- Tasks are data (`tasks/*.json`) with `after` dependencies; do not hard-code order. Mail must run after AP spending.
+- Tasks are data (`tasks/*.json`): `order` sets the sequence, `after` only where a failure must block; do not hard-code order. Mail must run after AP spending.
 - Korean (`ko`) is the baseline; other languages come later. Languages are data (`config/languages.json`); UI text that logic compares lives in `strings/<lang>.json` by key, never as literals; templates resolve `assets-local/` then `assets/`, per language then common. See `docs/PAGE_FORMAT.md`.
 - OCR reads digits only where possible (language-independent); identify text items by icon templates. Use `CaptureRegion` for OCR crops.
 - Every source file starts with `SPDX-License-Identifier: AGPL-3.0-only` and `SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors` (collective holder; never a personal name).
 - Identifiers and docs in English.
-- Do not add Total Assault, Showdown or story automation yet (deferred).
+- Do not add Total Assault or Showdown automation yet (deferred). Story is only skipped (scene -> back -> confirm skip), never read or chosen.
 
 ## Git and privacy (strict)
 - Never commit personal data: real name, email, phone, home paths, tokens, keys, account IDs, or screenshots showing them (game UID, nickname, friend list, mail). Crop or mask captures before saving.

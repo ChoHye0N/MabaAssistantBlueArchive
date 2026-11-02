@@ -19,6 +19,8 @@ Fixed choices. Change one only with a note here.
 | 13 | Emulator control: own ADB controller written from behavior notes (`docs/notes/emulator-adb.md`), `adb shell input` by default and MaaTouch as an optional faster helper the user supplies. A full automation framework with its own controllers was considered and not adopted: it would bring a second OpenCV/ONNX stack and its own task model. |
 | 14 | Child processes (adb, OCR sidecar) get only their own std handles (explicit inheritance list), and a timed-out command is killed with its process tree. |
 | 15 | C++20 for Core (changed 2026-11-02 from C++17): supported by MSVC 2022 and GCC 13 (Ubuntu 24.04, CI). UTF-8 paths go through `maba/utf8.h` because `path::u8string()` returns `std::u8string` since C++20. |
+| 16 | Story stages (event Story tabs) are automated by skipping every scene (back opens the skip confirmation, which is confirmed), the way the owner's earlier project skips relationship stories; battles in them use the preset team with AUTO. Decided 2026-11-02 by the owner. |
+| 17 | Tasks stay data. Flow control (`if`, `loop`, `each`, conditions on settings, templates, colours and OCR numbers) is part of the step language instead of per-task C++. Purchases and sweeps are confirmed only after the confirmation dialog's own text matched. |
 
 ## Checklist before going public
 - [ ] `python tools/privacy_check.py` passes, and the whole history is scanned (`git log -p` for personal data, paths, keys).

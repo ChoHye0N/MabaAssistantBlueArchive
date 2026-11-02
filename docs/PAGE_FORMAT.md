@@ -16,6 +16,7 @@ Pages, popups and tasks are data, not code. Values shown are placeholders, not r
     "th": { "ap_value": { "x": 0, "y": 0, "w": 0, "h": 0 } }
   },
   "strings": ["main_menu.title"],
+  "enter": { "tap": { "x": 0, "y": 0 }, "max_taps": 30, "interval_ms": 2000 },
   "transitions": [
     { "to": "mail", "click": { "template": "main_menu_mail_icon.png" } }
   ]
@@ -23,8 +24,9 @@ Pages, popups and tasks are data, not code. Values shown are placeholders, not r
 ```
 
 Rules:
-- **Location**: one file per page in `pages/<id>.json`. Read by Core (`page.h`): `id`, `anchors`, `transitions`, `rois`; `roi_by_lang` and `strings` are accepted and ignored until used.
+- **Location**: one file per page in `pages/<id>.json`. Read by Core (`page.h`): `id`, `anchors`, `transitions`, `rois`, `enter`; `roi_by_lang` and `strings` are accepted and ignored until used.
 - **Home page**: `main_menu`. The Navigator returns there before each task and after a failure; every page should have a route back to it.
+- **Start-up (`enter`, home page only)**: screens before the main screen (title, event splash, loading) have no stable anchors. At the start of a run, while no known page is visible, `tap` is clicked every `interval_ms` (100..10000, default 2000), at most `max_taps` times (1..100, default 30). Login popups are dismissed by `popups/` before each look. Pick a point that is harmless on the main screen.
 - **Anchors**: a page is detected when every anchor matches. `threshold` defaults to 0.9 and must be in (0, 1]. A `roi` with zero width or height means "whole frame".
 - **Transitions**: `click` is either `{ "template": ..., "roi"?, "threshold"? }` (click the center of the match) or a fixed point `{ "x": ..., "y": ... }`. Every `to` must name a defined page (`ValidatePageGraph` warns otherwise).
 - **Templates with masks**: transparent pixels (alpha 0, e.g. masked nicknames) are ignored by matching.
@@ -42,6 +44,7 @@ Rules:
 }
 ```
 - Detected when every anchor matches; checked in `priority` order (higher first, default 0), then by id.
+- `colors`, `no_colors` (optional): colour specs (see Tasks) that must all be visible, or must all be absent, besides the anchors. Used where a state is a colour (battle HUD: AUTO is yellow when on, white when off); requiring a bright colour also keeps darkened frames from triggering.
 - `dismiss`: `{ "template": ... }` (click its center), `{ "x", "y" }` (fixed point) or `"back"` (back key).
 - Handled only by the global popup handler, never inside a task. A popup still visible after `max_dismissals` attempts fails the current step with a saved frame.
 
@@ -50,6 +53,7 @@ Rules:
 {
   "id": "mail_claim_all",
   "name": "Mail: claim all",
+  "order": 90,
   "after": ["spend_ap"],
   "status": "wip",
   "needs_ocr": false,
@@ -60,7 +64,10 @@ Rules:
   ]
 }
 ```
-- `after`: ids that run first when selected together. `status`: `todo` (no steps), `wip` (steps written, templates or checks missing), `ready` (verified in the game; CI then requires its templates in every confirmed language).
+- `order` (0..100000, default 1000): run order among tasks that do not depend on each other; tasks are sorted by it when loaded. It never blocks: a failed task does not stop the ones after it.
+- `after`: ids that run first when selected together, and a failed one blocks this task. Use it only where a failure must stop the task (mail after AP spending); use `order` for plain sequencing.
+- `settings`: user options of the task. Each entry has `key`, `type` (`bool`, `int`, `choice`, `list`), `default`, `min`/`max` (int), `choices` (choice; allowed items of a list), and `description`. Optional `label_key` shows choices by their text in `strings/<lang>.json` (`<label_key><choice>`), and `ui: "checklist"` shows a list as check boxes in the GUI. A run overrides them with `{"<task id>": {"<key>": value}}` (C ABI `MabaStart` `"settings"`, CLI `--settings FILE`, GUI task settings); unknown keys and wrong types are rejected.
+- `status`: `todo` (no steps), `wip` (steps written, templates or checks missing), `ready` (verified in the game; CI then requires its templates in every confirmed language).
 - No `steps` = not implemented: the runner skips it and it does not block dependents.
 
 | Action | Fields | Behavior |
@@ -68,17 +75,39 @@ Rules:
 | `goto` | `page` | Navigate (popups settled, bounded steps) |
 | `return_home` | | Navigate to `main_menu` |
 | `wait_page` | `page` | Wait until it is the current page |
-| `click` | `template` (+`roi`, `threshold`) or `x`, `y` | Wait until the template is visible, click its center; fail if it never appears |
+| `click` | `template` (+`roi`, `threshold`), `x`/`y`, or `points` | Wait until the template is visible and click it; fail if it never appears. `points` picks a point by the innermost loop iteration (cycled) |
 | `click_if_present` | `template` (+`roi`, `threshold`) | Same, but a missing template is not an error |
 | `wait_template` | `template` (+`roi`, `threshold`) | Wait until visible |
 | `back` | | Back key |
 | `sleep` | `sleep_ms` (1..10000) | Fixed pause |
-| `read_number` | `roi`, `store` | OCR on a native-resolution crop; `120/240` stores `store` = 120 and `store_max` = 240 |
+| `read_number` | `roi`, `store`, `lenient` | OCR on a native-resolution crop after popups are settled; `120/240` stores `store` = 120 and `store_max` = 240. `lenient: true` reads the number at the end of the text ("tickets 5/5") |
+| `click_color` | `color`, `offset`, `retry_offset`, `max` (1..50) | Click colour blobs one at a time, looking again after each click (moving targets), until none is left or `max` is reached. A blob still there after its click is clicked once more at `retry_offset` (when given) and then left alone. None found is not an error |
+| `click_text` | `roi`, `texts`, `text_setting` (list, or a choice for one text such as a stage number) or `text_key` (a key of `strings/<lang>.json`, `{value}` filled in inside `each`), `click_x`, `offset`, `max_scrolls` (0..80), `from`, `to` | OCR the region (native resolution) and click the first wanted text found (spaces ignored, whole text must match); `click_x` clicks the row's button instead of the text. Not found: swipe `from` -> `to` and read again, up to `max_scrolls` times, then fail (use `optional`) |
+| `swipe` | `from`, `to`, `duration_ms` (50..5000) | Drag |
+| `if` | `when`, `then`, `else` | Run `then` when the condition holds, else `else` |
+| `loop` | `max` (1..50) or `max_setting` (int setting) or `max_value` (stored number), `until`, `steps` | Run `steps` up to that many times; `until` is checked before each iteration |
+| `each` | `setting` (list), `cases`, `steps` | For every value of the list, in order: its `cases` entry, then `steps` (`{value}` in a template name is replaced by the value) |
+| `save` | `file`, `values`, `history` | Write the stored numbers into a JSON record `file` under the data directory (`{name}` = a stored number, e.g. `accounts/{uid}.json`); `history` also appends them with a UTC timestamp (newest 1000 kept). The data directory is outside the repository (records hold personal data) |
+| `break` | | Leave the innermost `loop`, or the current value of `each` |
+| `end` | `status` (`succeeded`/`skipped`), `message` | Finish the task now |
+| `fail` | `message` | Fail the task |
 
-Common fields: `timeout_ms` (100..60000, default 5000) bounds every wait in the step; `repeat` (1..50) runs the action again; `sleep_ms` on a non-sleep action pauses after each repetition; `optional: true` logs a failure and continues with the next step.
+Click options (`click`, `click_if_present`): `pick` (`best`, `top`, `bottom`, `left`, `right`) chooses among several matches; `offset` `{x, y}` moves the click from the match (may be negative); `expect` (a template) is waited for after the click, and the click is repeated up to `retries` (0..5, default 2) times when it does not appear, because the game ignores input while a screen is still sliding in.
+
+Conditions (`when`, `until`):
+- `{"setting": key, "equals" | "not_equals": value}`, `{"setting": key, "contains": item}` (list).
+- `{"present": template}`, `{"absent": template}`: one look, or up to `timeout_ms` for `present`.
+- `{"color": colour}`: a colour blob is visible; `{"no_color": colour}`: none is.
+- `{"value": name, "equals" | "not_equals" | "lt" | "le" | "gt" | "ge": n}`: a number stored by `read_number` (a missing value is false).
+
+Colours (`click_color`, `{"color": ...}`): `hsv_min`, `hsv_max` (`[h, s, v]` on OpenCV's scale: h 0..180, s and v 0..255), optional `width`, `height`, `area` as `[min, max]` (pixels of the 1280x720 frame) and `roi`. Use them for markers whose shape animates (cafe students) or for states a template cannot see (a dimmed card: template matching ignores brightness).
+
+Common fields: `when` (the step runs only when it holds), `timeout_ms` (100..60000, default 5000) bounds every wait in the step; `repeat` (1..50) runs the action again; `sleep_ms` on a non-sleep action pauses after each repetition; `optional: true` logs a failure (also of a nested step) and continues with the next step. Steps nest at most 8 levels deep.
+
+Safety rules for data: confirm a purchase or a sweep only after the confirmation dialog's own text matched (`gem_shop_confirm_price_free.png`, `stage_sweep_confirm_question.png`); close any other dialog with `back`. Never click a fixed point that is a purchase button on another screen.
 
 ## Strings and languages
-- **Strings**: UI text that logic needs to compare lives in `strings/<lang>.json` under a key, never as a literal in code. A key missing for a language marks the task unsupported in that language; there is no silent fallback to another language.
+- **Strings**: UI text that logic needs to compare lives in `strings/<lang>.json` under a key, never as a literal in code (for example `schedule.location.*`, the schedule location names found with OCR). A key missing for a language marks the task unsupported in that language; there is no silent fallback to another language.
 - **Korean (`ko`) is the baseline**: implement and verify it first. Other languages are added by filling `strings/<lang>.json`, templates and optional `roi_by_lang`, without changing logic.
 - OCR may need native-resolution detail: use `IController::CaptureRegion` for OCR crops instead of cropping the downscaled 1280x720 frame.
 - Ground truth: keep labeled screenshots (image + expected values) for every OCR ROI so accuracy can be measured per language.

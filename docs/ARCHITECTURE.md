@@ -20,7 +20,7 @@ GUI (C#, WPF, HandyControls)  --P/Invoke, C ABI (functions + JSON)--  Core (C++)
 Steam PC controller (`core/src/platform/windows/steam_controller.h`):
 - Finds the window by class and title (defaults `UnityWndClass` / `Blue Archive`, to verify). Rejects a minimized window or a client area that is not 16:9.
 - Capture: `BitBlt` copies the client area from the screen (fast; the window must be visible and unobscured). `PrintWindow` asks the window to render itself (works when obscured, not when minimized; some DirectX windows return black, which is reported as an error). Selectable per call (`maba_cli --capture`).
-- Input: real cursor movement with `SendInput` in virtual-desktop coordinates (multiple monitors). Before input the game window is brought to the front and must be the foreground window, and no other window may cover the target point; otherwise the action fails instead of clicking elsewhere. The cursor is restored afterwards. If the game runs as administrator, Windows blocks input from a normal process (UIPI). `Back` sends Esc (to verify).
+- Input: real cursor movement with `SendInput`, a 100 ms pause between moving and pressing (the game reads the cursor once per frame) in virtual-desktop coordinates (multiple monitors). Before input the game window is brought to the front (if Windows refuses the focus change, a lone Alt press makes the request count as user input) and must be the foreground window, and no other window may cover the target point; otherwise the action fails instead of clicking elsewhere. The cursor is restored afterwards. If the game runs as administrator, Windows blocks input from a normal process (UIPI). `Back` sends Esc (to verify).
 - DPI: every call runs with per-monitor DPI awareness on its thread, so window rects, client size and cursor coordinates are physical pixels at any display scale.
 - `maba_cli info` checks both capture methods; `maba_cli grab` saves a normalized frame (or a native region) under `captures/`.
 
@@ -35,19 +35,24 @@ Contract (`controller.h`): frames are returned scaled to **1280x720** and all co
 ## Navigator
 - Page graph (`navigator.h`): nodes are pages recognized by anchors, edges are their transitions. `FindPath` is a breadth-first search; ties follow the order of transitions in the file. `ValidatePageGraph` reports transitions to unknown pages.
 - Current page: every page is checked; the detected page with the highest anchor score wins, ties go to the page with more anchors.
-- **Global popup handler** (`popup.h`, data in `popups/*.json`): before every look at the screen, known popups are dismissed (click a template, a fixed point, or Back), at most `max_dismissals` per look. Tasks never handle popups themselves.
-- `GoTo(target)`: look (popups settled) -> unknown screen: press Back -> known page: take the first transition of the shortest path, wait for a different page. Bounded by `max_steps` (clicks + backs) and `max_back_presses`; a transition target that is not visible spends a step (animations). `ReturnHome()` is `GoTo("main_menu")`.
+- **Global popup handler** (`popup.h`, data in `popups/*.json`): before every look at the screen, known popups are dismissed (click a template, a fixed point, or Back), at most `max_dismissals` per look. Tasks never handle popups themselves. Popups may also require or exclude colours (`colors`, `no_colors`): the battle HUD is kept on AUTO and 3x speed this way, by clicking a white (off) AUTO or speed button. Story scenes are popups too: a scene (MENU at the top right) is answered with Back, which opens the skip confirmation, which is confirmed; battle result screens are confirmed the same way. So a task only waits for its page to come back after a story stage or a battle.
+- `EnterGame()`: start-up, once per run before the first task. While no known page is visible (title, event countdown splash, attendance board), tap the home page's `enter` point, bounded by `max_taps`; login popups are dismissed by the popup handler on every look. It stops at the first known page.
+- `GoTo(target)`: look (popups settled) -> unknown screen: press Back -> known page: take the first transition of the shortest path, wait for a different page. Bounded by `max_steps` (clicks + backs) and `max_back_presses`; a transition target that is not visible spends a step (animations). `ReturnHome()` is `GoTo("main_menu")`. After arriving by a click it pauses `after_arrive` (700 ms): the game ignores input while a page is still sliding in.
 - Every wait/retry/loop has a cap and timeout; on exceeding: the last frame is passed to `on_failure` (saved under `captures/`) and the task fails. A stop request (`cancel`) ends every wait at its next check.
 
 ## Task engine
 (Page, popup, task and string data format: see `PAGE_FORMAT.md`.)
 
-- Tasks are data in `tasks/*.json`: `after` dependencies plus a list of declarative `steps` (`goto`, `return_home`, `wait_page`, `click`, `click_if_present`, `wait_template`, `back`, `sleep`, `read_number`). `ResolveOrder` (`task_order.h`) produces the run order and rejects duplicates, unknown dependencies and cycles.
-- `TaskRunner` (`task_runner.h`): returns home before each task and after a failure (recovery); runs the steps with their caps; a step marked `optional` only logs its failure. A task without steps is skipped as "not implemented" and does not block dependents. A selected dependency that failed blocks its dependents (mail after AP spending).
-- Required ordering rule: mail claim runs after AP spending (AP cannot exceed 999).
+- Tasks are data in `tasks/*.json`: an `order` number (plain sequencing, never blocks), `after` dependencies (a failed one blocks) plus a list of declarative `steps` (navigation, clicks with `pick`/`offset`/`expect`, `click_color`, `swipe`, `read_number`, and flow control: `if`, `loop`, `each`, `break`, `end`, `fail`; format in `PAGE_FORMAT.md`). Conditions test settings, templates, colour blobs and numbers read by OCR. `ResolveOrder` (`task_order.h`) produces the run order and rejects duplicates, unknown dependencies and cycles.
+- Per-account records: `save` steps write JSON records under a data directory outside the repository (GUI: the profile folder next to `settings.json`; CLI: `local-data/`, gitignored). `account_info` keeps credits, pyroxene and AP per UID with a history.
+- Task settings (`settings` in the task file: bool, int, choice, list) have defaults; a run overrides them (`ResolveSettings`, from the GUI, `MabaStart` or `maba_cli run --settings`). Steps branch and loop on them.
+- `TaskRunner` (`task_runner.h`): enters the game from start-up screens once (`EnterGame`), returns home before each task and after a failure (recovery); runs the steps with their caps; a step marked `optional` only logs its failure. A task without steps is skipped as "not implemented" and does not block dependents. A selected dependency that failed blocks its dependents (mail after AP spending).
+- Required ordering rule: mail claim runs after AP spending (AP above the 999 cap waits in the mailbox), and a second AP pass spends it after mail.
+- Daily run order (owner): cafe, schedule, circle, daily free package, shop, bounty, AP spending, tactical challenge, mail, remaining AP spending, missions. `RepoTaskFilesLoad` in `core/tests/task_tests.cpp` checks it.
 - Scheduling is keyed to the server reset time (a setting), not local midnight: `schedule.h` computes the daily slot (reset + delay) in UTC; the GUI asks Core through `MabaScheduleNext`.
 
 ## Vision and OCR
+- Colour blobs (`color.h`, portable): pixels inside an HSV range, connected and filtered by size. For markers whose shape animates and for states template matching cannot see (it ignores brightness, so a dimmed card still matches).
 - Template matching (OpenCV) is the default. Icon-identifiable UI never needs OCR.
 - OCR only for AP value, ticket counts, shop items/prices. Prefer reading digits only (tight ROI on the number): digits are language-independent. `ocr_text.h` turns text into numbers conservatively (`1,234`, `120/240`; anything ambiguous is rejected). Core depends only on `IOcr`.
 - OCR engine: **RapidOCR on ONNX Runtime** with PaddleOCR models (PP-OCRv5 mobile for Korean, English and Thai; PP-OCRv4 for Traditional Chinese and Japanese), run by the Python sidecar `ocr/server.py`. Same models as PaddleOCR without the PaddlePaddle framework, and the ONNX files can later run natively in C++ through ONNX Runtime with no Python.
@@ -65,21 +70,21 @@ core    -> {"id": 2, "op": "ping"} | {"id": 3, "op": "shutdown"}
 A startup failure is reported as `{"error": "..."}` instead of the ready line. Core skips stale responses by id, restarts a crashed sidecar at most `max_restarts` times, and times out every request.
 
 ## C ABI
-`core/include/maba/maba_api.h`, versioned by `MabaApiVersion()` (currently 2). Functions take and return UTF-8 JSON; returned strings stay valid until the next call on the same handle.
+`core/include/maba/maba_api.h`, versioned by `MabaApiVersion()` (currently 3: task settings). Functions take and return UTF-8 JSON; returned strings stay valid until the next call on the same handle.
 
 | Function | Purpose |
 |---|---|
-| `MabaCreate(config, callback, user)` | `{"root", "language", "ocr": {"enabled", "command"}}`; loads the data; errors via `MabaLastError` |
-| `MabaGetTasks` | `[{"id", "name", "after", "status", "implemented", "needs_ocr"}]` |
+| `MabaCreate(config, callback, user)` | `{"root", "language", "data_dir", "ocr": {"enabled", "command"}}`; loads the data; errors via `MabaLastError` |
+| `MabaGetTasks` | `[{"id", "name", "order", "after", "status", "implemented", "needs_ocr", "settings": [{"key", "type", "default", "min", "max", "choices", "description", "ui", "labels"}]}]` |
 | `MabaConnect(json)` | `{"type": "steam", "capture"}` or `{"type": "adb", "adb_path", "serial", "screencap", "touch", "maatouch_path", "back_keycode"}` |
-| `MabaStart({"tasks": [...]})`, `MabaStop`, `MabaIsRunning` | run on a worker thread; stop is cooperative and bounded |
+| `MabaStart({"tasks": [...], "settings": {"<task id>": {"<key>": value}}})`, `MabaStop`, `MabaIsRunning` | run on a worker thread; stop is cooperative and bounded; settings are validated before the run starts |
 | `MabaListAdbDevices(adb_path)` | `[{"serial", "state"}]` |
 | `MabaScheduleNext(json)` | `{"due", "next", "slot"}` for the daily schedule |
 
 Events (callback, worker thread): `{"type": "log", "level", "message"}`, `{"type": "task", "id", "status", "message", "values"}`, `{"type": "run", "status": "started" | "finished", "ok", "cancelled", "error"}`, `{"type": "failure_frame", "path", "reason"}`.
 
 ## GUI
-`gui/Maba.Gui` (WPF, .NET 10, HandyControls theme and controls, CommunityToolkit.Mvvm). It talks to Core only through the C ABI (`Native/NativeMethods.cs`, `Native/CoreClient.cs`). UI text lives in `Resources/Strings.<lang>.xaml` (Korean first). Settings are stored in the user profile (`%APPDATA%\MabaAssistantBlueArchive\settings.json`), never in the repository. The scheduler checks every 30 s whether the daily slot is due and starts the selected tasks; a scheduled day counts as done even after failures (no retry loop).
+`gui/Maba.Gui` (WPF, .NET 10, HandyControls theme and controls, CommunityToolkit.Mvvm). It talks to Core only through the C ABI (`Native/NativeMethods.cs`, `Native/CoreClient.cs`). UI text lives in `Resources/Strings.<lang>.xaml` (Korean first). Settings are stored in the user profile (`%APPDATA%\MabaAssistantBlueArchive\settings.json`), never in the repository. Each task shows its settings (from `MabaGetTasks`) under an expander; values are stored with the other settings and sent with `MabaStart`. The scheduler checks every 30 s whether the daily slot is due and starts the selected tasks; a scheduled day counts as done even after failures (no retry loop).
 
 ## Languages
 - Korean (`ko`) is the baseline for behavior and design; other languages are added later. UI text that logic compares lives in `strings/<lang>.json` by key, never as literals in code.

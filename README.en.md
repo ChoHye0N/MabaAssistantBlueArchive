@@ -1,92 +1,105 @@
+[한국어](README.md) | **English**
+
 <div align="center">
 
-# MabaAssistantBlueArchive (MABA)
+# MABA
 
-**Blue Archive daily-task assistant**
+**MabaAssistantBlueArchive**
 
-Finish the day's routine in one click, on the Steam PC client and on emulators.
+Runs your Blue Archive dailies for you
 
 ![license](https://img.shields.io/badge/license-AGPL--3.0--only-blue)
-![core](https://img.shields.io/badge/core-C%2B%2B20-00599C)
-![gui](https://img.shields.io/badge/GUI-C%23%20WPF-512BD4)
-![ocr](https://img.shields.io/badge/OCR-RapidOCR%20%2B%20PaddleOCR%20models-2932E1)
 ![platform](https://img.shields.io/badge/platform-Windows-lightgrey)
-![status](https://img.shields.io/badge/status-early%20development-orange)
-
-**English** | [한국어](README.md)
+![status](https://img.shields.io/badge/status-beta-orange)
 
 </div>
 
-> **Status:** early development. Core (navigator, popup handler, task engine, Steam and emulator controllers, OCR bridge) and the GUI build and pass their tests, but no task has been verified in the real game yet: the templates still have to be captured. See the [roadmap](docs/ROADMAP.md).
+<div align="center">
+  <img src="docs/images/screenshot-ko.png" alt="MABA window" width="720">
+</div>
 
-## Features
-- **Daily tasks** (planned, in this order): cafe (collect, tap students), schedule (spend tickets), shop (daily purchases), AP spending (event maps, multiplier events), mail (claim all, after AP is spent because AP caps at 999), missions (claim all).
-- **Scope:** Windows, global server. The Steam PC client and Android emulators over ADB (MuMu, LDPlayer, BlueStacks; to be verified). The Japan server has no PC client and is not supported.
-- **Image recognition and ordinary input only.** It never reads or modifies game memory.
-- **Declarative tasks.** Each task is a JSON file with dependencies and steps; the engine resolves the order.
-- **GUI with a daily schedule** keyed to the server reset time, not local midnight.
-- **Resolution independent.** All logic works in a normalized 1280x720 space.
-- **Korean first, more languages later.** Text and templates are per-language data. See [config/languages.json](config/languages.json).
-- **Safe by default.** A global popup handler, a return-to-main routine, and caps and timeouts on every loop.
+## Overview
 
-Not planned for now: Total Assault, Limit-Release Showdown, story.
+From the cafe to the mission rewards, MABA works through the daily routine in a fixed order. It looks at the screen and moves the mouse; it never touches game files or memory.
 
-## Quick start
-Releases are not available yet. To build the core (Linux/WSL needs `cmake g++ nlohmann-json3-dev`; the `linux-opencv` preset for vision tests also needs `libopencv-dev`):
+**Supported** · Windows 10/11 · global server (Steam PC client, Korean first)
+Android emulators over ADB can be connected too, but are not verified yet.
+
+[Download from the releases page](../../releases)
+
+## What it does
+
+In run order. Each task can be switched on or off, and its details are set in the settings.
+
+**Collect**: cafe income · student invitations · student taps · schedule · circle attendance · daily free package
+
+**Spend**: shop bulk purchase · bounty · AP (event story and quests, campaign missions, scrimmage) · tactical challenge
+
+**Finish**: mailbox · remaining AP · mission rewards · resource record per account
+
+Also: scheduled runs keyed to the server reset, automatic handling of login notices and reward screens, AUTO and 3x speed kept on in battles.
+
+## Install
+
+1. Download the archive from the releases page and unpack it anywhere.
+2. Install the [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0) if you do not have it.
+3. Prepare the templates (small pieces of game screens). Game images are not distributed for copyright reasons: make them with the [template capture tool](tools/README.md) and put them in `assets-local/`.
+4. Tasks that read numbers (schedule, AP, ...) need OCR. Follow [OCR setup](ocr/README.md) to create the Python environment.
+5. Run `MabaAssistantBlueArchive.exe`.
+
+Settings are stored in `%appdata%\MabaAssistantBlueArchive`.
+
+## Tips
+
+> [!TIP]
+> Run the game in **windowed mode (16:9)** and leave the mouse alone while MABA works. If another window covers the game, MABA stops instead of clicking.
+
+> [!WARNING]
+> If the game runs as administrator, Windows blocks the input. Run the game and MABA with the same rights.
+
+- Set up the team (1-4) used for quests that have to be played in the game beforehand.
+- Write students to invite exactly as the game shows their names.
+
+## Development
+
+**Core** is C++20 (OpenCV), the **GUI** is C# WPF (.NET 10), and **OCR** runs in a Python sidecar (RapidOCR). Tasks are data in `tasks/*.json`, so changing the order or the steps needs no code change.
+
 ```
-cmake --preset linux-dev
-cmake --build --preset linux-dev
-ctest --preset linux-dev
+cmake --preset windows-msvc
+cmake --build --preset windows-msvc
+ctest --preset windows-msvc
+dotnet build gui/Maba.Gui -c Release
 ```
-On Windows use `cmake --preset windows-msvc` with `VCPKG_ROOT` set (needed for the controllers, `MabaCore.dll` and the GUI), then `cmake --build --preset windows-msvc` and `ctest --preset windows-msvc`.
 
-- **GUI:** needs the .NET 10 SDK. Build the core first, then `dotnet build gui/Maba.Gui -c Release`; the build copies `MabaCore.dll` next to the app. See [gui/README.md](gui/README.md).
-- **OCR (optional, for AP and ticket counts):** `python -m venv ocr/.venv`, then `ocr/.venv/Scripts/python -m pip install -r ocr/requirements.txt`. Core finds `ocr/.venv` by itself. See [ocr/README.md](ocr/README.md).
-- **CLI:** `maba_cli info` checks the game window and both capture methods, `maba_cli grab` saves a 1280x720 frame under `captures/`, `maba_cli smoke --dry-run` checks main-screen detection and the mail button position, `maba_cli devices` lists ADB devices, and `maba_cli run --tasks mail_claim_all [--controller adb --serial 127.0.0.1:16384]` runs tasks.
-- **Templates:** capture them with the [capture tool](tools/README.md); `python tools/check_templates.py` lists what each task still needs per language.
+The Windows build needs Visual Studio 2022 and `VCPKG_ROOT`. On Linux the `linux-dev` preset builds and tests the core logic.
 
-## Architecture
-| Layer | Language | Folder |
-|---|---|---|
-| Core: controller, vision, navigator, task engine, C ABI | C++ | [core/](core) |
-| GUI | C# (WPF, HandyControls) | [gui/](gui) |
-| OCR sidecar | Python (RapidOCR, ONNX Runtime) | [ocr/](ocr) |
-| Pages, popups, task definitions, per-language strings | JSON | [pages/](pages), [popups/](popups), [tasks/](tasks), [strings/](strings) |
+Further reading: [architecture](docs/ARCHITECTURE.md) · [task format](docs/PAGE_FORMAT.md) · [roadmap](docs/ROADMAP.md) · [decisions](docs/DECISIONS.md)
 
-Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Task file format: [docs/PAGE_FORMAT.md](docs/PAGE_FORMAT.md).
+<details>
+<summary><b>Open source used</b></summary>
 
-## Documentation
-- [Architecture](docs/ARCHITECTURE.md)
-- [Roadmap](docs/ROADMAP.md)
-- [Page and task format](docs/PAGE_FORMAT.md)
-- [Decisions](docs/DECISIONS.md)
-- [Source policy and porting log](docs/SOURCES.md)
-- [Contributing](CONTRIBUTING.md)
+| Name | Version | License | Use |
+|---|---|---|---|
+| OpenCV | 4.12.0 | Apache-2.0 | template matching, image I/O |
+| nlohmann-json | 3.12.0 | MIT | reading data files |
+| HandyControls | 3.7.0 | MIT | GUI theme and controls |
+| CommunityToolkit.Mvvm | 8.4.2 | MIT | GUI MVVM |
+| RapidOCR | 3.10.0 | Apache-2.0 | OCR engine |
+| ONNX Runtime | 1.31.1 | MIT | OCR model inference |
+| PaddleOCR models | downloaded by RapidOCR | Apache-2.0 | text detection and recognition |
+| Pillow | 12.3.0 | MIT-CMU | template capture tool |
+| MaaTouch | supplied by the user | Apache-2.0 | emulator touch (optional, not included) |
 
-## Open-source libraries
-| Name | Version | License | Purpose | Status |
-|---|---|---|---|---|
-| OpenCV | 4.12.0 (vcpkg baseline) | Apache-2.0 | template matching, image I/O | in use |
-| nlohmann-json | 3.12.0 (vcpkg baseline) | MIT | reading page/task JSON | in use |
-| Pillow | 12.3.0 | MIT-CMU | template capture tool (`tools/`) | in use |
-| HandyControls | 3.7.0 | MIT | GUI theme and controls | in use |
-| CommunityToolkit.Mvvm | 8.4.2 | MIT | GUI MVVM | in use |
-| RapidOCR | 3.10.0 | Apache-2.0 | OCR engine of the sidecar | in use |
-| ONNX Runtime | 1.31.1 | MIT | OCR model inference | in use |
-| PaddleOCR models (PP-OCRv5/v4/v6) | downloaded by RapidOCR 3.10.0 | Apache-2.0 | text detection and recognition | in use |
-| MaaTouch | supplied by the user | Apache-2.0 | optional emulator touch helper (not bundled) | optional |
+Full notices: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-The OCR sidecar's transitive Python packages (numpy, opencv-python-headless, shapely, ...) are listed with their licenses in the notices.
-
-Licenses are re-verified when each dependency is added. Full notices: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+</details>
 
 ## Contributing
-Read [CONTRIBUTING.md](CONTRIBUTING.md) first: commit format, noreply commit identity, and the privacy check that runs before every commit and push.
 
-## License and notices
-Code is licensed under **AGPL-3.0-only**, see [LICENSE](LICENSE).
+Please read the [contributing guide](CONTRIBUTING.md) first: it covers the commit format and the privacy check.
 
-Blue Archive and its image resources belong to NEXON Korea Corp. and NEXON GAMES Co., Ltd. and are **not** covered by this license. Where external templates are used, their sources and terms are recorded in [assets/PROVENANCE.md](assets/PROVENANCE.md).
+## License
 
-## Disclaimer
-Using automation tools may violate the game's terms of service. Any risk to your account, including suspension, is yours alone. This project is not affiliated with or endorsed by NEXON.
+The code is [AGPL-3.0-only](LICENSE).
+
+Blue Archive and its images belong to NEXON Korea Corp. and NEXON GAMES Co., Ltd. and are not covered by this license. This project is not affiliated with or endorsed by NEXON. Using automation may break the terms of service; any consequence, including account penalties, is your own responsibility.

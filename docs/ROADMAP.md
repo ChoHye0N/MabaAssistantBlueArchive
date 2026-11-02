@@ -12,7 +12,8 @@
 - [x] Template matching in Vision (OpenCV), ROI support (`vision.h`)
 - [x] Template capture tool (`tools/template_capture.py`): screenshot -> crop -> mask -> save with metadata
 - [x] Main-screen detection and "open mail" click as a smoke test (`maba_cli smoke`, unit-tested with a fake controller)
-- [ ] Run against the real Steam client: capture the templates, `maba_cli info`, `maba_cli smoke --dry-run`, then `maba_cli smoke`, with both capture methods, at 100/125/150% display scale
+- [x] Run against the real Steam client at 100% display scale: templates captured, `maba_cli info`, `smoke --dry-run` and `smoke` pass with both capture methods (2026-11-02)
+- [ ] Same at 125% and 150% display scale
 
 ## M1: navigation + simplest tasks
 - [x] Navigator: page graph, global popup handler, return-to-main, bounded GoTo (`navigator.h`, `popup.h`), unit-tested with scene fakes
@@ -21,13 +22,24 @@
 - [ ] Capture their templates (`python tools/check_templates.py` lists them) and the real popups; run `maba_cli run --tasks mail_claim_all,mission_claim_all`; then mark them `ready`
 
 ## M2
-- [ ] Cafe, shop
+- [x] Run order from data (`order`), task settings declared in `tasks/*.json`
+- [x] Step language: conditions, loops, each over list settings, colour blobs, swipes, click pick/offset/expect (`flow_tests.cpp`)
+- [x] Task settings read by Core (`ResolveSettings`), passed by `MabaStart`/`--settings`, edited in the GUI
+- [x] Cafe, schedule, circle, daily free package, shop, bounty, tactical challenge: steps written and run in the game on 2026-11-02 (`wip`; see the open items below)
+- [ ] Run every task on a fresh day (unclaimed free package, full bounty and tactical tickets) and mark them `ready`
 
 ## M3: OCR-dependent tasks
 - [x] `IOcr` Python sidecar: RapidOCR on ONNX Runtime with PaddleOCR models, line-JSON protocol, restart and timeouts (`ocr_sidecar.h`, `ocr/server.py`)
 - [x] Number parsing for OCR text (`ocr_text.h`), `read_number` step
 - [ ] Measure digit accuracy on labeled game crops per language (Korean first)
-- [ ] Spend AP, schedule
+- [x] Spend AP: event (Story stages with skipped scenes, then the highest 3-star Quest), missions, scrimmage, in the order of a setting; second pass after mail
+- [ ] Detect 2x/3x reward campaigns and put their target first
+- [ ] Push campaign areas that are not cleared yet (grid maps: team movement per stage, from a written stage guide)
+- [x] Schedule locations chosen by name (12 locations, check boxes in the GUI)
+- [ ] Schedule: prefer rooms with configured students across the chosen locations; otherwise spend tickets in list order
+- [x] Account record per UID: credits, pyroxene, AP with history (`account_info`)
+- [ ] On hold: record the owned students. Reading the student list with OCR gave misreads and noise; it needs a dictionary of student names per language to correct them (see `docs/notes/resources.md`)
+- [ ] Verify in a live battle: AUTO/3x popups, event quest clearing with the configured team, tactical battle-skip tick; shop with reports left out on a day with stock
 
 ## M4
 - [x] Emulator controller over ADB: raw/PNG screencap with probe, `input` or MaaTouch, CRLF repair, reconnect (`adb_controller.h`), unit-tested with a fake adb
@@ -36,13 +48,15 @@
 - [x] Language matrix + CI template check (`tools/check_templates.py`, `.github/workflows/ci.yml`)
 
 ## Open questions to verify in the real game
-- Steam client window: class `UnityWndClass`, title `Blue Archive`? Is the client area always 16:9 in windowed mode?
-- Which capture method works (BitBlt needs an unobscured window; PrintWindow may return black frames for some DirectX windows)?
-- Does the game accept `SendInput` mouse input, and does Esc act as "back" on every page (on the main screen it may open the quit dialog)?
+- Confirmed 2026-11-02 (Korean region, 100% scale): window class `UnityWndClass`, title `Blue Archive`, 16:9 client area; BitBlt and PrintWindow both work; `SendInput` mouse input works.
+- The first click right after returning to the main screen is sometimes ignored; the Navigator retries within its step budget. Find a better settle delay.
+- Does Esc act as "back" on sub pages? It does nothing on the login event splash (that screen is tapped through, see `enter` in `pages/main_menu.json`).
 - Emulator: keycode 111 (ESCAPE) or 4 (BACK) for "back"?
-- Does the mail button keep its position on the main screen? Which login popups (notices, attendance) appear before it?
-- Is the claim-all button greyed out when there is nothing to claim, and does the grey state still match the template?
-- Does cafe income include AP? (decides ordering vs AP spending)
-- Do daily-mission rewards include AP?
-- Server reset time: default 19:00 UTC (04:00 KST) is not confirmed by a primary source.
+- Login sequence seen on 2026-11-02: image notices on the title screen, title, event countdown splash, attendance reward, attendance board, main screen, then a web news board a few seconds later and an "expiring items" notice. Only the first login of the day shows most of them.
+- The claim-all buttons are greyed out when there is nothing to claim; the grey state scores 0.87 to 0.90 against the active template, so the steps use threshold 0.95.
+- Does cafe income include AP? Assumed yes (cafe runs before AP spending); verify on the income panel.
+- Daily-mission rewards include AP (daily login: 100 AP), and claimed AP can exceed the regular cap (212 -> 312 of 240).
+- Server reset: mission deadlines read 03:59:59 KST, so the reset is 04:00 KST (19:00 UTC).
+- Circle attendance (10 AP) is delivered to the mailbox.
+- The "expiring items" notice shares its title with other dialogs; it is not registered as a popup yet (a confirm click could hit a purchase dialog).
 - Is Japanese really supported by the Steam global client? (store sources disagree). The Japan server has no PC client and is out of scope.
