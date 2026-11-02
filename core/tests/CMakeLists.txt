@@ -8,6 +8,9 @@ add_executable(maba_core_tests
     resolver_tests.cpp
     wait_tests.cpp)
 target_link_libraries(maba_core_tests PRIVATE maba_core)
+if(MABA_WITH_OPENCV)
+    target_sources(maba_core_tests PRIVATE vision_tests.cpp)
+endif()
 if(MSVC)
     target_compile_options(maba_core_tests PRIVATE /utf-8 /W4 /permissive-)
 else()

@@ -26,7 +26,9 @@ target_link_libraries(maba_core PUBLIC nlohmann_json::nlohmann_json)
 
 if(MABA_WITH_OPENCV)
     find_package(OpenCV CONFIG REQUIRED)
+    target_sources(maba_core PRIVATE src/vision.cpp)
     target_link_libraries(maba_core PUBLIC ${OpenCV_LIBS})
+    target_include_directories(maba_core PUBLIC ${OpenCV_INCLUDE_DIRS})
     target_compile_definitions(maba_core PUBLIC MABA_WITH_OPENCV=1)
 endif()
 
