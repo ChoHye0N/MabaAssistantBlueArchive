@@ -36,6 +36,11 @@ Emulator start and stop (`core/include/maba/emulator.h`, portable, notes in `doc
 - After the run (options): `am force-stop` the game; kill the process tree of the emulator, only if this session started it. A run stopped by the user leaves both running.
 - Used by `MabaStart` (`connect` + `launch` + `finish`, all on the worker thread) and `maba_cli run --emulator ... --start-game`.
 
+Steam client start and close (`core/include/maba/steam_launch.h`, portable logic; window access through `IGameWindowHost`, Win32 in `core/src/platform/windows/game_window_win32.cpp`, a stub elsewhere):
+- `SteamSession::EnsureGame`: if the game window is missing, opens `steam://rungameid/3557620` with the shell and polls for the window (180 s, stop flag), then waits 5 s before input.
+- `CloseGame` (option): `WM_CLOSE`, then ends the process tree after 20 s. Not after a run stopped by the user.
+- Used by `MabaStart` with `connect` type steam and `maba_cli run --controller steam --start-game --close-game`.
+
 Contract (`controller.h`): frames are returned scaled to **1280x720** and all coordinates are normalized. `CaptureRegion(Rect)` returns a crop taken at native resolution, for OCR where the downscaled frame may lose text detail. `coords.h` holds the mapping and is unit-tested. Reason: UI scale mismatches (e.g. Steam UI at ~0.8x of template size) otherwise break every layer above.
 
 ## Navigator
@@ -76,7 +81,7 @@ core    -> {"id": 2, "op": "ping"} | {"id": 3, "op": "shutdown"}
 A startup failure is reported as `{"error": "..."}` instead of the ready line. Core skips stale responses by id, restarts a crashed sidecar at most `max_restarts` times, and times out every request.
 
 ## C ABI
-`core/include/maba/maba_api.h`, versioned by `MabaApiVersion()` (currently 5: clock-time mode in `MabaScheduleNext`; 4 added emulator launch in `MabaStart`). Functions take and return UTF-8 JSON; returned strings stay valid until the next call on the same handle.
+`core/include/maba/maba_api.h`, versioned by `MabaApiVersion()` (currently 5: clock-time mode in `MabaScheduleNext` and Steam launch in `MabaStart`; 4 added emulator launch). Functions take and return UTF-8 JSON; returned strings stay valid until the next call on the same handle.
 
 | Function | Purpose |
 |---|---|

@@ -2,7 +2,8 @@
 # SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
 
 # Portable logic (no OpenCV by default), unit-testable on any platform. The only OS-specific
-# part is child-process handling (Win32 or POSIX), used by the ADB controller and OCR sidecar.
+# parts are child-process handling (Win32 or POSIX), used by the ADB controller, OCR sidecar and
+# emulator launch, and the Steam game window lookup (a stub outside Windows).
 add_library(maba_core STATIC
     src/adb.cpp
     src/color.cpp
@@ -22,6 +23,7 @@ add_library(maba_core STATIC
     src/schedule.cpp
     src/strings.cpp
     src/smoke.cpp
+    src/steam_launch.cpp
     src/task.cpp
     src/task_order.cpp
     src/task_runner.cpp
@@ -29,10 +31,10 @@ add_library(maba_core STATIC
     src/wait.cpp)
 
 if(WIN32)
-    target_sources(maba_core PRIVATE src/platform/windows/process_win32.cpp)
+    target_sources(maba_core PRIVATE src/platform/windows/process_win32.cpp src/platform/windows/game_window_win32.cpp)
     target_compile_definitions(maba_core PRIVATE UNICODE _UNICODE NOMINMAX WIN32_LEAN_AND_MEAN)
 else()
-    target_sources(maba_core PRIVATE src/platform/posix/process_posix.cpp)
+    target_sources(maba_core PRIVATE src/platform/posix/process_posix.cpp src/platform/posix/game_window_posix.cpp)
     find_package(Threads REQUIRED)
     target_link_libraries(maba_core PUBLIC Threads::Threads)
 endif()

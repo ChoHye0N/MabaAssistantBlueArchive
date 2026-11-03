@@ -20,6 +20,7 @@
 #include "maba/ocr_sidecar.h"
 #include "maba/process.h"
 #include "maba/schedule.h"
+#include "maba/steam_launch.h"
 #include "maba/utf8.h"
 
 #if defined(MABA_WITH_OPENCV)
@@ -199,6 +200,21 @@ bool ParseLaunch(const json& connect, const json& launch, maba::EmulatorOptions&
     return true;
 }
 
+// MabaStart "launch" for the Steam client -> session options.
+bool ParseSteamLaunch(const json& launch, maba::SteamLaunchOptions& o, std::string& error) {
+    try {
+        o.url = launch.value("steam_url", o.url);
+        if (o.url.rfind("steam://", 0) != 0) throw std::runtime_error("steam_url must start with steam://");
+        const int game_s = launch.value("game_timeout_s", o.window_timeout_ms / 1000);
+        if (game_s < 10 || game_s > 1800) throw std::runtime_error("timeouts must be between 10 and 1800 seconds");
+        o.window_timeout_ms = game_s * 1000;
+    } catch (const std::exception& e) {
+        error = std::string("launch: ") + e.what();
+        return false;
+    }
+    return true;
+}
+
 }  // namespace
 
 extern "C" {
@@ -336,20 +352,31 @@ MABA_API int MABA_CALL MabaStart(MabaHandle h, const char* json_text) {
         }
     }
     if (connect.is_null() && !h->assistant->Controller()) return Fail(h, "not connected");
-    if ((!launch.is_null() || !finish.is_null()) && connect.value("type", std::string()) != "adb")
-        return Fail(h, "launch and finish need \"connect\" with the emulator (adb) for now");
+    const std::string target = connect.is_object() ? connect.value("type", std::string()) : std::string();
+    const bool prepare_any = !launch.is_null() || !finish.is_null();
+    if (prepare_any && target != "adb" && target != "steam")
+        return Fail(h, "launch and finish need \"connect\" with type adb or steam");
     std::optional<maba::EmulatorOptions> emulator;
+    std::optional<maba::SteamLaunchOptions> steam;
     bool start_game = false, close_game = false, close_emulator = false;
-    if (connect.value("type", std::string()) == "adb" && (!launch.is_null() || !finish.is_null())) {
-        maba::EmulatorOptions o;
-        if (!ParseLaunch(connect, launch.is_null() ? json::object() : launch, o, error)) return Fail(h, error);
-        emulator = o;
+    if (prepare_any) {
         try {
             start_game = !launch.is_null() && launch.value("start_game", true);
             close_game = !finish.is_null() && finish.value("close_game", false);
             close_emulator = !finish.is_null() && finish.value("close_emulator", false);
         } catch (const json::exception& e) {
             return Fail(h, std::string("launch/finish: ") + e.what());
+        }
+        const json launch_args = launch.is_null() ? json::object() : launch;
+        if (target == "adb") {
+            maba::EmulatorOptions o;
+            if (!ParseLaunch(connect, launch_args, o, error)) return Fail(h, error);
+            emulator = o;
+        } else {
+            if (close_emulator) return Fail(h, "finish: close_emulator is for the emulator (adb) only");
+            maba::SteamLaunchOptions o;
+            if (!ParseSteamLaunch(launch_args, o, error)) return Fail(h, error);
+            steam = o;
         }
     }
     std::vector<std::string> tasks;
@@ -372,7 +399,7 @@ MABA_API int MABA_CALL MabaStart(MabaHandle h, const char* json_text) {
     h->running = true;
     h->last_error.clear();
     const bool prepare = !launch.is_null();
-    h->worker = std::thread([h, tasks, settings_json, connect, emulator, prepare, start_game, close_game,
+    h->worker = std::thread([h, tasks, settings_json, connect, emulator, steam, prepare, start_game, close_game,
                              close_emulator] {
         h->Emit({{"type", "run"}, {"status", "started"}, {"tasks", tasks}});
         auto on_task = [h](const maba::TaskRunResult& r) {
@@ -398,15 +425,21 @@ MABA_API int MABA_CALL MabaStart(MabaHandle h, const char* json_text) {
 #endif
         };
         maba::RunReport report;
+        auto log = [h](maba::LogLevel level, const std::string& msg) { h->LogEvent(level, msg); };
         std::optional<maba::EmulatorSession> session;
-        if (emulator)
-            session.emplace(h->runner, h->processes, *emulator,
-                            [h](maba::LogLevel level, const std::string& msg) { h->LogEvent(level, msg); });
+        if (emulator) session.emplace(h->runner, h->processes, *emulator, log);
+        maba::SystemGameWindow window;
+        std::optional<maba::SteamSession> steam_session;
+        if (steam) steam_session.emplace(window, h->processes, *steam, log);
         try {
             bool ready = true;
             if (session && prepare) {
                 ready = session->EnsureDevice(&h->cancel) && (!start_game || session->EnsureGame(&h->cancel));
                 if (!ready) report.error = session->LastError();
+            }
+            if (steam_session && prepare && start_game) {
+                ready = steam_session->EnsureGame(&h->cancel);
+                if (!ready) report.error = steam_session->LastError();
             }
             if (ready && !connect.is_null() && !h->cancel) {
                 std::string error;
@@ -424,6 +457,7 @@ MABA_API int MABA_CALL MabaStart(MabaHandle h, const char* json_text) {
                 if (close_game) session->CloseGame();
                 if (close_emulator) session->CloseEmulator();
             }
+            if (steam_session && !report.cancelled && close_game) steam_session->CloseGame();
         } catch (const std::exception& e) {
             report.error = std::string("internal error: ") + e.what();
         }

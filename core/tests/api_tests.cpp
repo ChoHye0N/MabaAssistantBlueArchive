@@ -73,10 +73,16 @@ MABA_TEST(ApiStartValidatesLaunch) {
     const std::string cfg = json{{"root", MABA_SOURCE_DIR}, {"language", "ko"}, {"ocr", {{"enabled", false}}}}.dump();
     MabaHandle h = MabaCreate(cfg.c_str(), nullptr, nullptr);
     CHECK(std::string(MabaLastError(h)).empty());
-    // Launching is for the emulator only (for now), and needs "connect".
-    CHECK(MabaStart(h, R"({"tasks": ["cafe"], "connect": {"type": "steam"}, "launch": {}})") == 0);
-    CHECK(std::string(MabaLastError(h)).find("adb") != std::string::npos);
+    // Launching needs "connect" with a known type; the Steam client has no emulator to close.
+    CHECK(MabaStart(h, R"({"tasks": ["cafe"], "connect": {"type": "other"}, "launch": {}})") == 0);
+    CHECK(std::string(MabaLastError(h)).find("adb or steam") != std::string::npos);
     CHECK(MabaStart(h, R"({"tasks": ["cafe"], "launch": {}})") == 0);
+    CHECK(MabaStart(h, R"({"tasks": ["cafe"], "connect": {"type": "steam"}, "finish": {"close_emulator": true}})") == 0);
+    CHECK(std::string(MabaLastError(h)).find("close_emulator") != std::string::npos);
+    CHECK(MabaStart(h, R"({"tasks": ["cafe"], "connect": {"type": "steam"}, "launch": {"game_timeout_s": 5}})") == 0);
+    CHECK(std::string(MabaLastError(h)).find("timeouts") != std::string::npos);
+    CHECK(MabaStart(h, R"({"tasks": ["cafe"], "connect": {"type": "steam"}, "launch": {"steam_url": "https://x"}})") == 0);
+    CHECK(std::string(MabaLastError(h)).find("steam://") != std::string::npos);
     CHECK(MabaStart(h, R"({"tasks": ["cafe"], "connect": {"type": "adb"}, "launch": {"boot_timeout_s": 1}})") == 0);
     CHECK(std::string(MabaLastError(h)).find("timeouts") != std::string::npos);
     CHECK(MabaStart(h, R"({"tasks": ["cafe"], "connect": {"type": "adb"}, "launch": {"emulator_args": 5}})") == 0);

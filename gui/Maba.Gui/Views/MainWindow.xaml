@@ -138,6 +138,15 @@
                                          SelectedValuePath="Value" SelectedValue="{Binding Capture}" />
                             <TextBlock Margin="140,4,0,8" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"
                                        Text="{DynamicResource Settings.CaptureHint}" />
+
+                            <TextBlock Style="{StaticResource TextBlockSubTitleBold}" HorizontalAlignment="Left"
+                                       Text="{DynamicResource Settings.Launch}" Margin="0,8,0,8" />
+                            <CheckBox Content="{DynamicResource Settings.SteamStartGame}" IsChecked="{Binding SteamStartGame}"
+                                      Margin="0,0,0,8" />
+                            <CheckBox Content="{DynamicResource Settings.CloseGameAfter}" IsChecked="{Binding SteamCloseGame}"
+                                      Margin="0,0,0,4" />
+                            <TextBlock Margin="0,0,0,8" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"
+                                       Text="{DynamicResource Settings.SteamLaunchHint}" />
                         </StackPanel>
 
                         <StackPanel Visibility="{Binding IsAdb, Converter={StaticResource Boolean2VisibilityConverter}}">

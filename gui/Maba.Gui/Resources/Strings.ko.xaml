@@ -108,6 +108,8 @@
     <sys:String x:Key="Settings.StartGame">게임이 꺼져 있으면 켜기</sys:String>
     <sys:String x:Key="Settings.CloseGameAfter">끝나면 게임 종료</sys:String>
     <sys:String x:Key="Settings.CloseEmulatorAfter">끝나면 에뮬레이터 종료 (이번 실행에서 켠 경우만)</sys:String>
+    <sys:String x:Key="Settings.SteamStartGame">게임이 꺼져 있으면 Steam으로 켜기</sys:String>
+    <sys:String x:Key="Settings.SteamLaunchHint">Steam이 꺼져 있으면 Steam부터 켜져 로그인까지 기다립니다(최대 3분). 게임은 창을 닫아 종료하고, 닫히지 않으면 강제로 끕니다. 직접 중지한 실행은 게임을 그대로 둡니다.</sys:String>
     <sys:String x:Key="Settings.LaunchHint">에뮬레이터를 켜고 부팅을 기다리는 데 몇 분 걸릴 수 있어요. 직접 중지한 실행은 게임과 에뮬레이터를 그대로 둡니다.</sys:String>
     <sys:String x:Key="Settings.BackKeycodeHint">111 = ESC, 4 = BACK. 게임에서 어느 쪽이 뒤로 가기인지 확인하세요.</sys:String>
     <sys:String x:Key="Settings.Auto">자동 (빠른 쪽)</sys:String>

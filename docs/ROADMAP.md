@@ -46,7 +46,8 @@
 - [ ] Verify against MuMu 12, LDPlayer 9 and BlueStacks 5 (serials, back key, MaaTouch); faster capture channels later
 - [x] Start the emulator when its device is missing, wait for the boot, start the game; close the game/emulator after the run (`emulator.h`, GUI "실행 준비", `maba_cli run --emulator`), unit-tested with fakes
 - [ ] Verify the launch on real emulators: MuMu launcher rewrite, game activity, killing the emulator leaves no background VM
-- [ ] Steam client: start through `steam://rungameid/<app id>` and wait for the window; close after the run
+- [x] Steam client: start through `steam://rungameid/<app id>` and wait for the window; close after the run (`steam_launch.h`, GUI "실행 준비" for Steam), unit-tested with fakes
+- [ ] Verify the Steam launch in the real client: settle time after the window appears, quit confirmation on `WM_CLOSE`, Steam not running or signed out
 - [ ] Unattended runs without the GUI open (Task Scheduler entry or start with Windows, tray)
 - [x] C# GUI (WPF, HandyControls, CommunityToolkit.Mvvm) over the C ABI, scheduler keyed to the server reset (`gui/`, `schedule.h`)
 - [x] Schedule at a local clock time as an alternative to "reset + delay", with a warning close to the reset (`ClockSchedule`)

@@ -29,6 +29,7 @@
 #include "maba/adb.h"
 #include "maba/adb_controller.h"
 #include "maba/emulator.h"
+#include "maba/steam_launch.h"
 #include "maba/assistant.h"
 #include "maba/ocr_sidecar.h"
 #include "maba/page.h"
@@ -257,6 +258,15 @@ int CmdRun(const Args& args) {
             return 1;
         }
     }
+    maba::SystemGameWindow game_window;
+    std::optional<maba::SteamSession> steam;
+    if (controller == "steam" && (args.count("start-game") || args.count("close-game"))) {
+        steam.emplace(game_window, processes, maba::SteamLaunchOptions{}, PrintLog);
+        if (args.count("start-game") && !steam->EnsureGame()) {
+            std::fprintf(stderr, "steam: %s\n", steam->LastError().c_str());
+            return 1;
+        }
+    }
     if (controller == "adb") {
         maba::AdbControllerOptions o;
         o.adb_path = Get(args, "adb", o.adb_path);
@@ -316,6 +326,7 @@ int CmdRun(const Args& args) {
         if (args.count("close-game")) emulator->CloseGame();
         if (args.count("close-emulator")) emulator->CloseEmulator();
     }
+    if (steam && args.count("close-game")) steam->CloseGame();
     std::printf("%s\n", report.ok ? "OK" : "FAILED");
     return report.ok ? 0 : 1;
 }
@@ -330,7 +341,8 @@ void Usage() {
                  "  maba_cli run [--tasks id,id] [--controller steam|adb] [--capture ...]\n"
                  "               [--adb PATH] [--serial 127.0.0.1:16384] [--maatouch FILE]\n"
                  "               [--emulator EXE] [--emulator-args \"-v 0\"] [--start-game]\n"
-                 "               [--close-game] [--close-emulator]  (adb: start/stop around the run)\n"
+                 "               [--close-game] [--close-emulator]  (adb: start/stop around the run;\n"
+                 "               steam: --start-game opens the Steam game, --close-game closes it)\n"
                  "               [--lang ko] [--root DIR] [--no-ocr] [--settings FILE] [--data DIR]\n"
                  "               DIR: per-account records (default ROOT/local-data, gitignored)\n"
                  "               FILE: {\"<task id>\": {\"<setting>\": value}}\n");

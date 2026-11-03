@@ -58,13 +58,18 @@ MABA_API int MABA_CALL MabaConnect(MabaHandle handle, const char* json);
 
 // Starts the selected tasks on a worker thread: {"tasks": ["cafe", ...]}. 1 if started.
 // Optional: "settings" (task settings), "connect" (MabaConnect arguments: the worker connects
-// before the run), and for the emulator (needs "connect" with type adb):
+// before the run), and "launch"/"finish" (need "connect"):
+//   emulator (type adb):
 //   "launch": {"emulator_path": "...", "emulator_args": "..." | [...], "start_game": true,
 //              "game_activity": "...", "boot_timeout_s": 180, "game_timeout_s": 90}
 //     starts the emulator if its device is missing (and a path is set), waits for the boot and
 //     brings the game to the front before connecting;
 //   "finish": {"close_game": false, "close_emulator": false} after the run (not after a stop);
 //     only an emulator started by this run is closed.
+//   Steam client (type steam):
+//   "launch": {"start_game": true, "steam_url": "steam://rungameid/3557620", "game_timeout_s": 180}
+//     opens the URL when the game window is missing and waits for the window;
+//   "finish": {"close_game": false} closes the game window (ends the process if it stays open).
 MABA_API int MABA_CALL MabaStart(MabaHandle handle, const char* json);
 
 // Requests a stop; the job ends at the next check (all waits are bounded). 1 if it was running.

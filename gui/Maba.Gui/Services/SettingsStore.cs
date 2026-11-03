@@ -24,6 +24,9 @@ public sealed class AppSettings
     public bool StartGame { get; set; }
     public bool CloseGameAfter { get; set; }
     public bool CloseEmulatorAfter { get; set; }
+    // Steam client: open the game through Steam before a run, close it after.
+    public bool SteamStartGame { get; set; }
+    public bool SteamCloseGame { get; set; }
     public bool OcrEnabled { get; set; } = true;
     public List<string> SelectedTasks { get; set; } = new();
     // Task settings by task id and key, as JSON values (see tasks/<id>.json "settings").

@@ -12,6 +12,7 @@ add_executable(maba_core_tests
     page_tests.cpp
     resolver_tests.cpp
     smoke_tests.cpp
+    steam_launch_tests.cpp
     task_tests.cpp
     util_tests.cpp
     wait_tests.cpp)

@@ -17,8 +17,11 @@ Notes in our own words, written before implementing `core/src/emulator.cpp`. The
 - **Killing the started process may leave a background VM process** behind on some emulators (MuMu). Not handled yet (**verify**); the emulator's own manager command would be the clean way.
 - LDPlayer 9 (`dnplayer.exe`, `index=<n>` argument) and BlueStacks 5 (`HD-Player.exe --instance <name>`): started as configured, no path rewriting. (**verify**)
 
-## Steam client (not implemented yet)
+## Steam client
 - `steam://rungameid/3557620` starts the global client through Steam; the window title is `Blue Archive`, the process `BlueArchive.exe`. Skip the start when the window already exists. (**verify** the app id)
+- Our own sequence (`core/include/maba/steam_launch.h`): look for a visible `UnityWndClass` / `Blue Archive` window; if there is none, open the URL with the shell (Steam starts first when it is not running, so the wait is long: 180 s), poll for the window, then wait a few seconds more before input (the window exists before the game draws; **verify** 5 s is enough). The title screen is handled by `EnterGame` as for the emulator.
+- Closing: post `WM_CLOSE` to the window, wait up to 20 s for it to go away, then end the process tree of the window's process. **Verify** whether the client asks for a quit confirmation on `WM_CLOSE`; if it does, the kill is the normal path.
+- Not done: closing Steam itself, and Steam dialogs shown before the game (updates, cloud sync conflicts); a run then fails with the window timeout.
 
 ## Failure handling
 - Every adb call has a timeout. Every wait has a cap (boot timeout, game timeout) and checks the stop flag at each poll.

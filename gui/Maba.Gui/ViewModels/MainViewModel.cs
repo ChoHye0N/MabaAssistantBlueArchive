@@ -51,6 +51,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _startGame = settings.StartGame;
         _closeGameAfter = settings.CloseGameAfter;
         _closeEmulatorAfter = settings.CloseEmulatorAfter;
+        _steamStartGame = settings.SteamStartGame;
+        _steamCloseGame = settings.SteamCloseGame;
         _ocrEnabled = settings.OcrEnabled;
         _scheduleEnabled = settings.ScheduleEnabled;
         _resetHourUtc = settings.ResetHourUtc;
@@ -111,6 +113,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool _startGame;
     [ObservableProperty] private bool _closeGameAfter;
     [ObservableProperty] private bool _closeEmulatorAfter;
+    [ObservableProperty] private bool _steamStartGame;
+    [ObservableProperty] private bool _steamCloseGame;
     [ObservableProperty] private bool _ocrEnabled;
     [ObservableProperty] private bool _scheduleEnabled;
     [ObservableProperty] private int _resetHourUtc;
@@ -243,6 +247,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _settings.StartGame = StartGame;
         _settings.CloseGameAfter = CloseGameAfter;
         _settings.CloseEmulatorAfter = CloseEmulatorAfter;
+        _settings.SteamStartGame = SteamStartGame;
+        _settings.SteamCloseGame = SteamCloseGame;
         _settings.OcrEnabled = OcrEnabled;
         _settings.ScheduleEnabled = ScheduleEnabled;
         _settings.ResetHourUtc = Math.Clamp(ResetHourUtc, 0, 23);
@@ -287,6 +293,16 @@ public partial class MainViewModel : ObservableObject, IDisposable
     // its worker (this can take minutes), so the UI thread does not connect itself.
     private JsonObject? PrepareArgs()
     {
+        if (Controller == "steam")
+        {
+            if (!(SteamStartGame || SteamCloseGame)) return null;
+            return new JsonObject
+            {
+                ["connect"] = ConnectArgs(),
+                ["launch"] = new JsonObject { ["start_game"] = SteamStartGame },
+                ["finish"] = new JsonObject { ["close_game"] = SteamCloseGame },
+            };
+        }
         if (Controller != "adb" || !(StartEmulator || StartGame || CloseGameAfter || CloseEmulatorAfter)) return null;
         return new JsonObject
         {

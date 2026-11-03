@@ -74,7 +74,7 @@ It never accesses game files, process memory or network packets. Only screen cap
 | Feature | Description |
 |:---|:---|
 | Scheduled Execution | Scheduled runs after the server reset or at a set time each day |
-| Emulator Launch | Starts the emulator and the game when they are off, closes them afterwards (optional) |
+| Game Launch | Starts the game (Steam or emulator) when it is off, closes it afterwards (optional) |
 | Popup Handling | Login notices, attendance, reward and battle result popups, handled by one global handler |
 | Battle Automation | Keeps AUTO and 3x speed on in battles |
 | Story Skip | Stories are only skipped, never read |
@@ -143,7 +143,7 @@ Run `MabaAssistantBlueArchive.exe`.
 - Leave the mouse alone while MABA is running. If another window covers the game, MABA stops instead of clicking.
 - Run the game and MABA with the same privilege level. If only the game runs as administrator, Windows blocks the input.
 - Set up teams 1-4 for quests in advance.
-- To start the emulator automatically, enter its executable and arguments under **Launch** in the settings. Scheduled runs use them too.
+- To start the game automatically, use **Launch** in the settings. The Steam version is started through Steam; for an emulator, enter its executable and arguments. Scheduled runs use them too.
 - Enter the names of students to invite exactly as the game shows them. Example (Korean client): `아루, 히나(수영복)`
 
 ### Template Customization
