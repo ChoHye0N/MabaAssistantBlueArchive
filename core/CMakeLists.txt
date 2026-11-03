@@ -9,6 +9,7 @@ add_library(maba_core STATIC
     src/assistant.cpp
     src/coords.cpp
     src/detect.cpp
+    src/emulator.cpp
     src/geometry.cpp
     src/json_util.cpp
     src/languages.cpp

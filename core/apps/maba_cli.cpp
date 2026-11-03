@@ -15,6 +15,7 @@
 #include <fstream>
 #include <iterator>
 #include <map>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -27,6 +28,7 @@
 
 #include "maba/adb.h"
 #include "maba/adb_controller.h"
+#include "maba/emulator.h"
 #include "maba/assistant.h"
 #include "maba/ocr_sidecar.h"
 #include "maba/page.h"
@@ -241,6 +243,20 @@ int CmdRun(const Args& args) {
     maba::SystemProcessRunner runner;
     maba::SystemProcessLauncher launcher;
     const std::string controller = Get(args, "controller", "steam");
+    maba::SystemDetachedProcesses processes;
+    std::optional<maba::EmulatorSession> emulator;
+    if (controller == "adb" && (args.count("emulator") || args.count("start-game") || args.count("close-game"))) {
+        maba::EmulatorOptions e;
+        e.adb_path = Get(args, "adb", e.adb_path);
+        e.serial = Get(args, "serial", "127.0.0.1:16384");
+        e.emulator_path = Get(args, "emulator", "");
+        e.emulator_args = maba::emu::SplitCommandLine(Get(args, "emulator-args", ""));
+        emulator.emplace(runner, processes, e, PrintLog);
+        if (!emulator->EnsureDevice() || (args.count("start-game") && !emulator->EnsureGame())) {
+            std::fprintf(stderr, "emulator: %s\n", emulator->LastError().c_str());
+            return 1;
+        }
+    }
     if (controller == "adb") {
         maba::AdbControllerOptions o;
         o.adb_path = Get(args, "adb", o.adb_path);
@@ -296,6 +312,10 @@ int CmdRun(const Args& args) {
     }
     for (const auto& t : report.tasks)
         std::printf("%-20s %-10s %s\n", t.id.c_str(), maba::ToString(t.status), t.message.c_str());
+    if (emulator) {
+        if (args.count("close-game")) emulator->CloseGame();
+        if (args.count("close-emulator")) emulator->CloseEmulator();
+    }
     std::printf("%s\n", report.ok ? "OK" : "FAILED");
     return report.ok ? 0 : 1;
 }
@@ -309,6 +329,8 @@ void Usage() {
                  "  maba_cli devices [--adb PATH]\n"
                  "  maba_cli run [--tasks id,id] [--controller steam|adb] [--capture ...]\n"
                  "               [--adb PATH] [--serial 127.0.0.1:16384] [--maatouch FILE]\n"
+                 "               [--emulator EXE] [--emulator-args \"-v 0\"] [--start-game]\n"
+                 "               [--close-game] [--close-emulator]  (adb: start/stop around the run)\n"
                  "               [--lang ko] [--root DIR] [--no-ocr] [--settings FILE] [--data DIR]\n"
                  "               DIR: per-account records (default ROOT/local-data, gitignored)\n"
                  "               FILE: {\"<task id>\": {\"<setting>\": value}}\n");

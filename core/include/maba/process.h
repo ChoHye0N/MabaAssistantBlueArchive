@@ -52,7 +52,29 @@ public:
                                                        std::string& error) = 0;
 };
 
+// Programs that keep running on their own (an emulator): started without pipes, outside any
+// job, so they survive this process. Ids are OS process ids.
+class IDetachedProcesses {
+public:
+    virtual ~IDetachedProcesses() = default;
+    // Starts argv[0] in `working_dir` (empty: the current one). Returns the process id, or 0
+    // with the reason in `error`.
+    virtual long Start(const std::vector<std::string>& argv, const std::string& working_dir,
+                       std::string& error) = 0;
+    virtual bool Alive(long pid) = 0;
+    // Ends the process and the processes it started.
+    virtual bool KillTree(long pid, std::string& error) = 0;
+};
+
 // OS implementations (Win32 or POSIX).
+class SystemDetachedProcesses : public IDetachedProcesses {
+public:
+    long Start(const std::vector<std::string>& argv, const std::string& working_dir,
+               std::string& error) override;
+    bool Alive(long pid) override;
+    bool KillTree(long pid, std::string& error) override;
+};
+
 class SystemProcessRunner : public IProcessRunner {
 public:
     ProcessResult Run(const std::vector<std::string>& argv,

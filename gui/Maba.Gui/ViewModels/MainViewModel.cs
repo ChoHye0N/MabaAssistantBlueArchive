@@ -45,6 +45,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _adbTouch = settings.AdbTouch;
         _maaTouchPath = settings.MaaTouchPath;
         _backKeycode = settings.BackKeycode;
+        _startEmulator = settings.StartEmulator;
+        _emulatorPath = settings.EmulatorPath;
+        _emulatorArgs = settings.EmulatorArgs;
+        _startGame = settings.StartGame;
+        _closeGameAfter = settings.CloseGameAfter;
+        _closeEmulatorAfter = settings.CloseEmulatorAfter;
         _ocrEnabled = settings.OcrEnabled;
         _scheduleEnabled = settings.ScheduleEnabled;
         _resetHourUtc = settings.ResetHourUtc;
@@ -91,6 +97,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private string _adbTouch;
     [ObservableProperty] private string _maaTouchPath;
     [ObservableProperty] private int _backKeycode;
+    [ObservableProperty] private bool _startEmulator;
+    [ObservableProperty] private string _emulatorPath;
+    [ObservableProperty] private string _emulatorArgs;
+    [ObservableProperty] private bool _startGame;
+    [ObservableProperty] private bool _closeGameAfter;
+    [ObservableProperty] private bool _closeEmulatorAfter;
     [ObservableProperty] private bool _ocrEnabled;
     [ObservableProperty] private bool _scheduleEnabled;
     [ObservableProperty] private int _resetHourUtc;
@@ -204,6 +216,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _settings.AdbTouch = AdbTouch;
         _settings.MaaTouchPath = MaaTouchPath;
         _settings.BackKeycode = BackKeycode;
+        _settings.StartEmulator = StartEmulator;
+        _settings.EmulatorPath = EmulatorPath;
+        _settings.EmulatorArgs = EmulatorArgs;
+        _settings.StartGame = StartGame;
+        _settings.CloseGameAfter = CloseGameAfter;
+        _settings.CloseEmulatorAfter = CloseEmulatorAfter;
         _settings.OcrEnabled = OcrEnabled;
         _settings.ScheduleEnabled = ScheduleEnabled;
         _settings.ResetHourUtc = Math.Clamp(ResetHourUtc, 0, 23);
@@ -241,6 +259,28 @@ public partial class MainViewModel : ObservableObject, IDisposable
         }
         : new JsonObject { ["type"] = "steam", ["capture"] = Capture };
 
+    // Emulator runs with start/stop options: Core starts the emulator and the game and connects on
+    // its worker (this can take minutes), so the UI thread does not connect itself.
+    private JsonObject? PrepareArgs()
+    {
+        if (Controller != "adb" || !(StartEmulator || StartGame || CloseGameAfter || CloseEmulatorAfter)) return null;
+        return new JsonObject
+        {
+            ["connect"] = ConnectArgs(),
+            ["launch"] = new JsonObject
+            {
+                ["emulator_path"] = StartEmulator ? EmulatorPath.Trim().Trim('"') : "",
+                ["emulator_args"] = StartEmulator ? EmulatorArgs : "",
+                ["start_game"] = StartGame,
+            },
+            ["finish"] = new JsonObject
+            {
+                ["close_game"] = CloseGameAfter,
+                ["close_emulator"] = CloseEmulatorAfter,
+            },
+        };
+    }
+
     private bool EnsureConnected()
     {
         if (_core is null) return false;
@@ -270,11 +310,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
         if (_core is null || IsRunning) return;
         var selected = Tasks.Where(t => t.IsSelected).Select(t => t.Id).ToList();
         if (selected.Count == 0) return;
-        if (!EnsureConnected()) return;
+        var prepare = PrepareArgs();
+        if (prepare is null && !EnsureConnected()) return;
+        if (prepare is not null) _connected = false;  // Core replaces its controller on the worker
         foreach (var t in Tasks) t.SetStatus(t.IsSelected ? "pending" : "", "");
         var settings = new JsonObject();
         foreach (var t in Tasks.Where(t => t.IsSelected && t.HasSettings)) settings[t.Id] = t.SettingsJson();
-        if (!_core.Start(selected, settings))
+        if (!_core.Start(selected, settings, prepare))
         {
             StatusText = Strings.Get("Status.StartFailed");
             AddLog("error", _core.LastError);

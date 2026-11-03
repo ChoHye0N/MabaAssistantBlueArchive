@@ -7,6 +7,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <thread>
 #include <vector>
@@ -15,6 +16,7 @@
 
 #include "maba/adb.h"
 #include "maba/assistant.h"
+#include "maba/emulator.h"
 #include "maba/ocr_sidecar.h"
 #include "maba/process.h"
 #include "maba/schedule.h"
@@ -46,6 +48,7 @@ struct MabaInstance {
     std::vector<std::string> ocr_command;
     maba::SystemProcessRunner runner;
     maba::SystemProcessLauncher launcher;
+    maba::SystemDetachedProcesses processes;
 
     std::thread worker;
     std::atomic<bool> running{false};
@@ -106,13 +109,103 @@ json Parse(const char* text, std::string& error) {
     }
 }
 
+// Builds and connects the controller described by `args` (MabaConnect format), sets it and
+// the OCR on the assistant. Runs on the caller's thread (the worker for MabaStart).
+bool ConnectController(MabaInstance* h, const json& args, std::string& error) {
+    const std::string type = args.value("type", std::string());
+    auto log = [h](maba::LogLevel level, const std::string& msg) { h->LogEvent(level, msg); };
+    try {
+        if (type == "adb") {
+#if defined(MABA_WITH_OPENCV)
+            maba::AdbControllerOptions o;
+            o.adb_path = args.value("adb_path", o.adb_path);
+            o.serial = args.value("serial", o.serial);
+            const std::string sc = args.value("screencap", std::string("auto"));
+            o.screencap = sc == "raw" ? maba::AdbScreencap::kRaw
+                          : sc == "encode" ? maba::AdbScreencap::kEncode
+                                           : maba::AdbScreencap::kAuto;
+            o.touch = args.value("touch", std::string("adb")) == "maatouch" ? maba::AdbTouch::kMaaTouch
+                                                                            : maba::AdbTouch::kAdbInput;
+            o.maatouch_path = args.value("maatouch_path", std::string());
+            o.back_keycode = args.value("back_keycode", o.back_keycode);
+            auto c = std::make_unique<maba::AdbController>(h->runner, &h->launcher, o, log);
+            if (!c->Connect()) {
+                error = c->LastError();
+                return false;
+            }
+            h->assistant->SetController(std::move(c));
+#else
+            error = "this build has no emulator controller (built without OpenCV)";
+            return false;
+#endif
+        } else if (type == "steam") {
+#if defined(_WIN32) && defined(MABA_WITH_OPENCV) && defined(MABA_HAS_WINDOWS_PLATFORM)
+            maba::win::SteamControllerOptions o;
+            o.capture = args.value("capture", std::string("bitblt")) == "printwindow"
+                            ? maba::win::CaptureMethod::PrintWindow
+                            : maba::win::CaptureMethod::BitBlt;
+            auto c = std::make_unique<maba::win::SteamController>(o);
+            if (!c->Connect()) {
+                error = c->LastError();
+                return false;
+            }
+            h->assistant->SetController(std::move(c));
+#else
+            error = "the Steam controller is only available in the Windows build";
+            return false;
+#endif
+        } else {
+            error = "unknown controller type '" + type + "' (steam or adb)";
+            return false;
+        }
+    } catch (const json::exception& e) {
+        error = std::string("connect: ") + e.what();
+        return false;
+    }
+    if (h->ocr_enabled) {
+        h->assistant->SetOcr(std::make_unique<maba::SidecarOcr>(
+            h->launcher, maba::SidecarOptions{h->ocr_command}, h->assistant->Languages(), log));
+    }
+    h->LogEvent(maba::LogLevel::kInfo, "connected (" + type + ")");
+    return true;
+}
+
+// MabaStart "launch" (emulator only) -> session options, with adb path and serial from "connect".
+bool ParseLaunch(const json& connect, const json& launch, maba::EmulatorOptions& o, std::string& error) {
+    try {
+        if (connect.value("type", std::string()) != "adb") {
+            error = "launch: only the emulator (adb) can be started for now";
+            return false;
+        }
+        o.adb_path = connect.value("adb_path", o.adb_path);
+        o.serial = connect.value("serial", std::string("127.0.0.1:16384"));
+        o.emulator_path = launch.value("emulator_path", std::string());
+        if (auto a = launch.find("emulator_args"); a != launch.end()) {
+            if (a->is_string()) o.emulator_args = maba::emu::SplitCommandLine(a->get<std::string>());
+            else if (a->is_array()) o.emulator_args = a->get<std::vector<std::string>>();
+            else if (!a->is_null()) throw std::runtime_error("emulator_args must be a string or an array");
+        }
+        o.game_activity = launch.value("game_activity", o.game_activity);
+        const int boot_s = launch.value("boot_timeout_s", o.boot_timeout_ms / 1000);
+        const int game_s = launch.value("game_timeout_s", o.game_timeout_ms / 1000);
+        if (boot_s < 10 || boot_s > 1800 || game_s < 10 || game_s > 1800)
+            throw std::runtime_error("timeouts must be between 10 and 1800 seconds");
+        o.boot_timeout_ms = boot_s * 1000;
+        o.game_timeout_ms = game_s * 1000;
+    } catch (const std::exception& e) {
+        error = std::string("launch: ") + e.what();
+        return false;
+    }
+    return true;
+}
+
 }  // namespace
 
 extern "C" {
 
 MABA_API const char* MABA_CALL MabaGetVersion(void) { return MABA_VERSION_STRING; }
 
-MABA_API int MABA_CALL MabaApiVersion(void) { return 3; }
+MABA_API int MABA_CALL MabaApiVersion(void) { return 4; }
 
 MABA_API MabaHandle MABA_CALL MabaCreate(const char* config_json, MabaEventCallback callback,
                                          void* user_data) {
@@ -222,54 +315,8 @@ MABA_API int MABA_CALL MabaConnect(MabaHandle h, const char* json_text) {
     std::string error;
     const json args = Parse(json_text, error);
     if (!error.empty()) return Fail(h, error);
-    const std::string type = args.value("type", std::string());
-    auto log = [h](maba::LogLevel level, const std::string& msg) { h->LogEvent(level, msg); };
-
-    try {
-        if (type == "adb") {
-#if defined(MABA_WITH_OPENCV)
-            maba::AdbControllerOptions o;
-            o.adb_path = args.value("adb_path", o.adb_path);
-            o.serial = args.value("serial", o.serial);
-            const std::string sc = args.value("screencap", std::string("auto"));
-            o.screencap = sc == "raw" ? maba::AdbScreencap::kRaw
-                          : sc == "encode" ? maba::AdbScreencap::kEncode
-                                           : maba::AdbScreencap::kAuto;
-            o.touch = args.value("touch", std::string("adb")) == "maatouch" ? maba::AdbTouch::kMaaTouch
-                                                                            : maba::AdbTouch::kAdbInput;
-            o.maatouch_path = args.value("maatouch_path", std::string());
-            o.back_keycode = args.value("back_keycode", o.back_keycode);
-            auto c = std::make_unique<maba::AdbController>(h->runner, &h->launcher, o, log);
-            if (!c->Connect()) return Fail(h, c->LastError());
-            h->assistant->SetController(std::move(c));
-#else
-            return Fail(h, "this build has no emulator controller (built without OpenCV)");
-#endif
-        } else if (type == "steam") {
-#if defined(_WIN32) && defined(MABA_WITH_OPENCV) && defined(MABA_HAS_WINDOWS_PLATFORM)
-            maba::win::SteamControllerOptions o;
-            o.capture = args.value("capture", std::string("bitblt")) == "printwindow"
-                            ? maba::win::CaptureMethod::PrintWindow
-                            : maba::win::CaptureMethod::BitBlt;
-            auto c = std::make_unique<maba::win::SteamController>(o);
-            if (!c->Connect()) return Fail(h, c->LastError());
-            h->assistant->SetController(std::move(c));
-#else
-            return Fail(h, "the Steam controller is only available in the Windows build");
-#endif
-        } else {
-            return Fail(h, "unknown controller type '" + type + "' (steam or adb)");
-        }
-    } catch (const json::exception& e) {
-        return Fail(h, std::string("connect: ") + e.what());
-    }
-
-    if (h->ocr_enabled) {
-        h->assistant->SetOcr(std::make_unique<maba::SidecarOcr>(
-            h->launcher, maba::SidecarOptions{h->ocr_command}, h->assistant->Languages(), log));
-    }
+    if (!ConnectController(h, args, error)) return Fail(h, error);
     h->last_error.clear();
-    h->LogEvent(maba::LogLevel::kInfo, "connected (" + type + ")");
     return 1;
 }
 
@@ -277,10 +324,34 @@ MABA_API int MABA_CALL MabaStart(MabaHandle h, const char* json_text) {
     if (!h) return 0;
     if (h->running) return Fail(h, "already running");
     if (!h->loaded) return Fail(h, h->last_error.empty() ? "data not loaded" : h->last_error);
-    if (!h->assistant->Controller()) return Fail(h, "not connected");
     std::string error;
     const json args = Parse(json_text, error);
     if (!error.empty()) return Fail(h, error);
+    // Optional preparation on the worker: start the emulator and the game, then connect.
+    json connect, launch, finish;
+    for (auto [key, out] : {std::pair<const char*, json*>{"connect", &connect}, {"launch", &launch}, {"finish", &finish}}) {
+        if (auto it = args.find(key); it != args.end() && !it->is_null()) {
+            if (!it->is_object()) return Fail(h, std::string(key) + " must be an object");
+            *out = *it;
+        }
+    }
+    if (connect.is_null() && !h->assistant->Controller()) return Fail(h, "not connected");
+    if ((!launch.is_null() || !finish.is_null()) && connect.value("type", std::string()) != "adb")
+        return Fail(h, "launch and finish need \"connect\" with the emulator (adb) for now");
+    std::optional<maba::EmulatorOptions> emulator;
+    bool start_game = false, close_game = false, close_emulator = false;
+    if (connect.value("type", std::string()) == "adb" && (!launch.is_null() || !finish.is_null())) {
+        maba::EmulatorOptions o;
+        if (!ParseLaunch(connect, launch.is_null() ? json::object() : launch, o, error)) return Fail(h, error);
+        emulator = o;
+        try {
+            start_game = !launch.is_null() && launch.value("start_game", true);
+            close_game = !finish.is_null() && finish.value("close_game", false);
+            close_emulator = !finish.is_null() && finish.value("close_emulator", false);
+        } catch (const json::exception& e) {
+            return Fail(h, std::string("launch/finish: ") + e.what());
+        }
+    }
     std::vector<std::string> tasks;
     try {
         tasks = args.value("tasks", std::vector<std::string>{});
@@ -300,7 +371,9 @@ MABA_API int MABA_CALL MabaStart(MabaHandle h, const char* json_text) {
     h->cancel = false;
     h->running = true;
     h->last_error.clear();
-    h->worker = std::thread([h, tasks, settings_json] {
+    const bool prepare = !launch.is_null();
+    h->worker = std::thread([h, tasks, settings_json, connect, emulator, prepare, start_game, close_game,
+                             close_emulator] {
         h->Emit({{"type", "run"}, {"status", "started"}, {"tasks", tasks}});
         auto on_task = [h](const maba::TaskRunResult& r) {
             json values = json::object();
@@ -325,8 +398,32 @@ MABA_API int MABA_CALL MabaStart(MabaHandle h, const char* json_text) {
 #endif
         };
         maba::RunReport report;
+        std::optional<maba::EmulatorSession> session;
+        if (emulator)
+            session.emplace(h->runner, h->processes, *emulator,
+                            [h](maba::LogLevel level, const std::string& msg) { h->LogEvent(level, msg); });
         try {
-            report = h->assistant->Run(tasks, &h->cancel, on_task, on_failure, settings_json);
+            bool ready = true;
+            if (session && prepare) {
+                ready = session->EnsureDevice(&h->cancel) && (!start_game || session->EnsureGame(&h->cancel));
+                if (!ready) report.error = session->LastError();
+            }
+            if (ready && !connect.is_null() && !h->cancel) {
+                std::string error;
+                ready = ConnectController(h, connect, error);
+                if (!ready) report.error = error;
+            }
+            if (ready && h->cancel) {
+                report.cancelled = true;
+            } else if (ready) {
+                report = h->assistant->Run(tasks, &h->cancel, on_task, on_failure, settings_json);
+            }
+            report.cancelled = report.cancelled || h->cancel.load();
+            // A run stopped by the user leaves the game and the emulator as they are.
+            if (session && !report.cancelled) {
+                if (close_game) session->CloseGame();
+                if (close_emulator) session->CloseEmulator();
+            }
         } catch (const std::exception& e) {
             report.error = std::string("internal error: ") + e.what();
         }

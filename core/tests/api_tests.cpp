@@ -2,7 +2,9 @@
 // SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
 // C ABI smoke tests through the shared library, as the GUI uses it.
 #include <cstring>
+#include <chrono>
 #include <string>
+#include <thread>
 
 #include <nlohmann/json.hpp>
 
@@ -14,7 +16,7 @@ namespace {
 using nlohmann::json;
 
 MABA_TEST(ApiVersion) {
-    CHECK(MabaApiVersion() == 3);
+    CHECK(MabaApiVersion() == 4);
     CHECK(std::strlen(MabaGetVersion()) > 0);
 }
 
@@ -56,6 +58,31 @@ MABA_TEST(ApiCreateReportsBadRoot) {
     MabaHandle bad = MabaCreate("not json", nullptr, nullptr);
     CHECK(std::string(MabaLastError(bad)).rfind("config", 0) == 0);
     MabaDestroy(bad);
+}
+
+MABA_TEST(ApiStartValidatesLaunch) {
+    const std::string cfg = json{{"root", MABA_SOURCE_DIR}, {"language", "ko"}, {"ocr", {{"enabled", false}}}}.dump();
+    MabaHandle h = MabaCreate(cfg.c_str(), nullptr, nullptr);
+    CHECK(std::string(MabaLastError(h)).empty());
+    // Launching is for the emulator only (for now), and needs "connect".
+    CHECK(MabaStart(h, R"({"tasks": ["cafe"], "connect": {"type": "steam"}, "launch": {}})") == 0);
+    CHECK(std::string(MabaLastError(h)).find("adb") != std::string::npos);
+    CHECK(MabaStart(h, R"({"tasks": ["cafe"], "launch": {}})") == 0);
+    CHECK(MabaStart(h, R"({"tasks": ["cafe"], "connect": {"type": "adb"}, "launch": {"boot_timeout_s": 1}})") == 0);
+    CHECK(std::string(MabaLastError(h)).find("timeouts") != std::string::npos);
+    CHECK(MabaStart(h, R"({"tasks": ["cafe"], "connect": {"type": "adb"}, "launch": {"emulator_args": 5}})") == 0);
+    CHECK(MabaStart(h, R"({"tasks": ["cafe"], "connect": [1]})") == 0);
+
+    // A missing device without an emulator path ends the run with an error, on the worker.
+    const std::string start = json{{"tasks", {"cafe"}},
+                                   {"connect", {{"type", "adb"}, {"adb_path", "maba-no-such-adb"}, {"serial", "emulator-5554"}}},
+                                   {"launch", {{"start_game", true}}},
+                                   {"finish", {{"close_game", true}, {"close_emulator", true}}}}
+                                  .dump();
+    CHECK(MabaStart(h, start.c_str()) == 1);
+    for (int i = 0; i < 500 && MabaIsRunning(h); ++i) std::this_thread::sleep_for(std::chrono::milliseconds{20});
+    CHECK(MabaIsRunning(h) == 0);
+    MabaDestroy(h);
 }
 
 }  // namespace

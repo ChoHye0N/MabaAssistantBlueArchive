@@ -280,6 +280,77 @@ std::unique_ptr<IInteractiveProcess> SystemProcessLauncher::Start(
     return std::make_unique<PosixInteractive>(pid, in[1], out[0]);
 }
 
+long SystemDetachedProcesses::Start(const std::vector<std::string>& argv,
+                                    const std::string& working_dir, std::string& error) {
+    if (argv.empty()) {
+        error = "empty command";
+        return 0;
+    }
+    int status_pipe[2];
+    if (pipe(status_pipe) != 0) {
+        error = std::string("pipe: ") + std::strerror(errno);
+        return 0;
+    }
+    fcntl(status_pipe[1], F_SETFD, FD_CLOEXEC);
+    const pid_t pid = fork();
+    if (pid < 0) {
+        error = std::string("fork: ") + std::strerror(errno);
+        close(status_pipe[0]);
+        close(status_pipe[1]);
+        return 0;
+    }
+    if (pid == 0) {
+        setsid();  // own process group: KillTree signals the whole group
+        const int devnull = open("/dev/null", O_RDWR);
+        dup2(devnull, 0);
+        dup2(devnull, 1);
+        dup2(devnull, 2);
+        close(status_pipe[0]);
+        int e = 0;
+        if (!working_dir.empty() && chdir(working_dir.c_str()) != 0) {
+            e = errno;
+        } else {
+            std::vector<char*> args;
+            for (const auto& a : argv) args.push_back(const_cast<char*>(a.c_str()));
+            args.push_back(nullptr);
+            execvp(args[0], args.data());
+            e = errno;
+        }
+        (void)!write(status_pipe[1], &e, sizeof(e));
+        _exit(127);
+    }
+    close(status_pipe[1]);
+    int child_errno = 0;
+    const ssize_t n = read(status_pipe[0], &child_errno, sizeof(child_errno));
+    close(status_pipe[0]);
+    if (n == sizeof(child_errno)) {
+        waitpid(pid, nullptr, 0);
+        error = "cannot run '" + argv[0] + "': " + std::strerror(child_errno);
+        return 0;
+    }
+    return static_cast<long>(pid);
+}
+
+bool SystemDetachedProcesses::Alive(long pid) {
+    if (pid <= 0) return false;
+    int status = 0;
+    if (waitpid(static_cast<pid_t>(pid), &status, WNOHANG) == pid) return false;  // reaped
+    return kill(static_cast<pid_t>(pid), 0) == 0;
+}
+
+bool SystemDetachedProcesses::KillTree(long pid, std::string& error) {
+    if (pid <= 0) {
+        error = "no process";
+        return false;
+    }
+    if (kill(-static_cast<pid_t>(pid), SIGKILL) != 0 && kill(static_cast<pid_t>(pid), SIGKILL) != 0) {
+        error = std::string("kill: ") + std::strerror(errno);
+        return false;
+    }
+    waitpid(static_cast<pid_t>(pid), nullptr, WNOHANG);
+    return true;
+}
+
 }  // namespace maba
 
 #endif  // !_WIN32

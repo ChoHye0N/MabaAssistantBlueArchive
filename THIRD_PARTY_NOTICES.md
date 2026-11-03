@@ -50,6 +50,33 @@ All are compatible with AGPL-3.0-only (MPL-2.0 allows combination with GPL-famil
 ## Code ported from other projects
 Logged in `docs/SOURCES.md`; ported files carry a note in their headers.
 
+### BAAH (MIT)
+The emulator and game start/stop sequence in `core/src/emulator.cpp` follows the behavior of BAAH (Python, checked at commit `cffab1f`); it was rewritten in C++ from notes, no code was copied. Its license:
+
+```
+The MIT License (MIT)
+
+Copyright (c) Sanmusen Wu
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
 ## Not covered by the project license
 Game-related image resources belong to NEXON Korea Corp. and NEXON GAMES Co., Ltd. Release archives include small pieces of the game's interface captured by the project owner (`assets/` in the archive) so the program works out of the box; they are not covered by the project license and are not in this repository.
 

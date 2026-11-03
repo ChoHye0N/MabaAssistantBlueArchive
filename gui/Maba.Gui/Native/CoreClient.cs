@@ -87,13 +87,19 @@ public sealed class CoreClient : IDisposable
     public bool Connect(JsonObject args) => NativeMethods.MabaConnect(Handle, args.ToJsonString()) != 0;
 
     // `settings`: {"<task id>": {"<key>": value}}; Core rejects unknown keys and wrong types.
-    public bool Start(IEnumerable<string> taskIds, JsonObject settings)
+    // `prepare` (optional) adds "connect", "launch" and "finish": Core connects on its worker,
+    // after starting the emulator and the game.
+    public bool Start(IEnumerable<string> taskIds, JsonObject settings, JsonObject? prepare = null)
     {
         var args = new JsonObject
         {
             ["tasks"] = new JsonArray(taskIds.Select(t => (JsonNode?)t).ToArray()),
             ["settings"] = settings,
         };
+        if (prepare is not null)
+        {
+            foreach (var (key, value) in prepare) args[key] = value?.DeepClone();
+        }
         return NativeMethods.MabaStart(Handle, args.ToJsonString()) != 0;
     }
 

@@ -30,6 +30,12 @@ ADB controller (`core/include/maba/adb_controller.h`, needs OpenCV):
 - Input: `input tap/swipe/keyevent`, or MaaTouch (`d/m/u/c/w` and `k <code> d|u`) scaled to the helper's touch range. `Back` sends keycode 111 (ESCAPE) by default; 4 (BACK) is the alternative (to verify).
 - All adb calls go through `IProcessRunner` with timeouts; a timed-out call is killed with its process tree. The pieces without OpenCV (`adb.h`) are unit-tested on every platform.
 
+Emulator start and stop (`core/include/maba/emulator.h`, portable, notes in `docs/notes/emulator-launch.md`):
+- `EmulatorSession::EnsureDevice`: when the device is not listed and an emulator path is set, starts the emulator detached (`IDetachedProcesses`, survives the GUI), polls `adb connect`/`adb devices` (an offline network device is disconnected and reconnected), then waits for `sys.boot_completed`. Bounded by the boot timeout (180 s) and the stop flag. A MuMu launcher path (`nx_main/MuMuNxMain.exe`) is rewritten to the instance executable.
+- `EnsureGame`: reads the app in front from `dumpsys window`; if it is not the game, `am start -n` (fallback `monkey` with the launcher intent), repeated every 15 s within the game timeout (90 s). The title screen is then handled by `Navigator::EnterGame`.
+- After the run (options): `am force-stop` the game; kill the process tree of the emulator, only if this session started it. A run stopped by the user leaves both running.
+- Used by `MabaStart` (`connect` + `launch` + `finish`, all on the worker thread) and `maba_cli run --emulator ... --start-game`.
+
 Contract (`controller.h`): frames are returned scaled to **1280x720** and all coordinates are normalized. `CaptureRegion(Rect)` returns a crop taken at native resolution, for OCR where the downscaled frame may lose text detail. `coords.h` holds the mapping and is unit-tested. Reason: UI scale mismatches (e.g. Steam UI at ~0.8x of template size) otherwise break every layer above.
 
 ## Navigator
@@ -70,14 +76,14 @@ core    -> {"id": 2, "op": "ping"} | {"id": 3, "op": "shutdown"}
 A startup failure is reported as `{"error": "..."}` instead of the ready line. Core skips stale responses by id, restarts a crashed sidecar at most `max_restarts` times, and times out every request.
 
 ## C ABI
-`core/include/maba/maba_api.h`, versioned by `MabaApiVersion()` (currently 3: task settings). Functions take and return UTF-8 JSON; returned strings stay valid until the next call on the same handle.
+`core/include/maba/maba_api.h`, versioned by `MabaApiVersion()` (currently 4: emulator launch in `MabaStart`). Functions take and return UTF-8 JSON; returned strings stay valid until the next call on the same handle.
 
 | Function | Purpose |
 |---|---|
 | `MabaCreate(config, callback, user)` | `{"root", "language", "data_dir", "ocr": {"enabled", "command"}}`; loads the data; errors via `MabaLastError` |
 | `MabaGetTasks` | `[{"id", "name", "order", "after", "status", "implemented", "needs_ocr", "settings": [{"key", "type", "default", "min", "max", "choices", "description", "ui", "labels"}]}]` |
 | `MabaConnect(json)` | `{"type": "steam", "capture"}` or `{"type": "adb", "adb_path", "serial", "screencap", "touch", "maatouch_path", "back_keycode"}` |
-| `MabaStart({"tasks": [...], "settings": {"<task id>": {"<key>": value}}})`, `MabaStop`, `MabaIsRunning` | run on a worker thread; stop is cooperative and bounded; settings are validated before the run starts |
+| `MabaStart({"tasks": [...], "settings": {"<task id>": {"<key>": value}}, "connect", "launch", "finish"})`, `MabaStop`, `MabaIsRunning` | run on a worker thread; stop is cooperative and bounded; settings are validated before the run starts. Optional `connect` (MabaConnect arguments) connects on the worker; with type `adb`, `launch` (`emulator_path`, `emulator_args`, `start_game`, `game_activity`, `boot_timeout_s`, `game_timeout_s`) starts the emulator and the game first and `finish` (`close_game`, `close_emulator`) closes them after a run that was not stopped |
 | `MabaListAdbDevices(adb_path)` | `[{"serial", "state"}]` |
 | `MabaScheduleNext(json)` | `{"due", "next", "slot"}` for the daily schedule |
 

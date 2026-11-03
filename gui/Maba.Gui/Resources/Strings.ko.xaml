@@ -100,6 +100,15 @@
     <sys:String x:Key="Settings.Touch">입력 방식</sys:String>
     <sys:String x:Key="Settings.MaaTouchPath">MaaTouch 파일</sys:String>
     <sys:String x:Key="Settings.BackKeycode">뒤로 키 코드</sys:String>
+    <sys:String x:Key="Settings.Launch">실행 준비</sys:String>
+    <sys:String x:Key="Settings.StartEmulator">에뮬레이터가 꺼져 있으면 켜기</sys:String>
+    <sys:String x:Key="Settings.EmulatorPath">에뮬레이터 실행 파일</sys:String>
+    <sys:String x:Key="Settings.EmulatorArgs">실행 인자</sys:String>
+    <sys:String x:Key="Settings.EmulatorPathHint">예: MuMu 12 …\nx_main\MuMuNxMain.exe, 인자 -v 0 (인스턴스 실행 파일로 자동 변환) / LDPlayer 9 dnplayer.exe, 인자 index=0 / BlueStacks 5 HD-Player.exe, 인자 --instance Pie64 (확인 필요)</sys:String>
+    <sys:String x:Key="Settings.StartGame">게임이 꺼져 있으면 켜기</sys:String>
+    <sys:String x:Key="Settings.CloseGameAfter">끝나면 게임 종료</sys:String>
+    <sys:String x:Key="Settings.CloseEmulatorAfter">끝나면 에뮬레이터 종료 (이번 실행에서 켠 경우만)</sys:String>
+    <sys:String x:Key="Settings.LaunchHint">에뮬레이터를 켜고 부팅을 기다리는 데 몇 분 걸릴 수 있어요. 직접 중지한 실행은 게임과 에뮬레이터를 그대로 둡니다.</sys:String>
     <sys:String x:Key="Settings.BackKeycodeHint">111 = ESC, 4 = BACK. 게임에서 어느 쪽이 뒤로 가기인지 확인하세요.</sys:String>
     <sys:String x:Key="Settings.Auto">자동 (빠른 쪽)</sys:String>
     <sys:String x:Key="Settings.Ocr">OCR 사용 (ocr/.venv의 RapidOCR 사이드카)</sys:String>

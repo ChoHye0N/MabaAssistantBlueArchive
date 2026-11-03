@@ -171,6 +171,29 @@
                                               Style="{StaticResource NumericUpDownExtend}" />
                             <TextBlock Margin="140,4,0,8" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"
                                        Text="{DynamicResource Settings.BackKeycodeHint}" />
+
+                            <TextBlock Style="{StaticResource TextBlockSubTitleBold}" HorizontalAlignment="Left"
+                                       Text="{DynamicResource Settings.Launch}" Margin="0,8,0,8" />
+                            <CheckBox Content="{DynamicResource Settings.StartEmulator}" IsChecked="{Binding StartEmulator}"
+                                      Margin="0,0,0,8" />
+                            <StackPanel IsEnabled="{Binding StartEmulator}">
+                                <hc:TextBox hc:InfoElement.Title="{DynamicResource Settings.EmulatorPath}"
+                                            hc:InfoElement.TitlePlacement="Left" hc:InfoElement.TitleWidth="140"
+                                            Text="{Binding EmulatorPath, UpdateSourceTrigger=LostFocus}" Margin="0,0,0,8" />
+                                <hc:TextBox hc:InfoElement.Title="{DynamicResource Settings.EmulatorArgs}"
+                                            hc:InfoElement.TitlePlacement="Left" hc:InfoElement.TitleWidth="140"
+                                            Text="{Binding EmulatorArgs, UpdateSourceTrigger=LostFocus}" />
+                                <TextBlock Margin="140,4,0,8" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"
+                                           Text="{DynamicResource Settings.EmulatorPathHint}" />
+                            </StackPanel>
+                            <CheckBox Content="{DynamicResource Settings.StartGame}" IsChecked="{Binding StartGame}"
+                                      Margin="0,0,0,8" />
+                            <CheckBox Content="{DynamicResource Settings.CloseGameAfter}" IsChecked="{Binding CloseGameAfter}"
+                                      Margin="0,0,0,8" />
+                            <CheckBox Content="{DynamicResource Settings.CloseEmulatorAfter}" IsChecked="{Binding CloseEmulatorAfter}"
+                                      Margin="0,0,0,4" />
+                            <TextBlock Margin="0,0,0,8" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"
+                                       Text="{DynamicResource Settings.LaunchHint}" />
                         </StackPanel>
 
                         <CheckBox Content="{DynamicResource Settings.Ocr}" IsChecked="{Binding OcrEnabled}" Margin="0,4,0,8" />

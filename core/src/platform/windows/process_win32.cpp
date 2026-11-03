@@ -294,6 +294,54 @@ std::unique_ptr<IInteractiveProcess> SystemProcessLauncher::Start(
     return p;
 }
 
+long SystemDetachedProcesses::Start(const std::vector<std::string>& argv,
+                                    const std::string& working_dir, std::string& error) {
+    if (argv.empty()) {
+        error = "empty command";
+        return 0;
+    }
+    STARTUPINFOW si{};
+    si.cb = sizeof(si);
+    PROCESS_INFORMATION pi{};
+    std::wstring cmd = CommandLine(argv);
+    const std::wstring dir = Widen(working_dir);
+    // Leave this process's job (if allowed) so that closing the GUI does not end the emulator.
+    DWORD flags = CREATE_NEW_PROCESS_GROUP | CREATE_BREAKAWAY_FROM_JOB;
+    BOOL ok = CreateProcessW(nullptr, cmd.data(), nullptr, nullptr, FALSE, flags, nullptr,
+                             dir.empty() ? nullptr : dir.c_str(), &si, &pi);
+    if (!ok && GetLastError() == ERROR_ACCESS_DENIED) {
+        flags &= ~static_cast<DWORD>(CREATE_BREAKAWAY_FROM_JOB);
+        ok = CreateProcessW(nullptr, cmd.data(), nullptr, nullptr, FALSE, flags, nullptr,
+                            dir.empty() ? nullptr : dir.c_str(), &si, &pi);
+    }
+    if (!ok) {
+        error = LastErrorText("CreateProcess") + " for '" + argv[0] + "'";
+        return 0;
+    }
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+    return static_cast<long>(pi.dwProcessId);
+}
+
+bool SystemDetachedProcesses::Alive(long pid) {
+    if (pid <= 0) return false;
+    Handle process(OpenProcess(SYNCHRONIZE, FALSE, static_cast<DWORD>(pid)));
+    return process.h && WaitForSingleObject(process.h, 0) == WAIT_TIMEOUT;
+}
+
+bool SystemDetachedProcesses::KillTree(long pid, std::string& error) {
+    if (pid <= 0) {
+        error = "no process";
+        return false;
+    }
+    SystemProcessRunner runner;
+    const ProcessResult r =
+        runner.Run({"taskkill", "/T", "/F", "/PID", std::to_string(pid)}, std::chrono::milliseconds{15000});
+    if (r.ok()) return true;
+    error = "taskkill failed: " + (r.error.empty() ? r.err + r.out : r.error);
+    return false;
+}
+
 }  // namespace maba
 
 #endif  // _WIN32

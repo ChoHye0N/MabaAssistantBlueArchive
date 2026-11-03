@@ -17,6 +17,13 @@ public sealed class AppSettings
     public string AdbTouch { get; set; } = "adb";     // "adb" | "maatouch"
     public string MaaTouchPath { get; set; } = "";
     public int BackKeycode { get; set; } = 111;
+    // Emulator: start it (and the game) before a run, close them after (see MabaStart "launch").
+    public bool StartEmulator { get; set; }
+    public string EmulatorPath { get; set; } = "";
+    public string EmulatorArgs { get; set; } = "";
+    public bool StartGame { get; set; }
+    public bool CloseGameAfter { get; set; }
+    public bool CloseEmulatorAfter { get; set; }
     public bool OcrEnabled { get; set; } = true;
     public List<string> SelectedTasks { get; set; } = new();
     // Task settings by task id and key, as JSON values (see tasks/<id>.json "settings").

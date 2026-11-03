@@ -44,6 +44,10 @@
 ## M4
 - [x] Emulator controller over ADB: raw/PNG screencap with probe, `input` or MaaTouch, CRLF repair, reconnect (`adb_controller.h`), unit-tested with a fake adb
 - [ ] Verify against MuMu 12, LDPlayer 9 and BlueStacks 5 (serials, back key, MaaTouch); faster capture channels later
+- [x] Start the emulator when its device is missing, wait for the boot, start the game; close the game/emulator after the run (`emulator.h`, GUI "실행 준비", `maba_cli run --emulator`), unit-tested with fakes
+- [ ] Verify the launch on real emulators: MuMu launcher rewrite, game activity, killing the emulator leaves no background VM
+- [ ] Steam client: start through `steam://rungameid/<app id>` and wait for the window; close after the run
+- [ ] Unattended runs without the GUI open (Task Scheduler entry or start with Windows, tray)
 - [x] C# GUI (WPF, HandyControls, CommunityToolkit.Mvvm) over the C ABI, scheduler keyed to the server reset (`gui/`, `schedule.h`)
 - [x] Language matrix + CI template check (`tools/check_templates.py`, `.github/workflows/ci.yml`)
 
