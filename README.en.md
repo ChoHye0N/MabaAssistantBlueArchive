@@ -4,102 +4,279 @@
 
 # MABA
 
-**MabaAssistantBlueArchive**
+### Maba Assistant Blue Archive
 
-Runs your Blue Archive dailies for you
+Screen-recognition automation that works through the daily routine,  
+from the cafe to the daily missions, in a fixed order
 
-![license](https://img.shields.io/badge/license-AGPL--3.0--only-blue)
-![platform](https://img.shields.io/badge/platform-Windows-lightgrey)
-![status](https://img.shields.io/badge/status-beta-orange)
+<br/>
+
+[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D4?style=flat-square&logo=windows)](https://www.microsoft.com/windows)
+[![C++](https://img.shields.io/badge/C%2B%2B-20-00599C?style=flat-square&logo=cplusplus)](https://isocpp.org/)
+[![.NET](https://img.shields.io/badge/.NET-10-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![Status](https://img.shields.io/badge/Status-Beta-orange?style=flat-square)](docs/ROADMAP.md)
+[![License](https://img.shields.io/badge/License-AGPL--3.0--only-green?style=flat-square)](LICENSE)
+
+<br/>
+
+[**Download**](../../releases/latest)
+&nbsp;·&nbsp;
+[Documentation](docs/ARCHITECTURE.md)
+&nbsp;·&nbsp;
+[Contributing](CONTRIBUTING.md)
+
+<br/>
+
+<img src="docs/images/screenshot-ko.png" alt="MABA screen" width="720">
 
 </div>
 
-<div align="center">
-  <img src="docs/images/screenshot-ko.png" alt="MABA window" width="720">
-</div>
+---
 
-## Overview
+## ✦ Overview
 
-From the cafe to the mission rewards, MABA works through the daily routine in a fixed order. It looks at the screen and moves the mouse; it never touches game files or memory.
+MABA is a Windows assistant that handles the repetitive daily tasks of Blue Archive.
 
-**Supported** · Windows 10/11 · global server (Steam PC client, Korean first)
-Android emulators over ADB can be connected too, but are not verified yet.
+It captures the game screen, recognizes the current state with image matching and OCR, and then performs each step with ordinary mouse input (ADB touch on emulators).
 
-[Download from the releases page](../../releases)
+It never accesses game files, process memory or network packets. Only screen capture and ordinary input are used.
 
-## What it does
+## ✦ Features
 
-In run order. Each task can be switched on or off, and its details are set in the settings.
+### 01. Collect
 
-**Collect**: cafe income · student invitations · student taps · schedule · circle attendance · daily free package
+- Claim cafe income
+- Invite and tap students
+- Run schedules
+- Circle attendance
+- Claim the daily free package
 
-**Spend**: shop bulk purchase · bounty · AP (event story and quests, campaign missions, scrimmage) · tactical challenge
+### 02. Spend
 
-**Finish**: mailbox · remaining AP · mission rewards · resource record per account
+- Shop bulk purchase
+- Bounty
+- Spend AP
+  - Event story and quests
+  - Campaign missions
+  - Scrimmage
+- Tactical challenge: claim rewards and use tickets
 
-Also: scheduled runs keyed to the server reset, automatic handling of login notices and reward screens, AUTO and 3x speed kept on in battles.
+### 03. Complete
 
-## Install
+- Claim mailbox rewards (including AP above the cap)
+- Spend the remaining AP
+- Claim daily mission rewards
+- Record resources per account
 
-Download the archive from the releases page, unpack it anywhere and run `MabaAssistantBlueArchive.exe`. .NET, Python, the OCR models and the templates for screen recognition are all included; nothing else needs to be installed.
+### Additional Features
 
-The templates were captured from the Korean client. Where your screen differs, capture again with the [template capture tool](tools/README.md) and put the files in `assets-local/`, which takes precedence.
+| Feature | Description |
+|:---|:---|
+| Scheduled Execution | Scheduled runs keyed to the server reset |
+| Popup Handling | Login notices, attendance, reward and battle result popups, handled by one global handler |
+| Battle Automation | Keeps AUTO and 3x speed on in battles |
+| Story Skip | Stories are only skipped, never read |
+| Task Configuration | Enable each task and set its details |
+| Account Tracking | Credits, Pyroxene and AP recorded per account (stored only on your PC) |
+| Template Override | Custom screen-recognition templates |
 
-Settings are stored in `%appdata%\MabaAssistantBlueArchive`.
+## ✦ Architecture
 
-## Tips
-
-> [!TIP]
-> Run the game in **windowed mode (16:9)** and leave the mouse alone while MABA works. If another window covers the game, MABA stops instead of clicking.
-
-> [!WARNING]
-> If the game runs as administrator, Windows blocks the input. Run the game and MABA with the same rights.
-
-- Set up the team (1-4) used for quests that have to be played in the game beforehand.
-- Write students to invite exactly as the game shows their names.
-
-## Development
-
-**Core** is C++20 (OpenCV), the **GUI** is C# WPF (.NET 10), and **OCR** runs in a Python sidecar (RapidOCR). Tasks are data in `tasks/*.json`, so changing the order or the steps needs no code change.
-
+```text
+MabaAssistantBlueArchive/
+│
+├── gui/                # C# WPF Desktop Application
+│   └── Maba.Gui
+│
+├── core/               # C++20 Automation Engine
+│   ├── include/maba    # Public Headers & C API
+│   ├── src             # Controller, Vision, Navigator, Task Engine
+│   │   └── platform/windows   # Screen Capture & Input (Windows only)
+│   ├── apps            # Command-line Tool (maba_cli)
+│   └── tests           # Unit Tests
+│
+├── ocr/                # Python OCR Sidecar
+├── tools/              # Template Capture & Check Tools
+│
+├── tasks/              # JSON Task Definitions
+├── pages/              # Page Recognition Definitions
+├── popups/             # Popup Recognition Definitions
+├── assets/             # Recognition Templates
+├── config/             # Language Configuration
+├── strings/            # In-game Text Keys for Recognition
+└── docs/               # Project Documentation
 ```
+
+### Task-driven Architecture
+
+The order and the steps of each task are declared in JSON files.
+
+`order` sets the run order; `after` is used only where a failed task must block the next one.
+
+Adding a task or changing the order needs no change to the engine code.
+
+## ✦ Installation
+
+### 1. Download
+
+Download the latest archive from [GitHub Releases](../../releases/latest).
+
+### 2. Extract
+
+Unpack the archive into any folder.
+
+### 3. Run
+
+Run `MabaAssistantBlueArchive.exe`.
+
+> **Runtime Notice**
+>
+> The release package includes the .NET runtime, the Python runtime, the OCR models and the screen-recognition templates, so nothing else needs to be installed.
+>
+> Settings are stored in `%APPDATA%\MabaAssistantBlueArchive`.
+
+### Before Running
+
+- Run the game in 16:9 windowed mode.
+- Leave the mouse alone while MABA is running. If another window covers the game, MABA stops instead of clicking.
+- Run the game and MABA with the same privilege level. If only the game runs as administrator, Windows blocks the input.
+- Set up teams 1-4 for quests in advance.
+- Enter the names of students to invite exactly as the game shows them. Example (Korean client): `아루, 히나(수영복)`
+
+### Template Customization
+
+The default screen-recognition templates are based on the Korean client.
+
+If recognition fails because of a different screen layout or UI, capture the templates again with the [template capture tool](tools/README.md).
+
+Custom templates go in `assets-local/` and take precedence over the default templates.
+
+When capturing, mask your nickname, UID, friend list and mail contents.
+
+## ✦ Build from Source
+
+### Requirements
+
+- Windows 10 / 11
+- Visual Studio 2022
+- CMake
+- vcpkg
+- .NET 10 SDK
+- Python 3.12
+
+The Windows build needs the `VCPKG_ROOT` environment variable.
+
+### Build Core
+
+```bash
 cmake --preset windows-msvc
+
 cmake --build --preset windows-msvc
+
 ctest --preset windows-msvc
+```
+
+### Build GUI
+
+```bash
 dotnet build gui/Maba.Gui -c Release
 ```
 
-The Windows build needs Visual Studio 2022 and `VCPKG_ROOT`. On Linux the `linux-dev` preset builds and tests the core logic.
+### Set up OCR
 
-Further reading: [architecture](docs/ARCHITECTURE.md) · [task format](docs/PAGE_FORMAT.md) · [roadmap](docs/ROADMAP.md) · [decisions](docs/DECISIONS.md)
+```bash
+python -m venv ocr/.venv
 
-<details>
-<summary><b>Open source used</b></summary>
+ocr/.venv/Scripts/python -m pip install -r ocr/requirements.txt
+```
 
-| Name | Version | License | Use |
-|---|---|---|---|
-| OpenCV | 4.12.0 | Apache-2.0 | template matching, image I/O |
-| nlohmann-json | 3.12.0 | MIT | reading data files |
-| HandyControls | 3.7.0 | MIT | GUI theme and controls |
-| CommunityToolkit.Mvvm | 8.4.2 | MIT | GUI MVVM |
-| RapidOCR | 3.10.0 | Apache-2.0 | OCR engine |
-| ONNX Runtime | 1.31.1 | MIT | OCR model inference |
-| PaddleOCR models | downloaded by RapidOCR | Apache-2.0 | text detection and recognition |
-| Pillow | 12.3.0 | MIT-CMU | template capture tool |
-| MaaTouch | supplied by the user | Apache-2.0 | emulator touch (optional, not included) |
-| .NET runtime | 10.0 | MIT | runs the GUI (included in releases) |
-| Python | 3.12.10 | PSF-2.0 | runs OCR (included in releases) |
+Core looks for Python in `ocr/.venv`, then the `ocr/python/` runtime bundled with a release, then `python` on PATH. See the [OCR documentation](ocr/README.md) for details.
 
-Full notices: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+### Linux Development
 
-</details>
+On Linux, the `linux-dev` preset builds and tests the platform-independent Core logic.
 
-## Contributing
+```bash
+cmake --preset linux-dev
 
-Please read the [contributing guide](CONTRIBUTING.md) first: it covers the commit format and the privacy check.
+cmake --build --preset linux-dev
 
-## License
+ctest --preset linux-dev --output-on-failure
+```
 
-The code is [AGPL-3.0-only](LICENSE).
+Required packages: `cmake g++ nlohmann-json3-dev`. For the Vision tests, add `libopencv-dev` and use the `linux-opencv` preset.
 
-Blue Archive and its images belong to NEXON Korea Corp. and NEXON GAMES Co., Ltd. and are not covered by this license; this includes the templates (pieces of game screens) shipped in the releases. This project is not affiliated with or endorsed by NEXON. Using automation may break the terms of service; any consequence, including account penalties, is your own responsibility.
+## ✦ Open Source Libraries
+
+MABA uses several open-source projects for screen recognition, OCR, JSON data handling and the user interface.
+
+The copyright and license of each library follow that project's terms.
+
+| Library | Version | Purpose | License |
+|:---|:---|:---|:---|
+| [OpenCV](https://github.com/opencv/opencv) | 4.12.0 | Image processing and screen recognition | Apache-2.0 |
+| [RapidOCR](https://github.com/RapidAI/RapidOCR) | 3.10.0 | OCR text recognition | Apache-2.0 |
+| [ONNX Runtime](https://github.com/microsoft/onnxruntime) | 1.31.1 | OCR model inference runtime | MIT |
+| [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) models | as fetched by RapidOCR 3.10.0 | Text detection and recognition models | Apache-2.0 |
+| [JSON for Modern C++](https://github.com/nlohmann/json) | 3.12.0 | C++ JSON parsing and serialization | MIT |
+| [HandyControls](https://github.com/HandyOrg/HandyControl) | 3.7.0 | WPF UI controls | MIT |
+| [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet) | 8.4.2 | C# MVVM support | MIT |
+| [Pillow](https://github.com/python-pillow/Pillow) | 12.3.0 | Template capture tool | MIT-CMU |
+| [zlib](https://zlib.net/) | as built by vcpkg | OpenCV dependency | Zlib |
+| [libpng](http://www.libpng.org/pub/png/libpng.html) | as built by vcpkg | OpenCV dependency | libpng-2.0 |
+| [libjpeg-turbo](https://libjpeg-turbo.org/) | as built by vcpkg | OpenCV dependency | IJG AND BSD-3-Clause AND Zlib |
+| [.NET Runtime](https://github.com/dotnet/runtime) | 10.0 | Runs the GUI (included in releases) | MIT |
+| [Python](https://www.python.org/) | 3.12.10 | Runs OCR (included in releases) | PSF-2.0 |
+| MaaTouch | supplied by the user | Emulator touch (optional, not included) | Apache-2.0 |
+
+
+### Third-party Notices
+
+- The copyright of each library belongs to its authors and the rights holders of that project.
+- The full license texts and copyright notices of each library are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+- The OCR models (PaddleOCR) are Apache-2.0; the runtimes, libraries and Python packages included in releases are also listed with their notices in `THIRD_PARTY_NOTICES.md`.
+- This software is based in part on the work of the Independent JPEG Group.
+
+## ✦ Documentation
+
+| Document | Description |
+|:---|:---|
+| [Architecture](docs/ARCHITECTURE.md) | System architecture |
+| [Task Format](docs/PAGE_FORMAT.md) | Page, popup and task JSON format |
+| [Roadmap](docs/ROADMAP.md) | Development roadmap |
+| [Decisions](docs/DECISIONS.md) | Technical design decisions |
+| [Tools](tools/README.md) | Template capture and check tools |
+| [OCR](ocr/README.md) | OCR sidecar setup and languages |
+| [Contributing](CONTRIBUTING.md) | Development and contribution guide |
+| [Third-party Notices](THIRD_PARTY_NOTICES.md) | Open-source licenses and copyright notices |
+
+## ✦ Contributing
+
+MABA is an open-source project.
+
+Bug reports, improvements and development contributions are welcome.
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before contributing. It covers the commit format and the privacy check.
+
+## ✦ License & Disclaimer
+
+This project is licensed under the **AGPL-3.0-only** license.
+
+Blue Archive and its related assets are the property of NEXON Korea Corp. and NEXON GAMES Co., Ltd. and are not covered by this project's license.
+
+- MABA is an independent, unofficial fan-made project.
+- The MABA name and the original artwork of its logo and icons are © 2026 ChoHye0N, the developer, and are not covered by this project's license.
+- Third-party libraries and their assets are subject to their respective licenses.
+- MABA uses image recognition and ordinary input only; it never reads or modifies game memory, files or network traffic.
+- Using automation software may violate the game's Terms of Service. Users are solely responsible for any consequences, including account restrictions.
+
+See [LICENSE](LICENSE) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for details.
+
+---
+
+<div align="center">
+
+[Back to Top](#maba)
+
+</div>
