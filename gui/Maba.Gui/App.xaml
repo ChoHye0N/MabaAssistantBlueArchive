@@ -10,7 +10,8 @@
             <ResourceDictionary.MergedDictionaries>
                 <hc:ThemeResources />
                 <hc:Theme />
-                <!-- UI text (Korean baseline). Other languages: add Strings.<lang>.xaml with the same keys. -->
+                <!-- UI text (Korean baseline). App.OnStartup merges Strings.<lang>.xaml on top for another
+                     display language (UiLanguages in App.xaml.cs). -->
                 <ResourceDictionary Source="Resources/Strings.ko.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

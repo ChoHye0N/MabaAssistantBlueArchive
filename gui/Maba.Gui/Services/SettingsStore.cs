@@ -8,7 +8,8 @@ namespace Maba.Gui.Services;
 public sealed class AppSettings
 {
     public string DataRoot { get; set; } = "";       // empty = auto-detect (folder with tasks/ and pages/)
-    public string Language { get; set; } = "ko";
+    public string Language { get; set; } = "ko";      // game client language (templates, OCR, strings/)
+    public string UiLanguage { get; set; } = "";      // display language: "" = Windows language, "ko", "en"
     public string Controller { get; set; } = "steam"; // "steam" | "adb"
     public string Capture { get; set; } = "bitblt";   // Steam: "bitblt" | "printwindow"
     public string AdbPath { get; set; } = "adb";

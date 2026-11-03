@@ -37,6 +37,7 @@ jobs:
       - run: python -m unittest discover tools/tests
       - run: python -m unittest discover ocr/tests
       - run: python tools/privacy_check.py
+      - run: python tools/check_ui_strings.py
 
   templates:
     runs-on: ubuntu-24.04

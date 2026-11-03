@@ -80,6 +80,7 @@ It never accesses game files, process memory or network packets. Only screen cap
 | Story Skip | Stories are only skipped, never read |
 | Task Configuration | Enable each task and set its details |
 | Account Tracking | Credits, Pyroxene and AP recorded per account (stored only on your PC) |
+| Display Language | Program UI in Korean and English (**Display language** in the settings; defaults to the Windows language) |
 | Template Override | Custom screen-recognition templates |
 
 ## ✦ Architecture

@@ -62,6 +62,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _scheduleHour = settings.ScheduleHour;
         _scheduleMinute = settings.ScheduleMinute;
         _dataRoot = SettingsStore.ResolveDataRoot(settings.DataRoot);
+        _uiLanguage = App.UiLanguages.Contains(settings.UiLanguage) ? settings.UiLanguage : "";
 
         _scheduleTimer = new DispatcherTimer(TimeSpan.FromSeconds(30), DispatcherPriority.Background,
                                              (_, _) => CheckSchedule(), dispatcher);
@@ -92,6 +93,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         new Choice("adb", "adb input"),
         new Choice("maatouch", "MaaTouch"),
+    };
+    // Language names are written in their own language, so they read the same in every UI language.
+    public IReadOnlyList<Choice> UiLanguageChoices { get; } = new[]
+    {
+        new Choice("", Strings.Get("Settings.UiLanguage.Auto")),
+        new Choice("ko", "한국어"),
+        new Choice("en", "English"),
     };
     public IReadOnlyList<Choice> ScheduleModes { get; } = new[]
     {
@@ -125,6 +133,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private int _scheduleMinute;
     [ObservableProperty] private string _scheduleWarning = "";
     [ObservableProperty] private string _dataRoot;
+    [ObservableProperty] private string _uiLanguage;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(StartCommand), nameof(StopCommand), nameof(RefreshDevicesCommand))]
@@ -258,6 +267,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _settings.ScheduleHour = Math.Clamp(ScheduleHour, 0, 23);
         _settings.ScheduleMinute = Math.Clamp(ScheduleMinute, 0, 59);
         _settings.DataRoot = DataRoot;
+        _settings.UiLanguage = UiLanguage;
         Save();
         _connected = false;  // connection settings may have changed: reconnect on the next start
         if (e.PropertyName is nameof(OcrEnabled) or nameof(DataRoot) && !IsRunning) CreateCore();

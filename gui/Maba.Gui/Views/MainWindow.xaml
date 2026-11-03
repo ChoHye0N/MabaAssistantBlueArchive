@@ -124,6 +124,13 @@
                 <hc:ScrollViewer>
                     <StackPanel Margin="12" MaxWidth="640" HorizontalAlignment="Left"
                                 IsEnabled="{Binding IsRunning, Converter={StaticResource Boolean2BooleanReConverter}}">
+                        <hc:ComboBox hc:InfoElement.Title="{DynamicResource Settings.UiLanguage}"
+                                     hc:InfoElement.TitlePlacement="Left" hc:InfoElement.TitleWidth="140"
+                                     ItemsSource="{Binding UiLanguageChoices}" DisplayMemberPath="Label"
+                                     SelectedValuePath="Value" SelectedValue="{Binding UiLanguage}" />
+                        <TextBlock Margin="140,4,0,16" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"
+                                   Text="{DynamicResource Settings.UiLanguageHint}" />
+
                         <TextBlock Style="{StaticResource TextBlockSubTitleBold}" HorizontalAlignment="Left"
                                    Text="{DynamicResource Settings.Connection}" Margin="0,0,0,8" />
                         <hc:ComboBox hc:InfoElement.Title="{DynamicResource Settings.Controller}"

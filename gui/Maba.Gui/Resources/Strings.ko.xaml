@@ -1,6 +1,7 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-only -->
 <!-- SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors -->
-<!-- GUI text, Korean (baseline). Keys are shared by every Strings.<lang>.xaml. -->
+<!-- GUI text, Korean (baseline). Keys are shared by every Strings.<lang>.xaml; another language is
+     merged on top of this one, so a key it lacks shows the Korean text. -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=System.Runtime">
@@ -86,6 +87,9 @@
     <sys:String x:Key="Status.CoreMissing">MabaCore.dll을 불러오지 못했습니다. 코어를 먼저 빌드하세요 (gui/README.md).</sys:String>
     <sys:String x:Key="Status.DataError">데이터 오류 (로그 확인)</sys:String>
 
+    <sys:String x:Key="Settings.UiLanguage">화면 언어</sys:String>
+    <sys:String x:Key="Settings.UiLanguage.Auto">자동 (Windows 언어)</sys:String>
+    <sys:String x:Key="Settings.UiLanguageHint">프로그램을 다시 시작하면 적용됩니다. 게임 언어와는 별개입니다.</sys:String>
     <sys:String x:Key="Settings.Connection">연결</sys:String>
     <sys:String x:Key="Settings.Controller">대상</sys:String>
     <sys:String x:Key="Settings.Controller.Steam">스팀 PC 클라이언트</sys:String>

@@ -50,6 +50,8 @@
 - [ ] Verify the Steam launch in the real client: settle time after the window appears, quit confirmation on `WM_CLOSE`, Steam not running or signed out
 - [ ] Unattended runs without the GUI open (Task Scheduler entry or start with Windows, tray)
 - [x] C# GUI (WPF, HandyControls, CommunityToolkit.Mvvm) over the C ABI, scheduler keyed to the server reset (`gui/`, `schedule.h`)
+- [x] GUI display language: Korean and English (`Strings.en.xaml`, setting with the Windows language as default), keys checked by `tools/check_ui_strings.py`
+- [ ] Check the English UI in the running GUI (text length in the settings layout); English game client support (templates, `strings/en.json`) is separate
 - [x] Schedule at a local clock time as an alternative to "reset + delay", with a warning close to the reset (`ClockSchedule`)
 - [x] Language matrix + CI template check (`tools/check_templates.py`, `.github/workflows/ci.yml`)
 

@@ -1,0 +1,145 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-only -->
+<!-- SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors -->
+<!-- GUI text, English. Same keys as Strings.ko.xaml (tools/check_ui_strings.py compares them).
+     Game terms follow the global client's English UI (Café, Schedule, Club, Bounty, Tasks, Mailbox, Sweep). -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+    <sys:String x:Key="App.Title">MABA - Blue Archive Daily Assistant</sys:String>
+
+    <sys:String x:Key="Tab.Tasks">Dailies</sys:String>
+    <sys:String x:Key="Tab.Settings">Settings</sys:String>
+    <sys:String x:Key="Tab.Log">Log</sys:String>
+
+    <sys:String x:Key="Tasks.Header">Dailies to run</sys:String>
+    <sys:String x:Key="Tasks.Start">Start</sys:String>
+    <sys:String x:Key="Tasks.Stop">Stop</sys:String>
+    <sys:String x:Key="Tasks.Reload">Reload data</sys:String>
+    <sys:String x:Key="Tasks.After">After</sys:String>
+    <sys:String x:Key="Tasks.Ocr">OCR</sys:String>
+    <sys:String x:Key="Tasks.Hint">Dailies run in list order. AP is collected first and then spent; after the Mailbox (AP above the cap), the remaining AP is spent once more.</sys:String>
+    <sys:String x:Key="Tasks.Settings">Settings</sys:String>
+    <sys:String x:Key="Task.NotImplemented">Not implemented yet</sys:String>
+    <!-- Display names by task id (tasks/*.json); a missing id falls back to the task's own name. -->
+    <sys:String x:Key="Task.cafe">Café: collect earnings, invite and tap students</sys:String>
+    <sys:String x:Key="Task.schedule">Schedule: use tickets</sys:String>
+    <sys:String x:Key="Task.circle">Club: attendance (if you are in one)</sys:String>
+    <sys:String x:Key="Task.free_package">Pyroxene shop: daily free package</sys:String>
+    <sys:String x:Key="Task.shop">Shop: buy from the General list</sys:String>
+    <sys:String x:Key="Task.bounty">Bounty: use tickets</sys:String>
+    <sys:String x:Key="Task.spend_ap">Spend AP (event first)</sys:String>
+    <sys:String x:Key="Task.tactical_challenge">Tactical Challenge: claim rewards, use tickets</sys:String>
+    <sys:String x:Key="Task.mail_claim_all">Mailbox: claim all</sys:String>
+    <sys:String x:Key="Task.spend_ap_rest">Spend remaining AP (after the Mailbox)</sys:String>
+    <sys:String x:Key="Task.mission_claim_all">Tasks: claim all</sys:String>
+    <sys:String x:Key="Task.account_info">Account record: Credits, Pyroxene and AP per UID</sys:String>
+    <!-- Setting labels by task id and key; a missing one falls back to the task file's description. -->
+    <sys:String x:Key="Setting.cafe.tap_students">Tap students</sys:String>
+    <sys:String x:Key="Setting.cafe.second_cafe">Also run the second café</sys:String>
+    <sys:String x:Key="Setting.cafe.invite">Use invitation tickets</sys:String>
+    <sys:String x:Key="Setting.cafe.invite_first">Students to invite to café 1 (by priority, comma-separated, as shown in the game)</sys:String>
+    <sys:String x:Key="Setting.cafe.invite_second">Students to invite to café 2 (by priority, comma-separated)</sys:String>
+    <sys:String x:Key="Setting.shop.buy_reports">With "buy all", also buy Activity Reports (row 1)</sys:String>
+    <sys:String x:Key="Setting.spend_ap.clear_quests">Clear event quests not cleared yet</sys:String>
+    <sys:String x:Key="Setting.spend_ap.quest_team">Team for quests (1-4, with bonus students)</sys:String>
+    <sys:String x:Key="Setting.spend_ap_rest.clear_quests">Clear event quests not cleared yet</sys:String>
+    <sys:String x:Key="Setting.spend_ap_rest.quest_team">Team for quests (1-4, with bonus students)</sys:String>
+    <sys:String x:Key="Setting.schedule.locations">Locations to use (checked ones, in list order)</sys:String>
+    <sys:String x:Key="Setting.shop.mode">Purchase mode (all: everything, selected: chosen items)</sys:String>
+    <sys:String x:Key="Setting.shop.items">Items for "selected" mode (comma-separated)</sys:String>
+    <sys:String x:Key="Setting.bounty.location">Location (1-3 from the top of the list)</sys:String>
+    <sys:String x:Key="Setting.spend_ap.targets">AP spending order (event, mission, scrimmage)</sys:String>
+    <sys:String x:Key="Setting.spend_ap.event_banner">Event banner (1 = newest)</sys:String>
+    <sys:String x:Key="Setting.spend_ap.event_story">Play the event story (story scenes are skipped)</sys:String>
+    <sys:String x:Key="Setting.spend_ap.academy">Scrimmage school (1-3 from the top of the list)</sys:String>
+    <sys:String x:Key="Setting.spend_ap_rest.targets">AP spending order (event, mission, scrimmage)</sys:String>
+    <sys:String x:Key="Setting.spend_ap_rest.event_banner">Event banner (1 = newest)</sys:String>
+    <sys:String x:Key="Setting.spend_ap_rest.event_story">Play the event story (story scenes are skipped)</sys:String>
+    <sys:String x:Key="Setting.spend_ap_rest.academy">Scrimmage school (1-3 from the top of the list)</sys:String>
+    <sys:String x:Key="Setting.bounty.stage">Stage to sweep (highest = highest 3-star stage, or its number)</sys:String>
+    <sys:String x:Key="Setting.spend_ap.quest_stage">Event quest to sweep (highest, or 01-12)</sys:String>
+    <sys:String x:Key="Setting.spend_ap.mission_stage">Mission stage to sweep (highest, or its number)</sys:String>
+    <sys:String x:Key="Setting.spend_ap.scrimmage_stage">Scrimmage stage to sweep (highest, or its number)</sys:String>
+    <sys:String x:Key="Setting.spend_ap_rest.quest_stage">Event quest to sweep (highest, or 01-12)</sys:String>
+    <sys:String x:Key="Setting.spend_ap_rest.mission_stage">Mission stage to sweep (highest, or its number)</sys:String>
+    <sys:String x:Key="Setting.spend_ap_rest.scrimmage_stage">Scrimmage stage to sweep (highest, or its number)</sys:String>
+    <sys:String x:Key="Setting.ListExample">Names as shown in the game, e.g. Aru, Hina (Swimsuit)</sys:String>
+    <sys:String x:Key="Setting.tactical_challenge.claim_rewards">Claim rewards</sys:String>
+    <sys:String x:Key="Setting.tactical_challenge.matches">Matches (up to 5)</sys:String>
+    <sys:String x:Key="Setting.tactical_challenge.opponent">Opponent (1-3 from the top of the list)</sys:String>
+
+    <sys:String x:Key="Status.pending">Pending</sys:String>
+    <sys:String x:Key="Status.running">Running</sys:String>
+    <sys:String x:Key="Status.succeeded">Done</sys:String>
+    <sys:String x:Key="Status.failed">Failed</sys:String>
+    <sys:String x:Key="Status.skipped">Skipped</sys:String>
+    <sys:String x:Key="Status.cancelled">Cancelled</sys:String>
+    <sys:String x:Key="Status.Ready">Ready</sys:String>
+    <sys:String x:Key="Status.Connecting">Connecting...</sys:String>
+    <sys:String x:Key="Status.ConnectFailed">Connection failed (see the log)</sys:String>
+    <sys:String x:Key="Status.StartFailed">Could not start (see the log)</sys:String>
+    <sys:String x:Key="Status.Running">Running</sys:String>
+    <sys:String x:Key="Status.RunningScheduled">Running (scheduled)</sys:String>
+    <sys:String x:Key="Status.Stopping">Stopping...</sys:String>
+    <sys:String x:Key="Status.Finished">All dailies done</sys:String>
+    <sys:String x:Key="Status.FinishedWithErrors">Some dailies failed (see the log)</sys:String>
+    <sys:String x:Key="Status.Cancelled">Stopped</sys:String>
+    <sys:String x:Key="Status.CoreMissing">Could not load MabaCore.dll. Build the core first (gui/README.md).</sys:String>
+    <sys:String x:Key="Status.DataError">Data error (see the log)</sys:String>
+
+    <sys:String x:Key="Settings.UiLanguage">Display language</sys:String>
+    <sys:String x:Key="Settings.UiLanguage.Auto">Automatic (Windows language)</sys:String>
+    <sys:String x:Key="Settings.UiLanguageHint">Takes effect after restarting the program. The game's own language is separate.</sys:String>
+    <sys:String x:Key="Settings.Connection">Connection</sys:String>
+    <sys:String x:Key="Settings.Controller">Target</sys:String>
+    <sys:String x:Key="Settings.Controller.Steam">Steam PC client</sys:String>
+    <sys:String x:Key="Settings.Controller.Adb">Emulator (ADB)</sys:String>
+    <sys:String x:Key="Settings.Capture">Capture method</sys:String>
+    <sys:String x:Key="Settings.CaptureHint">BitBlt: fast, but the game window must not be covered. PrintWindow: works when covered, but may return a black screen.</sys:String>
+    <sys:String x:Key="Settings.AdbPath">adb path</sys:String>
+    <sys:String x:Key="Settings.AdbSerial">Device address</sys:String>
+    <sys:String x:Key="Settings.AdbSerialHint">MuMu 12: 127.0.0.1:16384, LDPlayer: emulator-5554, BlueStacks: 127.0.0.1:5555 (verify)</sys:String>
+    <sys:String x:Key="Settings.FindDevices">Find devices</sys:String>
+    <sys:String x:Key="Settings.Screencap">Screen capture</sys:String>
+    <sys:String x:Key="Settings.Touch">Input method</sys:String>
+    <sys:String x:Key="Settings.MaaTouchPath">MaaTouch file</sys:String>
+    <sys:String x:Key="Settings.BackKeycode">Back key code</sys:String>
+    <sys:String x:Key="Settings.Launch">Launch</sys:String>
+    <sys:String x:Key="Settings.StartEmulator">Start the emulator if it is not running</sys:String>
+    <sys:String x:Key="Settings.EmulatorPath">Emulator executable</sys:String>
+    <sys:String x:Key="Settings.EmulatorArgs">Arguments</sys:String>
+    <sys:String x:Key="Settings.EmulatorPathHint">e.g. MuMu 12 …\nx_main\MuMuNxMain.exe, arguments -v 0 (changed to the instance executable automatically) / LDPlayer 9 dnplayer.exe, arguments index=0 / BlueStacks 5 HD-Player.exe, arguments --instance Pie64 (verify)</sys:String>
+    <sys:String x:Key="Settings.StartGame">Start the game if it is not running</sys:String>
+    <sys:String x:Key="Settings.CloseGameAfter">Close the game when done</sys:String>
+    <sys:String x:Key="Settings.CloseEmulatorAfter">Close the emulator when done (only if this run started it)</sys:String>
+    <sys:String x:Key="Settings.SteamStartGame">Start the game through Steam if it is not running</sys:String>
+    <sys:String x:Key="Settings.SteamLaunchHint">If Steam is not running, it starts first and the run waits for it to sign in (up to 3 minutes). The game is closed through its window, and ended if it does not close. A run you stop yourself leaves the game open.</sys:String>
+    <sys:String x:Key="Settings.LaunchHint">Starting the emulator and waiting for it to boot can take a few minutes. A run you stop yourself leaves the game and the emulator open.</sys:String>
+    <sys:String x:Key="Settings.BackKeycodeHint">111 = ESC, 4 = BACK. Check which one acts as "back" in the game.</sys:String>
+    <sys:String x:Key="Settings.Auto">Automatic (faster one)</sys:String>
+    <sys:String x:Key="Settings.Ocr">Use OCR (RapidOCR sidecar in ocr/.venv)</sys:String>
+    <sys:String x:Key="Settings.DataRoot">Data folder</sys:String>
+    <sys:String x:Key="Settings.Schedule">Scheduled run</sys:String>
+    <sys:String x:Key="Settings.ScheduleEnabled">Run every day (while the program is open)</sys:String>
+    <sys:String x:Key="Settings.ScheduleMode">Run time</sys:String>
+    <sys:String x:Key="Schedule.Mode.Reset">After the server reset</sys:String>
+    <sys:String x:Key="Schedule.Mode.Clock">At a set time every day</sys:String>
+    <sys:String x:Key="Settings.ClockTime">Time (this PC's clock)</sys:String>
+    <sys:String x:Key="Settings.ClockHint">If the PC was off and the time was missed, the run starts as soon as the program opens. The server reset time below is still used.</sys:String>
+    <sys:String x:Key="Settings.ResetTime">Server reset (UTC)</sys:String>
+    <sys:String x:Key="Settings.ResetLocal">Local time {0} (the default 04:00 KST needs verifying)</sys:String>
+    <sys:String x:Key="Settings.Delay">Wait after the reset (minutes)</sys:String>
+
+    <sys:String x:Key="Schedule.Off">Schedule off</sys:String>
+    <sys:String x:Key="Schedule.Next">Next scheduled run: {0}</sys:String>
+    <sys:String x:Key="Schedule.Invalid">The schedule settings are not valid</sys:String>
+    <sys:String x:Key="Schedule.NearReset">This is {0} minutes before the server reset, so the day may change during the run. A time after the reset is recommended.</sys:String>
+
+    <sys:String x:Key="Log.Clear">Clear</sys:String>
+    <sys:String x:Key="Log.SaveFailed">Could not save the settings.</sys:String>
+    <sys:String x:Key="Log.NoDevices">No devices connected.</sys:String>
+    <sys:String x:Key="Log.FailureFrame">Saved the failure screen: {0}</sys:String>
+    <sys:String x:Key="Log.ScheduledStart">Scheduled time reached; starting the dailies.</sys:String>
+
+    <sys:String x:Key="About.Disclaimer">This tool only uses screen recognition and ordinary input. Using automation tools may violate the game's terms of service; the risk is yours.</sys:String>
+</ResourceDictionary>

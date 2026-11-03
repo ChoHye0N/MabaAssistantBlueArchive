@@ -80,6 +80,7 @@ MABA는 블루 아카이브의 반복적인 일일 숙제를 자동으로 처리
 | Story Skip | 스토리는 읽지 않고 건너뛰기만 수행 |
 | Task Configuration | 작업별 활성화 및 세부 설정 |
 | Account Tracking | 계정별 크레딧, 청휘석, 활동력 기록 (PC에만 저장) |
+| Display Language | 프로그램 화면 한국어, 영어 지원 (설정의 **화면 언어**, 기본값은 Windows 언어) |
 | Template Override | 사용자 정의 화면 인식 템플릿 지원 |
 
 ## ✦ Architecture

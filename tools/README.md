@@ -20,6 +20,9 @@ Lists, per task and language, the templates the task needs (its steps including 
 - `--committed`: ignore `assets-local/` (what CI sees). `--json`: machine-readable.
 - `--strict`: exit 1 if a task with `"status": "ready"` misses a template in a confirmed language (CI runs this).
 
+## GUI string tables (`check_ui_strings.py`)
+`python tools/check_ui_strings.py` compares every `gui/Maba.Gui/Resources/Strings.<lang>.xaml` with the Korean baseline: missing or extra keys, duplicates, empty texts and `{0}` placeholders that differ. Exit 1 on any problem (CI runs it). Standard library only.
+
 ## Privacy check (available now)
 `python tools/privacy_check.py` scans files that would be committed for emails, local user paths, tokens, keys and any personal terms listed in `.privacy-terms.local` (gitignored). `--staged` checks staged content only. Enable the pre-commit hook once per clone with `git config core.hooksPath .githooks`; it also requires the commit author email to be a GitHub noreply address.
 
