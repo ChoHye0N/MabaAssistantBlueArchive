@@ -205,6 +205,23 @@
                                    Text="{DynamicResource Settings.Schedule}" Margin="0,0,0,8" />
                         <CheckBox Content="{DynamicResource Settings.ScheduleEnabled}" IsChecked="{Binding ScheduleEnabled}"
                                   Margin="0,0,0,8" />
+                        <hc:ComboBox hc:InfoElement.Title="{DynamicResource Settings.ScheduleMode}"
+                                     hc:InfoElement.TitlePlacement="Left" hc:InfoElement.TitleWidth="140"
+                                     ItemsSource="{Binding ScheduleModes}" DisplayMemberPath="Label"
+                                     SelectedValuePath="Value" SelectedValue="{Binding ScheduleMode}" Margin="0,0,0,8" />
+                        <StackPanel Visibility="{Binding IsClockSchedule, Converter={StaticResource Boolean2VisibilityConverter}}">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                <TextBlock Width="140" VerticalAlignment="Center" Text="{DynamicResource Settings.ClockTime}" />
+                                <hc:NumericUpDown Width="90" Minimum="0" Maximum="23" Value="{Binding ScheduleHour}" />
+                                <TextBlock Margin="6,0" VerticalAlignment="Center" Text=":" />
+                                <hc:NumericUpDown Width="90" Minimum="0" Maximum="59" Value="{Binding ScheduleMinute}" />
+                            </StackPanel>
+                            <TextBlock Margin="140,0,0,8" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"
+                                       Text="{DynamicResource Settings.ClockHint}" />
+                            <TextBlock Margin="140,0,0,8" TextWrapping="Wrap" Foreground="{DynamicResource WarningBrush}"
+                                       Text="{Binding ScheduleWarning}"
+                                       Visibility="{Binding ScheduleWarning, Converter={StaticResource String2VisibilityConverter}}" />
+                        </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                             <TextBlock Width="140" VerticalAlignment="Center" Text="{DynamicResource Settings.ResetTime}" />
                             <hc:NumericUpDown Width="90" Minimum="0" Maximum="23" Value="{Binding ResetHourUtc}" />
@@ -215,7 +232,9 @@
                         <hc:NumericUpDown hc:InfoElement.Title="{DynamicResource Settings.Delay}"
                                           hc:InfoElement.TitlePlacement="Left" hc:InfoElement.TitleWidth="140"
                                           Minimum="0" Maximum="600" Value="{Binding DelayMinutes}"
-                                          Style="{StaticResource NumericUpDownExtend}" Margin="0,0,0,16" />
+                                          Visibility="{Binding IsResetSchedule, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                          Style="{StaticResource NumericUpDownExtend}" Margin="0,0,0,8" />
+                        <Border Height="8" />
 
                         <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"
                                    Text="{DynamicResource About.Disclaimer}" />

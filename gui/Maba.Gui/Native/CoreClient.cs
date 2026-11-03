@@ -16,7 +16,8 @@ public sealed record CoreSetting(string Key, string Type, JsonNode? Default, int
 
 public sealed record AdbDevice(string Serial, string State);
 
-public sealed record ScheduleInfo(bool Due, DateTimeOffset Next);
+// MinutesBeforeReset: clock mode only, from the run slot to the next server reset.
+public sealed record ScheduleInfo(bool Due, DateTimeOffset Next, int? MinutesBeforeReset);
 
 // Managed wrapper around one native instance. Events arrive on a worker thread as JSON;
 // `EventReceived` is raised on that thread, so subscribers marshal to the UI themselves.
@@ -114,9 +115,11 @@ public sealed class CoreClient : IDisposable
             .ToList();
     }
 
-    // Server-reset based schedule, computed by Core (core/include/maba/schedule.h).
+    // Daily schedule computed by Core (core/include/maba/schedule.h): `mode` "reset" runs
+    // `delayMinutes` after the server reset, "clock" runs at `hour`:`minute` local time.
     public static ScheduleInfo? NextRun(DateTimeOffset now, DateTimeOffset? lastRun, int resetHourUtc,
-                                        int resetMinuteUtc, int delayMinutes)
+                                        int resetMinuteUtc, int delayMinutes,
+                                        string mode = "reset", int hour = 0, int minute = 0)
     {
         var args = new JsonObject
         {
@@ -125,11 +128,20 @@ public sealed class CoreClient : IDisposable
             ["reset_hour_utc"] = resetHourUtc,
             ["reset_minute_utc"] = resetMinuteUtc,
             ["delay_minutes"] = delayMinutes,
+            ["mode"] = mode,
         };
+        if (mode == "clock")
+        {
+            args["hour"] = hour;
+            args["minute"] = minute;
+            // The offset in effect now, so a daylight-saving change follows the PC clock.
+            args["utc_offset_minutes"] = (int)TimeZoneInfo.Local.GetUtcOffset(now).TotalMinutes;
+        }
         var res = JsonNode.Parse(NativeMethods.Utf8(NativeMethods.MabaScheduleNext(args.ToJsonString())))?.AsObject();
         if (res is null || res["ok"]?.GetValue<bool>() != true) return null;
         return new ScheduleInfo(res["due"]!.GetValue<bool>(),
-                                DateTimeOffset.FromUnixTimeSeconds(res["next"]!.GetValue<long>()));
+                                DateTimeOffset.FromUnixTimeSeconds(res["next"]!.GetValue<long>()),
+                                res["minutes_before_reset"]?.GetValue<int>());
     }
 
     private IntPtr Handle => _handle != IntPtr.Zero ? _handle : throw new ObjectDisposedException(nameof(CoreClient));

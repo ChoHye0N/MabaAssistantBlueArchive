@@ -56,6 +56,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _resetHourUtc = settings.ResetHourUtc;
         _resetMinuteUtc = settings.ResetMinuteUtc;
         _delayMinutes = settings.DelayMinutes;
+        _scheduleMode = settings.ScheduleMode == "clock" ? "clock" : "reset";
+        _scheduleHour = settings.ScheduleHour;
+        _scheduleMinute = settings.ScheduleMinute;
         _dataRoot = SettingsStore.ResolveDataRoot(settings.DataRoot);
 
         _scheduleTimer = new DispatcherTimer(TimeSpan.FromSeconds(30), DispatcherPriority.Background,
@@ -88,6 +91,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
         new Choice("adb", "adb input"),
         new Choice("maatouch", "MaaTouch"),
     };
+    public IReadOnlyList<Choice> ScheduleModes { get; } = new[]
+    {
+        new Choice("reset", Strings.Get("Schedule.Mode.Reset")),
+        new Choice("clock", Strings.Get("Schedule.Mode.Clock")),
+    };
 
     [ObservableProperty] private string _controller;
     [ObservableProperty] private string _capture;
@@ -108,6 +116,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private int _resetHourUtc;
     [ObservableProperty] private int _resetMinuteUtc;
     [ObservableProperty] private int _delayMinutes;
+    [ObservableProperty] private string _scheduleMode;
+    [ObservableProperty] private int _scheduleHour;
+    [ObservableProperty] private int _scheduleMinute;
+    [ObservableProperty] private string _scheduleWarning = "";
     [ObservableProperty] private string _dataRoot;
 
     [ObservableProperty]
@@ -121,6 +133,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public bool IsAdb => Controller == "adb";
     public bool IsSteam => Controller == "steam";
+    public bool IsClockSchedule => ScheduleMode == "clock";
+    public bool IsResetSchedule => !IsClockSchedule;
     public string ResetLocalText =>
         Strings.Format("Settings.ResetLocal",
                        new DateTimeOffset(2000, 1, 1, ResetHourUtc, ResetMinuteUtc, 0, TimeSpan.Zero)
@@ -198,6 +212,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
             case nameof(ResetMinuteUtc):
                 OnPropertyChanged(nameof(ResetLocalText));
                 break;
+            case nameof(ScheduleMode):
+                OnPropertyChanged(nameof(IsClockSchedule));
+                OnPropertyChanged(nameof(IsResetSchedule));
+                break;
             case nameof(IsRunning):
             case nameof(StatusText):
             case nameof(NextRunText):
@@ -206,6 +224,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
             case nameof(IsAdb):
             case nameof(IsSteam):
             case nameof(ResetLocalText):
+            case nameof(IsClockSchedule):
+            case nameof(IsResetSchedule):
+            case nameof(ScheduleWarning):
                 return;
         }
         _settings.Controller = Controller;
@@ -227,6 +248,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _settings.ResetHourUtc = Math.Clamp(ResetHourUtc, 0, 23);
         _settings.ResetMinuteUtc = Math.Clamp(ResetMinuteUtc, 0, 59);
         _settings.DelayMinutes = Math.Clamp(DelayMinutes, 0, 600);
+        _settings.ScheduleMode = ScheduleMode;
+        _settings.ScheduleHour = Math.Clamp(ScheduleHour, 0, 23);
+        _settings.ScheduleMinute = Math.Clamp(ScheduleMinute, 0, 59);
         _settings.DataRoot = DataRoot;
         Save();
         _connected = false;  // connection settings may have changed: reconnect on the next start
@@ -401,26 +425,35 @@ public partial class MainViewModel : ObservableObject, IDisposable
         while (Log.Count > MaxLogEntries) Log.RemoveAt(0);
     }
 
+    private ScheduleInfo? QuerySchedule() =>
+        CoreClient.NextRun(DateTimeOffset.UtcNow, _settings.LastScheduledRun, ResetHourUtc, ResetMinuteUtc,
+                           DelayMinutes, ScheduleMode, ScheduleHour, ScheduleMinute);
+
+    // A run started shortly before the server reset may still be going when the game day changes.
+    private const int NearResetMinutes = 60;
+
     private void UpdateNextRun()
     {
         if (!ScheduleEnabled || !CoreAvailable)
         {
             NextRunText = Strings.Get("Schedule.Off");
+            ScheduleWarning = "";
             return;
         }
-        var info = CoreClient.NextRun(DateTimeOffset.UtcNow, _settings.LastScheduledRun, ResetHourUtc,
-                                      ResetMinuteUtc, DelayMinutes);
+        var info = QuerySchedule();
         NextRunText = info is null
             ? Strings.Get("Schedule.Invalid")
             : Strings.Format("Schedule.Next", info.Next.ToLocalTime().ToString("yyyy-MM-dd HH:mm"));
+        ScheduleWarning = info?.MinutesBeforeReset is int m && m < NearResetMinutes
+            ? Strings.Format("Schedule.NearReset", m)
+            : "";
     }
 
     private void CheckSchedule()
     {
         UpdateNextRun();
         if (!ScheduleEnabled || !CoreAvailable || IsRunning) return;
-        var info = CoreClient.NextRun(DateTimeOffset.UtcNow, _settings.LastScheduledRun, ResetHourUtc,
-                                      ResetMinuteUtc, DelayMinutes);
+        var info = QuerySchedule();
         if (info?.Due != true) return;
         AddLog("info", Strings.Get("Log.ScheduledStart"));
         StartRun(scheduled: true);

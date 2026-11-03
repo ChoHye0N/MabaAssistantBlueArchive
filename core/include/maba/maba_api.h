@@ -75,10 +75,14 @@ MABA_API int MABA_CALL MabaIsRunning(MabaHandle handle);
 // `adb devices` as JSON: [{"serial", "state"}]. adb_path may be null ("adb").
 MABA_API const char* MABA_CALL MabaListAdbDevices(MabaHandle handle, const char* adb_path);
 
-// Daily schedule (server reset based):
+// Daily schedule, once per day:
 // in  {"now": unix, "last_run": unix|0, "reset_hour_utc": 19, "reset_minute_utc": 0,
-//      "delay_minutes": 5}
-// out {"ok": true, "due": bool, "next": unix, "slot": unix} or {"ok": false, "error": "..."}
+//      "delay_minutes": 5, "mode": "reset"|"clock"}
+//     mode "reset" (default): run `delay_minutes` after the server reset.
+//     mode "clock": run at a local time; add {"hour": 0-23, "minute": 0-59,
+//     "utc_offset_minutes": local offset now}. The reset fields still name the server reset.
+// out {"ok": true, "due": bool, "next": unix, "slot": unix} or {"ok": false, "error": "..."};
+//     mode "clock" adds "minutes_before_reset" (slot to the next server reset).
 MABA_API const char* MABA_CALL MabaScheduleNext(const char* json);
 
 #ifdef __cplusplus

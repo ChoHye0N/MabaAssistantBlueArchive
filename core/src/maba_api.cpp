@@ -205,7 +205,7 @@ extern "C" {
 
 MABA_API const char* MABA_CALL MabaGetVersion(void) { return MABA_VERSION_STRING; }
 
-MABA_API int MABA_CALL MabaApiVersion(void) { return 4; }
+MABA_API int MABA_CALL MabaApiVersion(void) { return 5; }
 
 MABA_API MabaHandle MABA_CALL MabaCreate(const char* config_json, MabaEventCallback callback,
                                          void* user_data) {
@@ -466,17 +466,27 @@ MABA_API const char* MABA_CALL MabaScheduleNext(const char* json_text) {
     json out;
     try {
         const json in = json::parse(json_text ? json_text : "{}");
-        maba::DailySchedule s;
-        s.reset_hour_utc = in.value("reset_hour_utc", s.reset_hour_utc);
-        s.reset_minute_utc = in.value("reset_minute_utc", s.reset_minute_utc);
-        s.delay_minutes = in.value("delay_minutes", s.delay_minutes);
-        if (!maba::IsValid(s)) throw std::runtime_error("schedule values out of range");
+        maba::DailySchedule server;
+        server.reset_hour_utc = in.value("reset_hour_utc", server.reset_hour_utc);
+        server.reset_minute_utc = in.value("reset_minute_utc", server.reset_minute_utc);
+        server.delay_minutes = in.value("delay_minutes", server.delay_minutes);
+        if (!maba::IsValid(server)) throw std::runtime_error("schedule values out of range");
+        const std::string mode = in.value("mode", std::string("reset"));
+        maba::DailySchedule s = server;
+        if (mode == "clock") {
+            if (!maba::ClockSchedule(in.at("hour").get<int>(), in.at("minute").get<int>(),
+                                     in.value("utc_offset_minutes", 0), s))
+                throw std::runtime_error("clock time out of range");
+        } else if (mode != "reset") {
+            throw std::runtime_error("unknown schedule mode: " + mode);
+        }
         const std::int64_t now = in.at("now").get<std::int64_t>();
         const std::int64_t last = in.value("last_run", std::int64_t{0});
         out = {{"ok", true},
                {"due", maba::IsDue(now, last, s)},
                {"next", maba::NextRun(now, last, s)},
                {"slot", maba::CurrentSlot(now, s)}};
+        if (mode == "clock") out["minutes_before_reset"] = maba::MinutesBeforeReset(s, server);
     } catch (const std::exception& e) {
         out = {{"ok", false}, {"error", e.what()}};
     }

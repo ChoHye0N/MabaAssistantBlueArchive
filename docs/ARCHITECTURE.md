@@ -55,7 +55,7 @@ Contract (`controller.h`): frames are returned scaled to **1280x720** and all co
 - `TaskRunner` (`task_runner.h`): enters the game from start-up screens once (`EnterGame`), returns home before each task and after a failure (recovery); runs the steps with their caps; a step marked `optional` only logs its failure. A task without steps is skipped as "not implemented" and does not block dependents. A selected dependency that failed blocks its dependents (mail after AP spending).
 - Required ordering rule: mail claim runs after AP spending (AP above the 999 cap waits in the mailbox), and a second AP pass spends it after mail.
 - Daily run order (owner): cafe, schedule, circle, daily free package, shop, bounty, AP spending, tactical challenge, mail, remaining AP spending, missions. `RepoTaskFilesLoad` in `core/tests/task_tests.cpp` checks it.
-- Scheduling is keyed to the server reset time (a setting), not local midnight: `schedule.h` computes the daily slot (reset + delay) in UTC; the GUI asks Core through `MabaScheduleNext`.
+- Scheduling is keyed to the server reset time (a setting), not local midnight: `schedule.h` computes the daily slot (reset + delay) in UTC; the GUI asks Core through `MabaScheduleNext`. A clock-time mode runs at a local time instead (the GUI passes the current UTC offset); a missed slot runs as soon as the GUI is open, and the GUI warns when the time is less than an hour before the reset.
 
 ## Vision and OCR
 - Colour blobs (`color.h`, portable): pixels inside an HSV range, connected and filtered by size. For markers whose shape animates and for states template matching cannot see (it ignores brightness, so a dimmed card still matches).
@@ -76,7 +76,7 @@ core    -> {"id": 2, "op": "ping"} | {"id": 3, "op": "shutdown"}
 A startup failure is reported as `{"error": "..."}` instead of the ready line. Core skips stale responses by id, restarts a crashed sidecar at most `max_restarts` times, and times out every request.
 
 ## C ABI
-`core/include/maba/maba_api.h`, versioned by `MabaApiVersion()` (currently 4: emulator launch in `MabaStart`). Functions take and return UTF-8 JSON; returned strings stay valid until the next call on the same handle.
+`core/include/maba/maba_api.h`, versioned by `MabaApiVersion()` (currently 5: clock-time mode in `MabaScheduleNext`; 4 added emulator launch in `MabaStart`). Functions take and return UTF-8 JSON; returned strings stay valid until the next call on the same handle.
 
 | Function | Purpose |
 |---|---|
@@ -85,7 +85,7 @@ A startup failure is reported as `{"error": "..."}` instead of the ready line. C
 | `MabaConnect(json)` | `{"type": "steam", "capture"}` or `{"type": "adb", "adb_path", "serial", "screencap", "touch", "maatouch_path", "back_keycode"}` |
 | `MabaStart({"tasks": [...], "settings": {"<task id>": {"<key>": value}}, "connect", "launch", "finish"})`, `MabaStop`, `MabaIsRunning` | run on a worker thread; stop is cooperative and bounded; settings are validated before the run starts. Optional `connect` (MabaConnect arguments) connects on the worker; with type `adb`, `launch` (`emulator_path`, `emulator_args`, `start_game`, `game_activity`, `boot_timeout_s`, `game_timeout_s`) starts the emulator and the game first and `finish` (`close_game`, `close_emulator`) closes them after a run that was not stopped |
 | `MabaListAdbDevices(adb_path)` | `[{"serial", "state"}]` |
-| `MabaScheduleNext(json)` | `{"due", "next", "slot"}` for the daily schedule |
+| `MabaScheduleNext(json)` | `{"due", "next", "slot"}` for the daily schedule; `"mode": "clock"` with `hour`, `minute`, `utc_offset_minutes` runs at a local time and adds `minutes_before_reset` |
 
 Events (callback, worker thread): `{"type": "log", "level", "message"}`, `{"type": "task", "id", "status", "message", "values"}`, `{"type": "run", "status": "started" | "finished", "ok", "cancelled", "error"}`, `{"type": "failure_frame", "path", "reason"}`.
 

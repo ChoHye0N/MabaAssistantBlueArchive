@@ -16,7 +16,7 @@ namespace {
 using nlohmann::json;
 
 MABA_TEST(ApiVersion) {
-    CHECK(MabaApiVersion() == 4);
+    CHECK(MabaApiVersion() == 5);
     CHECK(std::strlen(MabaGetVersion()) > 0);
 }
 
@@ -28,6 +28,15 @@ MABA_TEST(ApiScheduleNext) {
     CHECK(bad["ok"] == false);
     const json missing = json::parse(MabaScheduleNext("{}"));
     CHECK(missing["ok"] == false);
+    // 07:30 KST = 22:30 UTC; now = 21:30 UTC, an hour before the slot.
+    const json clock = json::parse(MabaScheduleNext(
+        R"({"now": 1793655000, "last_run": 1793572300, "mode": "clock", "hour": 7, "minute": 30, "utc_offset_minutes": 540})"));
+    CHECK(clock["ok"] == true && clock["due"] == false && clock["next"] == 1793658600);
+    CHECK(clock["minutes_before_reset"] == 1230);
+    const json badClock = json::parse(MabaScheduleNext(R"({"now": 1, "mode": "clock", "hour": 25, "minute": 0})"));
+    CHECK(badClock["ok"] == false);
+    const json badMode = json::parse(MabaScheduleNext(R"({"now": 1, "mode": "weekly"})"));
+    CHECK(badMode["ok"] == false);
 }
 
 int g_events = 0;

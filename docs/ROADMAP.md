@@ -49,6 +49,7 @@
 - [ ] Steam client: start through `steam://rungameid/<app id>` and wait for the window; close after the run
 - [ ] Unattended runs without the GUI open (Task Scheduler entry or start with Windows, tray)
 - [x] C# GUI (WPF, HandyControls, CommunityToolkit.Mvvm) over the C ABI, scheduler keyed to the server reset (`gui/`, `schedule.h`)
+- [x] Schedule at a local clock time as an alternative to "reset + delay", with a warning close to the reset (`ClockSchedule`)
 - [x] Language matrix + CI template check (`tools/check_templates.py`, `.github/workflows/ci.yml`)
 
 ## Open questions to verify in the real game

@@ -73,7 +73,7 @@ It never accesses game files, process memory or network packets. Only screen cap
 
 | Feature | Description |
 |:---|:---|
-| Scheduled Execution | Scheduled runs keyed to the server reset |
+| Scheduled Execution | Scheduled runs after the server reset or at a set time each day |
 | Emulator Launch | Starts the emulator and the game when they are off, closes them afterwards (optional) |
 | Popup Handling | Login notices, attendance, reward and battle result popups, handled by one global handler |
 | Battle Automation | Keeps AUTO and 3x speed on in battles |

@@ -73,7 +73,7 @@ MABA는 블루 아카이브의 반복적인 일일 숙제를 자동으로 처리
 
 | Feature | Description |
 |:---|:---|
-| Scheduled Execution | 서버 초기화 시각 기준 예약 실행 |
+| Scheduled Execution | 서버 초기화 후 또는 매일 지정한 시각에 예약 실행 |
 | Emulator Launch | 에뮬레이터와 게임이 꺼져 있으면 켜고, 끝나면 종료 (선택) |
 | Popup Handling | 로그인 공지, 출석, 보상, 전투 결과 팝업을 하나의 전역 처리기로 처리 |
 | Battle Automation | 전투 중 AUTO 및 3배속 유지 |

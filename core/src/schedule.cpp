@@ -42,4 +42,22 @@ std::int64_t NextRun(std::int64_t now, std::int64_t last_run, const DailySchedul
     return slot > now ? slot : slot + kDay;
 }
 
+bool ClockSchedule(int hour, int minute, int utc_offset_minutes, DailySchedule& out) {
+    if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return false;
+    if (utc_offset_minutes < -14 * 60 || utc_offset_minutes > 14 * 60) return false;
+    constexpr int kDayMinutes = 24 * 60;
+    const int utc = ((hour * 60 + minute - utc_offset_minutes) % kDayMinutes + kDayMinutes) % kDayMinutes;
+    out.reset_hour_utc = utc / 60;
+    out.reset_minute_utc = utc % 60;
+    out.delay_minutes = 0;
+    return true;
+}
+
+int MinutesBeforeReset(const DailySchedule& clock, const DailySchedule& server) {
+    constexpr int kDayMinutes = 24 * 60;
+    const int slot = (clock.reset_hour_utc * 60 + clock.reset_minute_utc + clock.delay_minutes) % kDayMinutes;
+    const int reset = server.reset_hour_utc * 60 + server.reset_minute_utc;
+    return ((reset - slot) % kDayMinutes + kDayMinutes) % kDayMinutes;
+}
+
 }  // namespace maba

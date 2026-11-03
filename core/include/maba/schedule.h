@@ -31,4 +31,14 @@ bool IsDue(std::int64_t now, std::int64_t last_run, const DailySchedule& s);
 // (today's slot if it is still ahead, otherwise tomorrow's).
 std::int64_t NextRun(std::int64_t now, std::int64_t last_run, const DailySchedule& s);
 
+// A fixed local clock time each day (e.g. 07:30). `utc_offset_minutes` is the local offset
+// from UTC at the time of the check (KST = +540); the caller passes the current one, so a
+// daylight-saving change moves the slot with the clock. The result is the same daily slot
+// expressed as a UTC anchor with no delay. False when a value is out of range.
+bool ClockSchedule(int hour, int minute, int utc_offset_minutes, DailySchedule& out);
+
+// Minutes from the slot of `clock` to the next server reset of `server` (0..1439).
+// A small value means a run would still be going when the game day changes.
+int MinutesBeforeReset(const DailySchedule& clock, const DailySchedule& server);
+
 }  // namespace maba

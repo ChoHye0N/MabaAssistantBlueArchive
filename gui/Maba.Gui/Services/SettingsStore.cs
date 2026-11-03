@@ -32,6 +32,10 @@ public sealed class AppSettings
     public int ResetHourUtc { get; set; } = 19;      // 04:00 KST; verify in the game
     public int ResetMinuteUtc { get; set; }
     public int DelayMinutes { get; set; } = 5;
+    // "reset": DelayMinutes after the server reset; "clock": every day at ScheduleHour:ScheduleMinute local time.
+    public string ScheduleMode { get; set; } = "reset";
+    public int ScheduleHour { get; set; } = 7;
+    public int ScheduleMinute { get; set; }
     public DateTimeOffset? LastScheduledRun { get; set; }
 }
 

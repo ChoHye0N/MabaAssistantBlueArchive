@@ -73,6 +73,35 @@ MABA_TEST(ScheduleSlotsFollowServerReset) {
     CHECK(!maba::IsValid(bad));
 }
 
+MABA_TEST(ScheduleAtLocalClockTime) {
+    maba::DailySchedule s;
+    CHECK(maba::ClockSchedule(7, 30, 540, s));  // 07:30 KST = 22:30 UTC
+    CHECK(s.reset_hour_utc == 22 && s.reset_minute_utc == 30 && s.delay_minutes == 0);
+    CHECK(maba::ClockSchedule(2, 0, 540, s));  // 02:00 KST = 17:00 UTC (previous day)
+    CHECK(s.reset_hour_utc == 17 && s.reset_minute_utc == 0);
+    CHECK(maba::ClockSchedule(23, 15, -300, s));  // 23:15 UTC-5 = 04:15 UTC
+    CHECK(s.reset_hour_utc == 4 && s.reset_minute_utc == 15);
+    CHECK(!maba::ClockSchedule(24, 0, 0, s));
+    CHECK(!maba::ClockSchedule(7, 60, 0, s));
+    CHECK(!maba::ClockSchedule(7, 0, 15 * 60, s));
+    // Slot 2026-11-02 22:30 UTC: due once, then tomorrow.
+    CHECK(maba::ClockSchedule(7, 30, 540, s));
+    const std::int64_t slot = kReset + 3 * 3600 + 1800;
+    const std::int64_t yesterday = slot - 86400 + 10;  // ran at yesterday's slot
+    CHECK(maba::IsDue(slot - 1, 0, s));  // never ran: yesterday's slot is missed, run now
+    CHECK(!maba::IsDue(slot - 1, yesterday, s));
+    CHECK(maba::NextRun(slot - 60, yesterday, s) == slot);
+    CHECK(maba::IsDue(slot + 10, 0, s));
+    CHECK(maba::NextRun(slot + 100, slot + 10, s) == slot + 86400);
+    // Distance to the server reset (19:00 UTC = 04:00 KST).
+    const maba::DailySchedule server;
+    CHECK(maba::MinutesBeforeReset(s, server) == 20 * 60 + 30);
+    CHECK(maba::ClockSchedule(3, 50, 540, s));
+    CHECK(maba::MinutesBeforeReset(s, server) == 10);
+    CHECK(maba::ClockSchedule(4, 0, 540, s));
+    CHECK(maba::MinutesBeforeReset(s, server) == 0);
+}
+
 MABA_TEST(LanguagesLoadFromRepo) {
     const auto r = maba::LoadLanguages(std::string(MABA_SOURCE_DIR) + "/config/languages.json");
     CHECK(r.ok);
