@@ -159,6 +159,7 @@ Step ParseStep(const json& obj, const std::string& where, int depth) {
     s.sleep_ms = OptInt(obj, "sleep_ms", where, 0, 0, kMaxSleepMs);
     s.timeout_ms = OptInt(obj, "timeout_ms", where, 5000, 100, kMaxStepTimeoutMs);
     s.optional = OptBool(obj, "optional", where, false);
+    s.quiet = OptBool(obj, "quiet", where, false);
     s.no_verify = OptBool(obj, "no_verify", where, false);
     s.change_roi = ParseRoi(obj, where, "change_roi");
     if (auto w = obj.find("when"); w != obj.end() && !w->is_null())

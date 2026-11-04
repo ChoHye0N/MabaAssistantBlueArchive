@@ -110,7 +110,7 @@ Conditions (`when`, `until`):
 
 Colours (`click_color`, `{"color": ...}`): `hsv_min`, `hsv_max` (`[h, s, v]` on OpenCV's scale: h 0..180, s and v 0..255), optional `width`, `height`, `area` as `[min, max]` (pixels of the 1280x720 frame) and `roi`. Use them for markers whose shape animates (cafe students) or for states a template cannot see (a dimmed card: template matching ignores brightness).
 
-Common fields: `when` (the step runs only when it holds), `timeout_ms` (100..60000, default 5000) bounds every wait in the step; `repeat` (1..50) runs the action again; `sleep_ms` on a non-sleep action pauses after each repetition; `optional: true` logs a failure (also of a nested step) and continues with the next step. Steps nest at most 8 levels deep.
+Common fields: `when` (the step runs only when it holds), `timeout_ms` (100..60000, default 5000) bounds every wait in the step; `repeat` (1..50) runs the action again; `sleep_ms` on a non-sleep action pauses after each repetition; `optional: true` continues with the next step after a failure (also of a nested step) and reports it in the task's result message; add `quiet: true` where failing is normal, such as the Quest tab of an event that has none. Steps nest at most 8 levels deep.
 
 Safety rules for data: confirm a purchase or a sweep only after the confirmation dialog's own text matched (`gem_shop_confirm_price_free.png`, `stage_sweep_confirm_question.png`); close any other dialog with `back`. Never click a fixed point that is a purchase button on another screen.
 

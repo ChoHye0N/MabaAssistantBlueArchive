@@ -160,6 +160,7 @@ struct TaskRunner::Context {
     std::vector<int> loop_index;  // iteration of each enclosing loop, innermost last
     std::string each_value;       // current value of the innermost each
     std::string error;            // why the run stopped (kFail)
+    std::vector<std::string> skipped;  // optional steps that failed, for the result
     int depth = 0;
 };
 
@@ -680,7 +681,8 @@ TaskRunner::Flow TaskRunner::RunSteps(const std::vector<Step>& steps, Context& c
                         ? ctx.error
                         : "step " + std::to_string(i + 1) + " (" + ToString(s.action) + "): " + error;
                 if (s.optional) {
-                    Log(log_, LogLevel::kInfo, ctx.task.id + ": optional " + where);
+                    Log(log_, s.quiet ? LogLevel::kInfo : LogLevel::kWarn, ctx.task.id + ": optional " + where);
+                    if (!s.quiet) ctx.skipped.push_back(where);
                     ctx.error.clear();
                     break;  // stop repeating this step, continue with the next one
                 }
@@ -724,6 +726,11 @@ TaskRunResult TaskRunner::RunTask(const TaskSpec& task) {
             result.status = TaskStatus::kCancelled;
             result.message = "cancelled";
             break;
+    }
+    // "Succeeded" must not hide a step that did nothing, like a sweep that never started.
+    if (result.status == TaskStatus::kSucceeded && !ctx.skipped.empty()) {
+        const std::string note = std::to_string(ctx.skipped.size()) + " step(s) did not work: " + ctx.skipped.front();
+        result.message = result.message.empty() ? note : result.message + "; " + note;
     }
     return result;
 }

@@ -117,7 +117,7 @@
               "change_roi": { "x": 880, "y": 280, "w": 110, "h": 45 },
               "retries": 0,
               "timeout_ms": 1500,
-              "optional": true
+              "optional": true, "quiet": true
             }
           ]
         },

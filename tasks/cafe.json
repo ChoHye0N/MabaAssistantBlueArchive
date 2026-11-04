@@ -112,7 +112,7 @@
       "action": "if",
       "when": { "setting": "tap_students", "equals": true },
       "then": [
-        { "action": "wheel", "x": 640, "y": 360, "notches": -8, "optional": true },
+        { "action": "wheel", "x": 640, "y": 360, "notches": -8, "optional": true, "quiet": true },
         {
           "action": "click_color",
           "color": {
@@ -309,7 +309,7 @@
           "action": "if",
           "when": { "setting": "tap_students", "equals": true },
           "then": [
-              { "action": "wheel", "x": 640, "y": 360, "notches": -8, "optional": true },
+              { "action": "wheel", "x": 640, "y": 360, "notches": -8, "optional": true, "quiet": true },
             {
               "action": "click_color",
               "color": {

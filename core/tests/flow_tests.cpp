@@ -329,6 +329,26 @@ MABA_TEST(WheelStepTurnsTheWheelAndNeedsAPlatformThatHasOne) {
     CHECK(!maba::ParseTask(R"({"id": "t", "steps": [{"action": "wheel", "x": 1, "y": 1}]})").ok);
 }
 
+MABA_TEST(OptionalFailuresShowInTheResult) {
+    NavRig rig;
+    maba::TaskRunner runner(rig.Nav(), nullptr);
+    const auto reported = runner.RunTask(Task(R"({"id": "t", "steps": [
+        {"action": "wait_template", "template": "nothing.png", "timeout_ms": 100, "optional": true},
+        {"action": "wait_template", "template": "nothing.png", "timeout_ms": 100, "optional": true}]})"));
+    CHECK(reported.status == maba::TaskStatus::kSucceeded);
+    CHECK(reported.message.find("2 step(s) did not work") != std::string::npos);
+    CHECK(reported.message.find("nothing.png") != std::string::npos);
+
+    const auto ended = runner.RunTask(Task(R"({"id": "t", "steps": [
+        {"action": "wait_template", "template": "nothing.png", "timeout_ms": 100, "optional": true},
+        {"action": "end", "message": "done early"}]})"));
+    CHECK(ended.message.find("done early; 1 step(s)") != std::string::npos);
+
+    const auto quiet = runner.RunTask(Task(R"({"id": "t", "steps": [
+        {"action": "wait_template", "template": "nothing.png", "timeout_ms": 100, "optional": true, "quiet": true}]})"));
+    CHECK(quiet.status == maba::TaskStatus::kSucceeded && quiet.message.empty());
+}
+
 MABA_TEST(ChangedShareCountsStrongChangesOnly) {
     const auto base = maba_test::BlankFrame(100, 100, 100);
     auto small = maba_test::BlankFrame(100, 100, 110);  // lighting: many pixels, a little

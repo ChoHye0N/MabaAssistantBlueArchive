@@ -176,7 +176,7 @@
               }
             ]
           },
-          {"action": "click", "x": 943, "y": 110, "expect": {"template": "event_quest_tab_active.png", "roi": {"x": 840, "y": 75, "w": 220, "h": 70}, "threshold": 0.9}, "retries": 1, "optional": true},
+          {"action": "click", "x": 943, "y": 110, "expect": {"template": "event_quest_tab_active.png", "roi": {"x": 840, "y": 75, "w": 220, "h": 70}, "threshold": 0.9}, "retries": 1, "optional": true, "quiet": true},
           {"action": "if", "when": {"absent": {"template": "event_quest_tab_active.png", "roi": {"x": 840, "y": 75, "w": 220, "h": 70}, "threshold": 0.9}}, "then": [{"action": "break"}]},
           {
             "action": "if",

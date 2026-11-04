@@ -15,7 +15,7 @@
 - [x] Run against the real Steam client at 100% display scale: templates captured, `maba_cli info`, `smoke --dry-run` and `smoke` pass with both capture methods (2026-11-02)
 - [ ] Same at 125% and 150% display scale
 - [x] Templates rebuilt from 1920x1080 frames (full screen), normalized by Core itself; pixels that change between frames made transparent on 6 templates
-- [ ] Recapture at 1920x1080 the 24 templates still cut from the older window: battle HUD and result, story, login notices and attendance, neighbour cafe invitation, event-specific screens
+- [ ] Recapture at 1920x1080 the templates still cut from the older window: battle HUD and result, story, login notices and attendance, neighbour cafe invitation
 - [x] Templates cut from 1920x1080 frames also fit frames of a 1493x840 window: 76 templates seen in both, best score median 0.993, lowest 0.958
 - [ ] Check a 1280x720 window
 
@@ -33,7 +33,7 @@
 - [x] Commissions (Base Defense, Item Retrieval): sweeps a set number of times, before AP spending (`wip`); run in the game on 2026-11-04 with the highest stage and 2 sweeps each; picking a stage by number is not verified
 - [x] Run the tasks with tickets and rewards available, 2026-11-04: all of them with the reaction check on, bounty sweep confirmed by the owner
 - [ ] A few more days without failures, then mark the tasks `ready`
-- [ ] Show in the result when `optional` steps failed: a target that did nothing still ended as succeeded (found with the campaign sweep)
+- [x] Show in the result when `optional` steps failed: a target that did nothing used to end as plain succeeded
 
 ## M3: OCR-dependent tasks
 - [x] `IOcr` Python sidecar: RapidOCR on ONNX Runtime with PaddleOCR models, line-JSON protocol, restart and timeouts (`ocr_sidecar.h`, `ocr/server.py`)

@@ -126,7 +126,8 @@ struct Step {
     int repeat = 1;                    // run the action this many times (1..kMaxStepRepeat)
     int sleep_ms = 0;                  // kSleep; also the pause after each repetition
     int timeout_ms = 5000;             // waits inside the step
-    bool optional = false;             // a failure is logged, the task continues
+    bool optional = false;             // a failure is reported in the result, the task continues
+    bool quiet = false;                // optional: failing here is normal, nothing to report
     std::optional<Condition> when;     // the step runs only when this holds (kIf: the branch test)
     std::optional<Condition> until;    // kLoop: checked before each iteration, stops when it holds
     int max = 1;                       // kLoop iterations, kClickColor clicks
