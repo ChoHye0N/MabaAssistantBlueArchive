@@ -59,6 +59,13 @@ long SystemGameWindow::FindGame() {
     return static_cast<long>(pid);
 }
 
+bool SystemGameWindow::RestoreGame() {
+    HWND hwnd = FindVisible(class_, title_);
+    if (!hwnd || !IsIconic(hwnd)) return false;
+    ShowWindow(hwnd, SW_RESTORE);
+    return true;
+}
+
 bool SystemGameWindow::RequestClose(std::string& error) {
     HWND hwnd = FindVisible(class_, title_);
     if (!hwnd) return true;

@@ -18,8 +18,9 @@ Notes in our own words, written before implementing `core/src/emulator.cpp`. The
 - LDPlayer 9 (`dnplayer.exe`, `index=<n>` argument) and BlueStacks 5 (`HD-Player.exe --instance <name>`): started as configured, no path rewriting. (**verify**)
 
 ## Steam client
-- `steam://rungameid/3557620` starts the global client through Steam; the window title is `Blue Archive`, the process `BlueArchive.exe`. Skip the start when the window already exists. (**verify** the app id)
+- `steam://rungameid/3557620` starts the global client through Steam; the window title is `Blue Archive`, the process `BlueArchive.exe`. Skip the start when the window already exists.
 - Our own sequence (`core/include/maba/steam_launch.h`): look for a visible `UnityWndClass` / `Blue Archive` window; if there is none, open the URL with the shell (Steam starts first when it is not running, so the wait is long: 180 s), poll for the window, then wait a few seconds more before input (the window exists before the game draws; **verify** 5 s is enough). The title screen is handled by `EnterGame` as for the emulator.
+- Confirmed 2026-11-04: the app id starts the game (window after about 20 s). The game can open minimized when another window is in front; a minimized window cannot be captured, so the session restores it.
 - Closing: post `WM_CLOSE` to the window, wait up to 20 s for it to go away, then end the process tree of the window's process. **Verify** whether the client asks for a quit confirmation on `WM_CLOSE`; if it does, the kill is the normal path.
 - Not done: closing Steam itself, and Steam dialogs shown before the game (updates, cloud sync conflicts); a run then fails with the window timeout.
 

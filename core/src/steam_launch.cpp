@@ -37,7 +37,9 @@ bool SteamSession::EnsureGame(const std::atomic<bool>* cancel) {
     last_error_.clear();
     if (window_.FindGame() != 0) {
         Log(log_, LogLevel::kInfo, "steam: the game is already running");
-        return true;
+        if (!window_.RestoreGame()) return true;
+        Log(log_, LogLevel::kInfo, "steam: restored the minimized game window");
+        return Settle(cancel);
     }
     std::string error;
     if (!window_.OpenUrl(options_.url, error)) return Fail("cannot open " + options_.url + ": " + error);
@@ -53,11 +55,21 @@ bool SteamSession::EnsureGame(const std::atomic<bool>* cancel) {
         sleep_(poll);
     }
     // The window exists before the game draws anything; give it time to settle its size.
+    if (!Settle(cancel)) return false;
+    // The game opens minimized when it starts behind another window.
+    if (window_.RestoreGame()) {
+        Log(log_, LogLevel::kInfo, "steam: restored the minimized game window");
+        if (!Settle(cancel)) return false;
+    }
+    Log(log_, LogLevel::kInfo, "steam: game window found");
+    return true;
+}
+
+bool SteamSession::Settle(const std::atomic<bool>* cancel) {
     for (int waited = 0; waited < options_.settle_ms; waited += options_.poll_ms) {
         if (Cancelled(cancel)) return false;
         sleep_(std::chrono::milliseconds{std::min(options_.poll_ms, options_.settle_ms - waited)});
     }
-    Log(log_, LogLevel::kInfo, "steam: game window found");
     return true;
 }
 

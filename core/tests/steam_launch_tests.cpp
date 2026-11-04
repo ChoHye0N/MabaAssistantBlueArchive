@@ -27,6 +27,12 @@ public:
         if (!running && url_opened && !close_requested && finds_since_open++ >= appear_after) running = true;
         return running ? 777 : 0;
     }
+    bool RestoreGame() override {
+        ++restore_calls;
+        const bool was = minimized;
+        minimized = false;
+        return was;
+    }
     bool RequestClose(std::string&) override {
         ++close_requests;
         close_requested = true;
@@ -34,6 +40,8 @@ public:
     }
     bool running = false;
     bool open_ok = true;
+    bool minimized = false;
+    int restore_calls = 0;
     int appear_after = 2;
     int close_after = 1;
     int finds = 0, finds_since_open = 0, finds_since_close = 0, close_requests = 0;
@@ -90,6 +98,28 @@ MABA_TEST(SteamOpensUrlAndWaitsForWindow) {
     CHECK(s.StartedGame());
     // Two polls before the window appears, then 1000 + 1000 + 500 ms of settling.
     CHECK(rig.Slept() == 2000 + 2500);
+}
+
+MABA_TEST(SteamRestoresMinimizedWindow) {
+    Rig started;
+    started.options.poll_ms = 1000;
+    started.options.settle_ms = 2000;
+    started.window.minimized = true;
+    auto s = started.Make();
+    CHECK(s.EnsureGame());
+    CHECK(!started.window.minimized);
+    CHECK(started.Slept() == 2000 + 2000 + 2000);  // two polls, settle, settle again after restoring
+
+    Rig running;
+    running.window.running = true;
+    running.window.minimized = true;
+    running.options.poll_ms = 1000;
+    running.options.settle_ms = 2000;
+    auto r = running.Make();
+    CHECK(r.EnsureGame());
+    CHECK(!running.window.minimized);
+    CHECK(running.window.opened.empty());
+    CHECK(running.Slept() == 2000);
 }
 
 MABA_TEST(SteamWindowTimeoutAndOpenFailure) {

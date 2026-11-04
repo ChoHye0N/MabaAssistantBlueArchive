@@ -28,6 +28,8 @@ public:
     virtual bool OpenUrl(const std::string& url, std::string& error) = 0;
     // Process id owning the visible game window; 0 when there is none.
     virtual long FindGame() = 0;
+    // Restores a minimized game window (a minimized window cannot be captured). True if it was minimized.
+    virtual bool RestoreGame() = 0;
     // Asks the game window to close, like the title-bar close button.
     virtual bool RequestClose(std::string& error) = 0;
 };
@@ -38,6 +40,7 @@ public:
     SystemGameWindow(std::string window_class = "UnityWndClass", std::string window_title = "Blue Archive");
     bool OpenUrl(const std::string& url, std::string& error) override;
     long FindGame() override;
+    bool RestoreGame() override;
     bool RequestClose(std::string& error) override;
 
 private:
@@ -60,7 +63,7 @@ public:
     SteamSession(IGameWindowHost& window, IDetachedProcesses& processes, SteamLaunchOptions options,
                  LogFn log = {}, SleepFn sleep = {});
 
-    // The game window exists; opens the Steam URL and waits for it if not.
+    // The game window exists and is not minimized; opens the Steam URL and waits for it if not.
     bool EnsureGame(const std::atomic<bool>* cancel = nullptr);
     // Closes the game window (then kills the process after the timeout). True if no game is left.
     bool CloseGame();
@@ -71,6 +74,7 @@ public:
 private:
     bool Cancelled(const std::atomic<bool>* cancel);
     bool Fail(std::string message);
+    bool Settle(const std::atomic<bool>* cancel);
 
     IGameWindowHost& window_;
     IDetachedProcesses& processes_;

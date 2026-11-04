@@ -19,6 +19,8 @@ bool SystemGameWindow::OpenUrl(const std::string&, std::string& error) {
 
 long SystemGameWindow::FindGame() { return 0; }
 
+bool SystemGameWindow::RestoreGame() { return false; }
+
 bool SystemGameWindow::RequestClose(std::string&) { return true; }
 
 }  // namespace maba
