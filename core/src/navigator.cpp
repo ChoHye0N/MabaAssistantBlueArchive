@@ -4,8 +4,10 @@
 
 #include "maba/screen_change.h"
 
+#include <algorithm>
 #include <deque>
 #include <set>
+#include <utility>
 
 #include "maba/detect.h"
 
