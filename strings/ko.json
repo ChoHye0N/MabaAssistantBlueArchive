@@ -1,6 +1,8 @@
 {
   "language": "ko",
   "strings": {
+    "commission.request.exp": "거점 방어",
+    "commission.request.credit": "물건 회수",
     "schedule.location.schale_office": "샬레 업무관",
     "schedule.location.schale_residence": "샬레 생활관",
     "schedule.location.gehenna_central": "게헨나 중앙구",

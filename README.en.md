@@ -56,6 +56,7 @@ It never accesses game files, process memory or network packets. Only screen cap
 
 - Shop bulk purchase
 - Bounty
+- Commission sweeps (Base Defense, Item Retrieval)
 - Spend AP
   - Event story and quests
   - Campaign missions

@@ -27,11 +27,13 @@ enum class StepAction {
     kWaitTemplate,    // wait until `templ` is visible
     kBack,            // back key
     kSleep,           // fixed pause (capped)
+    kWaitStable,      // wait until the screen stops moving (bounded, a screen that never rests is not an error)
     kReadNumber,      // OCR digits in `roi` (native-resolution crop) into `store`
     kClickColor,      // click colour blobs one by one (re-detected each time), up to `max`
     kClickText,       // OCR `roi`, click the first wanted text found; scroll with `point`->`to`
     kSave,            // write stored values to a JSON record under the data dir
     kSwipe,           // drag from `point` to `to`
+    kWheel,           // mouse wheel at `point`, `notches` steps
     kIf,              // run `steps` when `when` holds, else `else_steps`
     kLoop,            // run `steps` up to `max` times; stops early when `until` holds
     kEach,            // for every value of a list setting: its `cases` entry, then `steps`
@@ -108,10 +110,15 @@ struct Step {
     int max_scrolls = 0;               // kClickText: pages to scroll through
     Pick pick = Pick::kBest;           // kClick, kClickIfPresent
     std::optional<TemplateRef> expect; // after a click: wait for it, click again if it is missing
-    int retries = 2;                   // extra clicks for `expect`
+    int retries = 2;                   // extra clicks when the screen did not react
+    bool no_verify = false;            // kClick, kClickIfPresent, kBack: no reaction check
+    std::optional<Rect> change_roi;    // reaction check: look only here (small changes)
+    std::string on_page;               // kClick, kClickIfPresent: fail unless this page is shown
+    std::optional<TemplateRef> require;  // kClick, kClickIfPresent: fail unless this is visible
     std::optional<ColorSpec> color;    // kClickColor
     Point to;                          // kSwipe end, kClickText scroll end
     int duration_ms = 400;             // kSwipe
+    int notches = 0;                   // kWheel: negative turns it towards the user
     std::optional<Rect> roi;           // kReadNumber, kClickText
     std::string store;                 // kReadNumber: result name
     bool lenient = false;              // kReadNumber: read the number at the end of the text
@@ -125,6 +132,7 @@ struct Step {
     int max = 1;                       // kLoop iterations, kClickColor clicks
     std::string max_setting;           // kLoop: take `max` from an int setting
     std::string max_value;             // kLoop: take `max` from a stored value (read_number)
+    int max_adjust = 0;                // kLoop: added to the count (a stepper that starts at 1: -1)
     std::string setting;               // kEach: list setting
     std::vector<Step> steps;           // kIf (then), kLoop and kEach bodies
     std::vector<Step> else_steps;      // kIf

@@ -1,0 +1,12 @@
+{
+  "id": "commission",
+  "notes": [
+    "Commissions. Opened from the campaign hub. The title stays the same on the request list and on the stage list of a request."
+  ],
+  "anchors": [
+    { "template": "commission_title.png", "roi": { "x": 80, "y": 0, "w": 150, "h": 55 }, "threshold": 0.9 }
+  ],
+  "transitions": [
+    { "to": "main_menu", "click": { "template": "common_home_button.png", "roi": { "x": 1195, "y": 0, "w": 85, "h": 55 }, "threshold": 0.9 } }
+  ]
+}

@@ -18,7 +18,7 @@
       "until": {
         "no_color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [2000, 20000], "roi": { "x": 1030, "y": 640, "w": 215, "h": 60 } }
       },
-      "steps": [{ "action": "click", "x": 1136, "y": 668, "sleep_ms": 3000 }]
+      "steps": [{"action": "click", "x": 1136, "y": 668, "sleep_ms": 3000, "on_page": "mail"}]
     },
     { "action": "return_home" }
   ]

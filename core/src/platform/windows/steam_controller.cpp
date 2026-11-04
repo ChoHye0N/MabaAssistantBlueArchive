@@ -22,6 +22,7 @@ namespace {
 constexpr WORD kScanEsc = 0x01;
 constexpr int kMaxPauseMs = 2000;
 constexpr int kMaxSwipeMs = 5000;
+constexpr int kWheelStepMs = 150;
 constexpr int kForegroundSettleMs = 80;
 
 void Pause(int ms) { ::Sleep(static_cast<DWORD>(std::clamp(ms, 0, kMaxPauseMs))); }
@@ -166,6 +167,24 @@ bool SteamController::Click(Point normalized) {
     const bool up = LeftButton(false);
     Pause(options_.move_settle_ms);
     if (!up) return Fail("SendInput button up failed");
+    last_error_.clear();
+    return true;
+}
+
+bool SteamController::Scroll(Point normalized, int notches) {
+    DpiAwareScope dpi;
+    if (!PrepareInput()) return false;
+    POINT pt{};
+    if (!ToScreen(normalized, pt)) return false;
+
+    CursorRestore restore(options_.restore_cursor);
+    if (!MoveCursorTo(pt)) return Fail("SendInput move failed (is the game running as administrator?)");
+    Pause(options_.move_settle_ms);
+    const int step = notches < 0 ? -1 : 1;
+    for (int i = 0; i < std::abs(notches); ++i) {
+        if (!WheelNotch(step)) return Fail("SendInput wheel failed");
+        Pause(kWheelStepMs);  // one notch per frame or two, or the game drops some
+    }
     last_error_.clear();
     return true;
 }

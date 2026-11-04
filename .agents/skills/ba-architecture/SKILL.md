@@ -36,6 +36,7 @@ For the C ABI, raise `MabaApiVersion()` and the GUI's `ExpectedApiVersion` toget
 ## Navigator rules
 - Never handle popups inside an individual task. A **global popup handler** (known popups -> dismiss) and a **"detect current page, return to main" routine** live in Core and run around every action. Unexpected screens and popups were the most common failure cause in the reference projects' bug reports.
 - Every wait/retry/loop has a cap and a timeout. On exceeding it: save a screenshot and fail the task. No infinite loops.
+- Reliability before speed: an action has to change the screen, and waits follow the screen (`screen_change.h`, `CheckedAction`, `WaitSettled`). Never carry on from a screen that was not confirmed.
 
 ## OCR rules
 - Core depends only on `IOcr`. The Python sidecar (`ocr/server.py`, line-JSON over stdin/stdout) runs RapidOCR on ONNX Runtime; the same ONNX models can later run natively in C++.

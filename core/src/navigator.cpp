@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
 #include "maba/navigator.h"
 
+#include "maba/screen_change.h"
+
 #include <deque>
 #include <set>
 
@@ -104,6 +106,25 @@ Observation Navigator::ObserveUntil(const std::function<bool(const Observation&)
     return last;
 }
 
+bool Navigator::WaitSettled(std::chrono::milliseconds timeout) {
+    const SettleOptions& o = options_.settle;
+    Frame previous = controller_.Screenshot();
+    const auto start = clock_.Now();
+    int resting = 0;
+    // The attempt cap holds even if the clock misbehaves.
+    const auto attempts = timeout.count() / std::max<long long>(o.interval.count(), 1) + 1;
+    for (long long i = 0; i < attempts && clock_.Now() - start < timeout; ++i) {
+        if (options_.cancel && options_.cancel->load()) return false;
+        clock_.Sleep(o.interval);
+        Frame current = controller_.Screenshot();
+        if (current.empty()) return false;
+        resting = !IsLoadingScreen(current) && ChangedShare(previous, current) < o.max_changed ? resting + 1 : 0;
+        previous = std::move(current);
+        if (resting >= o.looks) return true;
+    }
+    return false;
+}
+
 std::string Failed(const char* what, const IController& controller) {
     const std::string why = controller.Error();
     return std::string(what) + " failed" + (why.empty() ? "" : ": " + why);
@@ -133,7 +154,10 @@ NavResult Navigator::GoTo(const std::string& target) {
         if (recognized) result.page = obs.page;
 
         if (recognized && obs.page == target) {
-            if (result.steps > 0) clock_.Sleep(options_.after_arrive);
+            if (result.steps > 0) {
+                clock_.Sleep(options_.after_arrive);
+                if (options_.settle.enabled) WaitSettled(options_.settle.timeout);
+            }
             result.ok = true;
             Log(log_, LogLevel::kDebug, "at page '" + target + "'");
             return result;

@@ -8,6 +8,7 @@
   "transitions": [
     { "to": "main_menu", "click": { "template": "common_home_button.png", "roi": { "x": 1195, "y": 0, "w": 85, "h": 55 }, "threshold": 0.9 } },
     { "to": "bounty", "click": { "x": 725, "y": 400 } },
+    { "to": "commission", "click": { "x": 725, "y": 510 } },
     { "to": "mission_area", "click": { "x": 830, "y": 210 } },
     { "to": "scrimmage", "click": { "x": 710, "y": 600 } },
     { "to": "tactical", "click": { "x": 850, "y": 600 } }

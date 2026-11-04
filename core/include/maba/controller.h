@@ -28,6 +28,9 @@ public:
     virtual bool Click(Point normalized) = 0;
     virtual bool Swipe(Point from, Point to, int duration_ms) = 0;
     virtual bool Back() = 0;
+    // Mouse wheel at a point; negative notches turn it towards the user. Not every platform has
+    // one: emulators over ADB return false.
+    virtual bool Scroll(Point /*normalized*/, int /*notches*/) { return false; }
 
     // Why the last operation failed (empty when unknown). Used in error messages.
     virtual std::string Error() const { return {}; }

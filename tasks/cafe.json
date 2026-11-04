@@ -9,7 +9,7 @@
     "Run order (owner): cafe, schedule, circle, free package, shop, bounty, AP spending, tactical challenge, mail, remaining AP spending, missions. 'order' fixes it without blocking.",
     "Cafe income includes AP (646/740 seen on 2026-11-02); one claim covers both cafes.",
     "Only owned students can be touched, and only those show the marker: three yellow strokes at the left of the head. The marker animates, so it is found by colour (click_color). The touch area is the head.",
-    "The cafe is larger than the screen: after the opening view the view is dragged to the four corners and each view is searched again.",
+    "The cafe is larger than the screen: the view is zoomed out first with the mouse wheel (5 notches reach the limit, the markers keep their size; emulators have no wheel and skip it), then dragged to the four corners, and each view is searched.",
     "Invitation: the ticket opens a list of owned students (MomoTalk). The configured names are searched with OCR while scrolling; the first one found is invited. A student that is not owned is not listed and is skipped. A student visiting the other cafe (marked with that cafe in the list) asks twice to be brought over, and another version of a visiting student asks to replace it: all are confirmed, so the configured student is invited.",
     "A ticket on cooldown shows a timer instead of 'available' and is not used.",
     "The bottom-left buttons (edit mode, store all) must never be clicked: taps stay above y = 600 and right of the left buttons."
@@ -41,18 +41,12 @@
       "action": "if",
       "when": { "present": { "template": "cafe_income_title.png", "roi": { "x": 540, "y": 110, "w": 200, "h": 80 }, "threshold": 0.9 } },
       "then": [
-        {
-          "action": "click_if_present",
-          "template": "cafe_income_claim.png",
-          "roi": { "x": 500, "y": 480, "w": 280, "h": 100 },
-          "threshold": 0.9,
-          "sleep_ms": 2500
-        },
+        { "action": "click_if_present", "template": "cafe_income_claim.png", "roi": { "x": 500, "y": 480, "w": 280, "h": 100 }, "threshold": 0.9 },
         {
           "action": "back",
           "when": { "present": { "template": "cafe_income_title.png", "roi": { "x": 540, "y": 110, "w": 200, "h": 80 }, "threshold": 0.9 } }
         },
-        { "action": "sleep", "sleep_ms": 1500 }
+        { "action": "wait_stable", "timeout_ms": 4000 }
       ]
     },
     {
@@ -87,7 +81,6 @@
                   "max_scrolls": 60,
                   "from": { "x": 640, "y": 520 },
                   "to": { "x": 640, "y": 230 },
-                  "sleep_ms": 2000,
                   "optional": true
                 },
                 {
@@ -100,16 +93,8 @@
                         "present": { "template": "dialog_ok_button.png", "roi": { "x": 660, "y": 440, "w": 240, "h": 200 }, "threshold": 0.9 },
                         "timeout_ms": 3000
                       },
-                      "then": [
-                        {
-                          "action": "click",
-                          "template": "dialog_ok_button.png",
-                          "roi": { "x": 660, "y": 440, "w": 240, "h": 200 },
-                          "threshold": 0.9,
-                          "sleep_ms": 2500
-                        }
-                      ],
-                      "else": [{ "action": "break" }]
+                      "then": [{"action": "click", "template": "dialog_ok_button.png", "roi": {"x": 660, "y": 440, "w": 240, "h": 200}, "threshold": 0.9}],
+                      "else": [{"action": "break"}]
                     }
                   ]
                 },
@@ -127,6 +112,7 @@
       "action": "if",
       "when": { "setting": "tap_students", "equals": true },
       "then": [
+        { "action": "wheel", "x": 640, "y": 360, "notches": -8, "optional": true },
         {
           "action": "click_color",
           "color": {
@@ -147,10 +133,10 @@
           "max": 2,
           "steps": [
             { "action": "swipe", "from": { "x": 400, "y": 250 }, "to": { "x": 900, "y": 500 }, "duration_ms": 500 },
-            { "action": "sleep", "sleep_ms": 600 }
+            { "action": "wait_stable", "timeout_ms": 4000 }
           ]
         },
-        { "action": "sleep", "sleep_ms": 800 },
+        { "action": "wait_stable", "timeout_ms": 4000 },
         {
           "action": "click_color",
           "color": {
@@ -171,10 +157,10 @@
           "max": 3,
           "steps": [
             { "action": "swipe", "from": { "x": 900, "y": 300 }, "to": { "x": 300, "y": 300 }, "duration_ms": 500 },
-            { "action": "sleep", "sleep_ms": 600 }
+            { "action": "wait_stable", "timeout_ms": 4000 }
           ]
         },
-        { "action": "sleep", "sleep_ms": 800 },
+        { "action": "wait_stable", "timeout_ms": 4000 },
         {
           "action": "click_color",
           "color": {
@@ -195,10 +181,10 @@
           "max": 2,
           "steps": [
             { "action": "swipe", "from": { "x": 640, "y": 500 }, "to": { "x": 640, "y": 200 }, "duration_ms": 500 },
-            { "action": "sleep", "sleep_ms": 600 }
+            { "action": "wait_stable", "timeout_ms": 4000 }
           ]
         },
-        { "action": "sleep", "sleep_ms": 800 },
+        { "action": "wait_stable", "timeout_ms": 4000 },
         {
           "action": "click_color",
           "color": {
@@ -219,10 +205,10 @@
           "max": 3,
           "steps": [
             { "action": "swipe", "from": { "x": 300, "y": 300 }, "to": { "x": 900, "y": 300 }, "duration_ms": 500 },
-            { "action": "sleep", "sleep_ms": 600 }
+            { "action": "wait_stable", "timeout_ms": 4000 }
           ]
         },
-        { "action": "sleep", "sleep_ms": 800 },
+        { "action": "wait_stable", "timeout_ms": 4000 },
         {
           "action": "click_color",
           "color": {
@@ -248,11 +234,11 @@
           "action": "click",
           "template": "cafe_move_to_second.png",
           "roi": { "x": 30, "y": 70, "w": 220, "h": 70 },
-          "threshold": 0.9,
-          "expect": { "template": "cafe_move_to_first.png", "roi": { "x": 30, "y": 70, "w": 220, "h": 70 }, "threshold": 0.9 },
+          "threshold": 0.95,
+          "expect": { "template": "cafe_move_to_first.png", "roi": { "x": 30, "y": 70, "w": 220, "h": 70 }, "threshold": 0.95 },
           "timeout_ms": 15000
         },
-        { "action": "sleep", "sleep_ms": 2000 },
+        { "action": "wait_stable", "timeout_ms": 4000 },
         {
           "action": "if",
           "when": { "setting": "invite", "equals": true },
@@ -285,7 +271,6 @@
                       "max_scrolls": 60,
                       "from": { "x": 640, "y": 520 },
                       "to": { "x": 640, "y": 230 },
-                      "sleep_ms": 2000,
                       "optional": true
                     },
                     {
@@ -303,11 +288,10 @@
                               "action": "click",
                               "template": "dialog_ok_button.png",
                               "roi": { "x": 660, "y": 440, "w": 240, "h": 200 },
-                              "threshold": 0.9,
-                              "sleep_ms": 2500
+                              "threshold": 0.9
                             }
                           ],
-                          "else": [{ "action": "break" }]
+                          "else": [{"action": "break"}]
                         }
                       ]
                     },
@@ -325,6 +309,7 @@
           "action": "if",
           "when": { "setting": "tap_students", "equals": true },
           "then": [
+              { "action": "wheel", "x": 640, "y": 360, "notches": -8, "optional": true },
             {
               "action": "click_color",
               "color": {
@@ -345,10 +330,10 @@
               "max": 2,
               "steps": [
                 { "action": "swipe", "from": { "x": 400, "y": 250 }, "to": { "x": 900, "y": 500 }, "duration_ms": 500 },
-                { "action": "sleep", "sleep_ms": 600 }
+                { "action": "wait_stable", "timeout_ms": 4000 }
               ]
             },
-            { "action": "sleep", "sleep_ms": 800 },
+            { "action": "wait_stable", "timeout_ms": 4000 },
             {
               "action": "click_color",
               "color": {
@@ -369,10 +354,10 @@
               "max": 3,
               "steps": [
                 { "action": "swipe", "from": { "x": 900, "y": 300 }, "to": { "x": 300, "y": 300 }, "duration_ms": 500 },
-                { "action": "sleep", "sleep_ms": 600 }
+                { "action": "wait_stable", "timeout_ms": 4000 }
               ]
             },
-            { "action": "sleep", "sleep_ms": 800 },
+            { "action": "wait_stable", "timeout_ms": 4000 },
             {
               "action": "click_color",
               "color": {
@@ -393,10 +378,10 @@
               "max": 2,
               "steps": [
                 { "action": "swipe", "from": { "x": 640, "y": 500 }, "to": { "x": 640, "y": 200 }, "duration_ms": 500 },
-                { "action": "sleep", "sleep_ms": 600 }
+                { "action": "wait_stable", "timeout_ms": 4000 }
               ]
             },
-            { "action": "sleep", "sleep_ms": 800 },
+            { "action": "wait_stable", "timeout_ms": 4000 },
             {
               "action": "click_color",
               "color": {
@@ -417,10 +402,10 @@
               "max": 3,
               "steps": [
                 { "action": "swipe", "from": { "x": 300, "y": 300 }, "to": { "x": 900, "y": 300 }, "duration_ms": 500 },
-                { "action": "sleep", "sleep_ms": 600 }
+                { "action": "wait_stable", "timeout_ms": 4000 }
               ]
             },
-            { "action": "sleep", "sleep_ms": 800 },
+            { "action": "wait_stable", "timeout_ms": 4000 },
             {
               "action": "click_color",
               "color": {

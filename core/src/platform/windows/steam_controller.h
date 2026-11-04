@@ -45,6 +45,7 @@ public:
     Frame CaptureRegion(Rect normalized) override;
     bool Click(Point normalized) override;
     bool Swipe(Point from, Point to, int duration_ms) override;
+    bool Scroll(Point normalized, int notches) override;
     bool Back() override;  // Esc key. Verify in the game that Esc acts as "back" on every page.
 
     // Why the last operation failed (empty after a success).

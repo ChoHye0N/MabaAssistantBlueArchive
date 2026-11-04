@@ -13,7 +13,7 @@
     { "action": "goto", "page": "account" },
     { "action": "read_number", "roi": { "x": 30, "y": 560, "w": 210, "h": 40 }, "store": "uid", "lenient": true },
     { "action": "read_number", "roi": { "x": 705, "y": 5, "w": 140, "h": 34 }, "store": "credits", "optional": true },
-    { "action": "read_number", "roi": { "x": 920, "y": 5, "w": 100, "h": 34 }, "store": "pyroxene", "optional": true },
+    { "action": "read_number", "roi": { "x": 930, "y": 5, "w": 90, "h": 34 }, "store": "pyroxene", "optional": true },
     { "action": "read_number", "roi": { "x": 495, "y": 5, "w": 110, "h": 34 }, "store": "ap", "optional": true },
     { "action": "save", "file": "accounts/{uid}.json", "values": ["credits", "pyroxene", "ap"], "history": true },
     { "action": "return_home" }

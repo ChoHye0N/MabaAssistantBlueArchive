@@ -50,37 +50,41 @@
               "action": "click",
               "x": 647,
               "y": 197,
-              "sleep_ms": 300,
               "when": {
                 "color": { "hsv_min": [30, 120, 150], "hsv_max": [50, 255, 255], "area": [60, 500], "roi": { "x": 633, "y": 183, "w": 28, "h": 28 } }
-              }
+              },
+              "on_page": "shop",
+              "no_verify": true
             },
             {
               "action": "click",
               "x": 798,
               "y": 197,
-              "sleep_ms": 300,
               "when": {
                 "color": { "hsv_min": [30, 120, 150], "hsv_max": [50, 255, 255], "area": [60, 500], "roi": { "x": 784, "y": 183, "w": 28, "h": 28 } }
-              }
+              },
+              "on_page": "shop",
+              "no_verify": true
             },
             {
               "action": "click",
               "x": 949,
               "y": 197,
-              "sleep_ms": 300,
               "when": {
                 "color": { "hsv_min": [30, 120, 150], "hsv_max": [50, 255, 255], "area": [60, 500], "roi": { "x": 935, "y": 183, "w": 28, "h": 28 } }
-              }
+              },
+              "on_page": "shop",
+              "no_verify": true
             },
             {
               "action": "click",
               "x": 1099,
               "y": 197,
-              "sleep_ms": 300,
               "when": {
                 "color": { "hsv_min": [30, 120, 150], "hsv_max": [50, 255, 255], "area": [60, 500], "roi": { "x": 1085, "y": 183, "w": 28, "h": 28 } }
-              }
+              },
+              "on_page": "shop",
+              "no_verify": true
             }
           ]
         }
@@ -97,7 +101,7 @@
               "threshold": 0.9,
               "offset": { "x": -50, "y": 41 },
               "timeout_ms": 1500,
-              "sleep_ms": 300
+              "no_verify": true
             }
           ]
         }
@@ -106,7 +110,7 @@
     {
       "action": "if",
       "when": { "absent": { "template": "shop_buy_selected.png", "roi": { "x": 1070, "y": 620, "w": 200, "h": 90 }, "threshold": 0.9 } },
-      "then": [{ "action": "return_home" }, { "action": "end", "message": "nothing left to buy" }]
+      "then": [{"action": "return_home"}, {"action": "end", "message": "nothing left to buy"}]
     },
     {
       "action": "click",
@@ -115,7 +119,13 @@
       "threshold": 0.9,
       "expect": { "template": "shop_confirm_question.png", "roi": { "x": 440, "y": 130, "w": 400, "h": 80 }, "threshold": 0.9 }
     },
-    { "action": "click", "template": "dialog_ok_button.png", "roi": { "x": 660, "y": 440, "w": 240, "h": 200 }, "threshold": 0.9, "sleep_ms": 2500 },
+    {
+      "action": "click",
+      "template": "dialog_ok_yellow.png",
+      "roi": { "x": 640, "y": 530, "w": 260, "h": 110 },
+      "threshold": 0.9,
+      "require": { "template": "shop_confirm_question.png", "roi": { "x": 440, "y": 130, "w": 400, "h": 80 }, "threshold": 0.9 }
+    },
     { "action": "return_home" }
   ]
 }

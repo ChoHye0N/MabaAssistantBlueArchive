@@ -26,6 +26,7 @@
     <sys:String x:Key="Task.circle">Club: attendance (if you are in one)</sys:String>
     <sys:String x:Key="Task.free_package">Pyroxene shop: daily free package</sys:String>
     <sys:String x:Key="Task.shop">Shop: buy from the General list</sys:String>
+    <sys:String x:Key="Task.commission">Commissions: sweep a set number of times</sys:String>
     <sys:String x:Key="Task.bounty">Bounty: use tickets</sys:String>
     <sys:String x:Key="Task.spend_ap">Spend AP (event first)</sys:String>
     <sys:String x:Key="Task.tactical_challenge">Tactical Challenge: claim rewards, use tickets</sys:String>
@@ -47,6 +48,9 @@
     <sys:String x:Key="Setting.schedule.locations">Locations to use (checked ones, in list order)</sys:String>
     <sys:String x:Key="Setting.shop.mode">Purchase mode (all: everything, selected: chosen items)</sys:String>
     <sys:String x:Key="Setting.shop.items">Items for "selected" mode (comma-separated)</sys:String>
+    <sys:String x:Key="Setting.commission.requests">Requests to sweep (checked ones, in list order)</sys:String>
+    <sys:String x:Key="Setting.commission.runs">Sweeps per request (each costs AP)</sys:String>
+    <sys:String x:Key="Setting.commission.stage">Sweep stage (highest = highest with 3 stars, or its number)</sys:String>
     <sys:String x:Key="Setting.bounty.location">Location (1-3 from the top of the list)</sys:String>
     <sys:String x:Key="Setting.spend_ap.targets">AP spending order (event, mission, scrimmage)</sys:String>
     <sys:String x:Key="Setting.spend_ap.event_banner">Event banner (1 = newest)</sys:String>

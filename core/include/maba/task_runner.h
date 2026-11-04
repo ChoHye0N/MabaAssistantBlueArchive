@@ -37,6 +37,15 @@ struct RunReport {
     std::vector<TaskRunResult> tasks;  // in execution order
 };
 
+// Checks that a click or back press changed the screen. Off by default: unit tests replay
+// fixed scenes; the assistant turns it on.
+struct ReactionOptions {
+    bool enabled = false;
+    double changed_share = 15.0;      // ChangedShare of the whole frame that counts as a reaction
+    double changed_share_roi = 2.0;   // the same inside `change_roi`
+    std::chrono::milliseconds interval{250};
+};
+
 struct RunnerOptions {
     std::string language = "ko";
     const std::atomic<bool>* cancel = nullptr;
@@ -47,6 +56,7 @@ struct RunnerOptions {
     std::map<std::string, TaskSettings> settings;
     StringTable strings;               // compared UI text of the language (click_text text_key)
     std::filesystem::path data_dir;    // where save steps write records; empty = saving fails
+    ReactionOptions reaction;
 };
 
 class TaskRunner {
@@ -72,6 +82,11 @@ private:
     bool RunStep(const Step& step, Context& ctx, std::string& error);
     bool Holds(const Condition& c, Context& ctx);
     bool ClickTemplate(const Step& s, Context& ctx, std::string& error);
+    bool CheckedAction(const Step& s, Context& ctx, const std::function<bool(std::string&)>& act,
+                       const std::string& what, std::string& error);
+    bool WaitReaction(const Frame& before, const Step& s);
+    bool CheckPrecondition(const Step& s, Context& ctx, std::string& error);
+    void Settle();
     bool Cancelled() const { return options_.cancel && options_.cancel->load(); }
     void Notify(const TaskRunResult& r);
 

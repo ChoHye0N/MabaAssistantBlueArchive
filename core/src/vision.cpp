@@ -53,10 +53,13 @@ cv::Mat MatchScores(const Frame& frame, const Template& templ, const Rect& regio
     if (templ.mask.empty()) {
         cv::matchTemplate(search, templ.bgr, scores, cv::TM_CCOEFF_NORMED);
     } else {
-        cv::matchTemplate(search, templ.bgr, scores, cv::TM_CCORR_NORMED, templ.mask);
+        cv::matchTemplate(search, templ.bgr, scores, cv::TM_CCOEFF_NORMED, templ.mask);
     }
-    // Flat regions can yield NaN/inf with normalized methods; treat them as no match.
+    // Flat regions can yield NaN/inf with normalized methods; treat them as no match. Masked
+    // matching divides by the variance under the mask, so far-out values are not perfect matches.
     cv::patchNaNs(scores, 0.0);
+    scores.setTo(0.0, scores > 1.0 + 1e-5);
+    scores.setTo(0.0, scores < -1.0 - 1e-5);
     cv::threshold(scores, scores, 1.0, 1.0, cv::THRESH_TRUNC);
     return scores;
 }

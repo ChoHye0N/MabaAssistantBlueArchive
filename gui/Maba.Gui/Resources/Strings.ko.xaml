@@ -27,6 +27,7 @@
     <sys:String x:Key="Task.free_package">청휘석 구입: 일일 무료 패키지</sys:String>
     <sys:String x:Key="Task.shop">상점: 일반 목록 구매</sys:String>
     <sys:String x:Key="Task.bounty">현상수배: 티켓 소비</sys:String>
+    <sys:String x:Key="Task.commission">특별의뢰: 정한 횟수만큼 소탕</sys:String>
     <sys:String x:Key="Task.spend_ap">활동력 소비 (이벤트 우선)</sys:String>
     <sys:String x:Key="Task.tactical_challenge">전술 대회: 보상 수령, 티켓 소비</sys:String>
     <sys:String x:Key="Task.mail_claim_all">우편함: 모두 받기</sys:String>
@@ -48,6 +49,9 @@
     <sys:String x:Key="Setting.shop.mode">구매 방식 (all: 전체, selected: 선택)</sys:String>
     <sys:String x:Key="Setting.shop.items">선택 구매 품목 (쉼표로 구분)</sys:String>
     <sys:String x:Key="Setting.bounty.location">장소 (목록 위에서부터 1~3)</sys:String>
+    <sys:String x:Key="Setting.commission.requests">소탕할 의뢰 (체크한 의뢰를 목록 순서대로)</sys:String>
+    <sys:String x:Key="Setting.commission.runs">의뢰별 소탕 횟수 (1회마다 활동력 소비)</sys:String>
+    <sys:String x:Key="Setting.commission.stage">소탕 단계 (highest = 별 3개 중 최고 단계, 또는 번호)</sys:String>
     <sys:String x:Key="Setting.spend_ap.targets">활동력 투자 순서 (event, mission, scrimmage)</sys:String>
     <sys:String x:Key="Setting.spend_ap.event_banner">이벤트 배너 (1 = 가장 최근)</sys:String>
     <sys:String x:Key="Setting.spend_ap.event_story">이벤트 스토리 진행 (스토리 장면은 스킵)</sys:String>

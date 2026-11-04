@@ -21,15 +21,15 @@
           "when": {
             "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [2000, 20000], "roi": { "x": 1045, "y": 642, "w": 210, "h": 58 } }
           },
-          "then": [{ "action": "click", "x": 1150, "y": 670, "sleep_ms": 3000 }],
+          "then": [{"action": "click", "x": 1150, "y": 670, "sleep_ms": 3000, "on_page": "mission"}],
           "else": [
             {
               "action": "if",
               "when": {
                 "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [1500, 10000], "roi": { "x": 925, "y": 642, "w": 100, "h": 48 } }
               },
-              "then": [{ "action": "click", "x": 975, "y": 668, "sleep_ms": 3000 }],
-              "else": [{ "action": "break" }]
+              "then": [{"action": "click", "x": 975, "y": 668, "sleep_ms": 3000, "on_page": "mission"}],
+              "else": [{"action": "break"}]
             }
           ]
         }

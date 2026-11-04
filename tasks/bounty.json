@@ -50,7 +50,7 @@
     {
       "action": "if",
       "when": { "value": "tickets", "lt": 1 },
-      "then": [{ "action": "return_home" }, { "action": "end", "message": "no tickets left" }]
+      "then": [{"action": "return_home"}, {"action": "end", "message": "no tickets left"}]
     },
     {
       "action": "if",
@@ -63,7 +63,7 @@
           "threshold": 0.9,
           "pick": "bottom",
           "offset": { "x": 397, "y": -16 },
-          "expect": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 100, "w": 200, "h": 80 }, "threshold": 0.9 },
+          "expect": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 110 }, "threshold": 0.9 },
           "optional": true
         }
       ],
@@ -76,7 +76,6 @@
           "offset": { "x": 0, "y": 13 },
           "max_scrolls": 5,
           "duration_ms": 500,
-          "sleep_ms": 2000,
           "optional": true,
           "from": { "x": 940, "y": 250 },
           "to": { "x": 940, "y": 560 }
@@ -85,14 +84,14 @@
     },
     {
       "action": "if",
-      "when": { "absent": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 100, "w": 200, "h": 80 }, "threshold": 0.9 } },
-      "then": [{ "action": "return_home" }, { "action": "end", "message": "stage not found or not cleared" }]
+      "when": { "absent": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 110 }, "threshold": 0.9 } },
+      "then": [{"action": "return_home"}, {"action": "end", "message": "stage not found or not cleared"}]
     },
-    { "action": "click", "template": "stage_sweep_max.png", "roi": { "x": 1030, "y": 265, "w": 120, "h": 70 }, "threshold": 0.9, "sleep_ms": 500 },
+    { "action": "click", "template": "stage_sweep_max.png", "roi": { "x": 1030, "y": 265, "w": 120, "h": 105 }, "threshold": 0.9, "no_verify": true },
     {
       "action": "click",
       "template": "stage_sweep_start.png",
-      "roi": { "x": 770, "y": 370, "w": 330, "h": 70 },
+      "roi": { "x": 770, "y": 370, "w": 330, "h": 100 },
       "threshold": 0.9,
       "expect": { "template": "stage_sweep_confirm_question.png", "roi": { "x": 400, "y": 280, "w": 480, "h": 110 }, "threshold": 0.9 },
       "timeout_ms": 3000,
@@ -114,23 +113,23 @@
           "action": "loop",
           "max": 10,
           "until": { "absent": { "template": "stage_sweep_confirm_question.png", "roi": { "x": 400, "y": 280, "w": 480, "h": 110 }, "threshold": 0.9 } },
-          "steps": [{ "action": "sleep", "sleep_ms": 1500 }]
+          "steps": [{"action": "wait_stable", "timeout_ms": 4000}]
         },
         {
           "action": "wait_template",
           "template": "popup_stage_info_title.png",
-          "roi": { "x": 540, "y": 100, "w": 200, "h": 80 },
+          "roi": { "x": 540, "y": 70, "w": 200, "h": 110 },
           "threshold": 0.9,
           "timeout_ms": 30000
         }
       ],
-      "else": [{ "action": "back" }, { "action": "sleep", "sleep_ms": 800 }]
+      "else": [{"action": "back"}, {"action": "wait_stable", "timeout_ms": 4000}]
     },
     {
       "action": "back",
-      "when": { "present": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 100, "w": 200, "h": 80 }, "threshold": 0.9 } }
+      "when": { "present": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 110 }, "threshold": 0.9 } }
     },
-    { "action": "sleep", "sleep_ms": 800 },
+    { "action": "wait_stable", "timeout_ms": 4000 },
     { "action": "return_home" }
   ]
 }

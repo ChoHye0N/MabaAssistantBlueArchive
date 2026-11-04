@@ -21,6 +21,7 @@ add_library(maba_core STATIC
     src/popup.cpp
     src/process_common.cpp
     src/schedule.cpp
+    src/screen_change.cpp
     src/strings.cpp
     src/smoke.cpp
     src/steam_launch.cpp

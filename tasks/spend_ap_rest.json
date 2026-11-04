@@ -9,6 +9,7 @@
     "Second AP pass after mail_claim_all collected the AP held in the mailbox. Same steps and settings as spend_ap.",
     "AP goes to the targets in the order of the 'targets' setting: the running event (Story stages, then the highest 3-star Quest), campaign missions, scrimmage (uses its own tickets and AP).",
     "Event route: main screen -> campaign -> banner at the top left. The banner rotates; swipe right until the first dot is lit (colour check), then swipe left for banner 2 or 3, then click at once.",
+    "An event without Story and Quest tabs (a settlement event) has no stages here: the target is skipped.",
     "An event whose play period ended still opens ('the event period has ended'): it is skipped.",
     "Uncleared event quests (grey stars) are played with the 'quest_team' team before the highest 3-star quest is swept. Campaign missions that are not cleared are grid maps and are not played yet (roadmap).",
     "Story stages are taken from the top 'Story' tag (cleared stages lose the tag). Story scenes are skipped like the owner's earlier project does: back opens the skip confirmation, which is confirmed (popups/story_*.json). Battles use the event's preset team with AUTO.",
@@ -75,7 +76,7 @@
             "until": { "color": { "hsv_min": [90, 170, 220], "hsv_max": [102, 255, 255], "area": [5, 40], "roi": { "x": 90, "y": 222, "w": 14, "h": 14 } } },
             "steps": [
               { "action": "swipe", "from": { "x": 60, "y": 170 }, "to": { "x": 150, "y": 170 }, "duration_ms": 300 },
-              { "action": "sleep", "sleep_ms": 800 }
+              { "action": "wait_stable", "timeout_ms": 4000 }
             ]
           },
           {
@@ -91,7 +92,7 @@
             "when": { "setting": "event_banner", "equals": 3 },
             "steps": [
               { "action": "swipe", "from": { "x": 150, "y": 170 }, "to": { "x": 60, "y": 170 }, "duration_ms": 300 },
-              { "action": "sleep", "sleep_ms": 800 }
+              { "action": "wait_stable", "timeout_ms": 4000 }
             ]
           },
           {
@@ -105,40 +106,36 @@
           {
             "action": "if",
             "when": { "present": { "template": "event_ended.png", "roi": { "x": 780, "y": 370, "w": 330, "h": 70 }, "threshold": 0.9 } },
-            "then": [{ "action": "break" }]
+            "then": [{"action": "break"}]
           },
           {
             "action": "if",
             "when": { "setting": "event_story", "equals": true },
             "then": [
-              { "action": "click", "x": 766, "y": 110, "sleep_ms": 1500 },
+              { "action": "click", "x": 766, "y": 110, "on_page": "event", "no_verify": true },
               {
                 "action": "loop",
                 "max": 15,
                 "until": { "absent": { "template": "event_story_tag.png", "roi": { "x": 680, "y": 140, "w": 540, "h": 550 }, "threshold": 0.9 } },
                 "steps": [
                   { "action": "read_number", "roi": { "x": 500, "y": 8, "w": 105, "h": 30 }, "store": "ap", "optional": true },
-                  { "action": "if", "when": { "value": "ap", "lt": 10 }, "then": [{ "action": "break" }] },
+                  {
+                    "action": "if",
+                    "when": { "value": "ap", "lt": 10 },
+                    "then": [{"action": "break"}]
+                  },
                   {
                     "action": "click",
                     "template": "event_story_tag.png",
                     "roi": { "x": 680, "y": 140, "w": 540, "h": 550 },
                     "threshold": 0.9,
                     "pick": "top",
-                    "offset": { "x": 307, "y": -16 },
-                    "sleep_ms": 2500
+                    "offset": { "x": 307, "y": -16 }
                   },
                   {
                     "action": "if",
                     "when": { "present": { "template": "stage_episode_enter.png", "roi": { "x": 480, "y": 470, "w": 320, "h": 100 }, "threshold": 0.9 } },
-                    "then": [
-                      {
-                        "action": "click",
-                        "template": "stage_episode_enter.png",
-                        "roi": { "x": 480, "y": 470, "w": 320, "h": 100 },
-                        "threshold": 0.9
-                      }
-                    ],
+                    "then": [{"action": "click", "template": "stage_episode_enter.png", "roi": {"x": 480, "y": 470, "w": 320, "h": 100}, "threshold": 0.9}],
                     "else": [
                       {
                         "action": "if",
@@ -164,7 +161,7 @@
                             "threshold": 0.9
                           }
                         ],
-                        "else": [{ "action": "back" }, { "action": "break" }]
+                        "else": [{"action": "back"}, {"action": "break"}]
                       }
                     ]
                   },
@@ -172,19 +169,15 @@
                     "action": "loop",
                     "max": 25,
                     "until": { "present": { "template": "event_title.png", "roi": { "x": 80, "y": 0, "w": 130, "h": 55 }, "threshold": 0.9 } },
-                    "steps": [{ "action": "sleep", "sleep_ms": 8000 }]
+                    "steps": [{"action": "sleep", "sleep_ms": 8000}]
                   },
-                  { "action": "click", "x": 766, "y": 110, "sleep_ms": 1500 }
+                  { "action": "click", "x": 766, "y": 110, "on_page": "event", "no_verify": true }
                 ]
               }
             ]
           },
-          {
-            "action": "click",
-            "x": 943,
-            "y": 110,
-            "expect": { "template": "event_quest_tab_active.png", "roi": { "x": 840, "y": 75, "w": 220, "h": 70 }, "threshold": 0.9 }
-          },
+          {"action": "click", "x": 943, "y": 110, "expect": {"template": "event_quest_tab_active.png", "roi": {"x": 840, "y": 75, "w": 220, "h": 70}, "threshold": 0.9}, "retries": 1, "optional": true},
+          {"action": "if", "when": {"absent": {"template": "event_quest_tab_active.png", "roi": {"x": 840, "y": 75, "w": 220, "h": 70}, "threshold": 0.9}}, "then": [{"action": "break"}]},
           {
             "action": "if",
             "when": { "setting": "clear_quests", "equals": true },
@@ -195,7 +188,11 @@
                 "until": { "absent": { "template": "stage_no_stars.png", "roi": { "x": 680, "y": 130, "w": 560, "h": 560 }, "threshold": 0.9 } },
                 "steps": [
                   { "action": "read_number", "roi": { "x": 500, "y": 8, "w": 105, "h": 30 }, "store": "ap", "optional": true },
-                  { "action": "if", "when": { "value": "ap", "lt": 20 }, "then": [{ "action": "break" }] },
+                  {
+                    "action": "if",
+                    "when": { "value": "ap", "lt": 20 },
+                    "then": [{"action": "break"}]
+                  },
                   {
                     "action": "click",
                     "template": "stage_no_stars.png",
@@ -203,15 +200,15 @@
                     "threshold": 0.9,
                     "pick": "top",
                     "offset": { "x": 397, "y": -16 },
-                    "expect": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 100, "w": 200, "h": 80 }, "threshold": 0.9 },
+                    "expect": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 110 }, "threshold": 0.9 },
                     "timeout_ms": 3000,
                     "retries": 1,
                     "optional": true
                   },
                   {
                     "action": "if",
-                    "when": { "absent": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 100, "w": 200, "h": 80 }, "threshold": 0.9 } },
-                    "then": [{ "action": "break" }]
+                    "when": { "absent": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 110 }, "threshold": 0.9 } },
+                    "then": [{"action": "break"}]
                   },
                   {
                     "action": "click",
@@ -221,11 +218,39 @@
                     "expect": { "template": "formation_title.png", "roi": { "x": 80, "y": 0, "w": 120, "h": 55 }, "threshold": 0.9 },
                     "timeout_ms": 10000
                   },
-                  { "action": "sleep", "sleep_ms": 500 },
-                  { "action": "click", "x": 80, "y": 188, "sleep_ms": 800, "when": { "setting": "quest_team", "equals": 1 } },
-                  { "action": "click", "x": 80, "y": 267, "sleep_ms": 800, "when": { "setting": "quest_team", "equals": 2 } },
-                  { "action": "click", "x": 80, "y": 346, "sleep_ms": 800, "when": { "setting": "quest_team", "equals": 3 } },
-                  { "action": "click", "x": 80, "y": 425, "sleep_ms": 800, "when": { "setting": "quest_team", "equals": 4 } },
+                  { "action": "wait_stable", "timeout_ms": 4000 },
+                  {
+                    "action": "click",
+                    "x": 80,
+                    "y": 188,
+                    "when": { "setting": "quest_team", "equals": 1 },
+                    "require": { "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 170, "h": 90 }, "threshold": 0.9 },
+                    "no_verify": true
+                  },
+                  {
+                    "action": "click",
+                    "x": 80,
+                    "y": 267,
+                    "when": { "setting": "quest_team", "equals": 2 },
+                    "require": { "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 170, "h": 90 }, "threshold": 0.9 },
+                    "no_verify": true
+                  },
+                  {
+                    "action": "click",
+                    "x": 80,
+                    "y": 346,
+                    "when": { "setting": "quest_team", "equals": 3 },
+                    "require": { "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 170, "h": 90 }, "threshold": 0.9 },
+                    "no_verify": true
+                  },
+                  {
+                    "action": "click",
+                    "x": 80,
+                    "y": 425,
+                    "when": { "setting": "quest_team", "equals": 4 },
+                    "require": { "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 170, "h": 90 }, "threshold": 0.9 },
+                    "no_verify": true
+                  },
                   {
                     "action": "click",
                     "template": "formation_sortie.png",
@@ -237,15 +262,19 @@
                     "action": "loop",
                     "max": 30,
                     "until": { "present": { "template": "event_title.png", "roi": { "x": 80, "y": 0, "w": 130, "h": 55 }, "threshold": 0.9 } },
-                    "steps": [{ "action": "sleep", "sleep_ms": 8000 }]
+                    "steps": [{"action": "sleep", "sleep_ms": 8000}]
                   },
-                  { "action": "click", "x": 943, "y": 110, "sleep_ms": 1500 }
+                  { "action": "click", "x": 943, "y": 110, "on_page": "event", "no_verify": true }
                 ]
               }
             ]
           },
           { "action": "read_number", "roi": { "x": 500, "y": 8, "w": 105, "h": 30 }, "store": "ap", "optional": true },
-          { "action": "if", "when": { "value": "ap", "lt": 20 }, "then": [{ "action": "break" }] },
+          {
+            "action": "if",
+            "when": { "value": "ap", "lt": 20 },
+            "then": [{"action": "break"}]
+          },
           {
             "action": "if",
             "when": { "setting": "quest_stage", "equals": "highest" },
@@ -257,7 +286,7 @@
                 "threshold": 0.9,
                 "pick": "bottom",
                 "offset": { "x": 397, "y": -16 },
-                "expect": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 100, "w": 200, "h": 80 }, "threshold": 0.9 },
+                "expect": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 110 }, "threshold": 0.9 },
                 "optional": true
               }
             ],
@@ -270,7 +299,6 @@
                 "offset": { "x": 0, "y": 13 },
                 "max_scrolls": 5,
                 "duration_ms": 500,
-                "sleep_ms": 2000,
                 "optional": true,
                 "from": { "x": 940, "y": 250 },
                 "to": { "x": 940, "y": 560 }
@@ -279,12 +307,12 @@
           },
           {
             "action": "if",
-            "when": { "absent": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 100, "w": 200, "h": 80 }, "threshold": 0.9 } },
-            "then": [{ "action": "break" }]
+            "when": { "absent": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 110 }, "threshold": 0.9 } },
+            "then": [{"action": "break"}]
           },
           {
             "action": "if",
-            "when": { "present": { "template": "stage_sweep_locked.png", "roi": { "x": 840, "y": 290, "w": 230, "h": 70 }, "threshold": 0.9 } },
+            "when": { "present": { "template": "stage_sweep_locked.png", "roi": { "x": 840, "y": 290, "w": 230, "h": 100 }, "threshold": 0.9 } },
             "then": [
               {
                 "action": "click",
@@ -294,11 +322,39 @@
                 "expect": { "template": "formation_title.png", "roi": { "x": 80, "y": 0, "w": 120, "h": 55 }, "threshold": 0.9 },
                 "timeout_ms": 10000
               },
-              { "action": "sleep", "sleep_ms": 500 },
-              { "action": "click", "x": 80, "y": 188, "sleep_ms": 800, "when": { "setting": "quest_team", "equals": 1 } },
-              { "action": "click", "x": 80, "y": 267, "sleep_ms": 800, "when": { "setting": "quest_team", "equals": 2 } },
-              { "action": "click", "x": 80, "y": 346, "sleep_ms": 800, "when": { "setting": "quest_team", "equals": 3 } },
-              { "action": "click", "x": 80, "y": 425, "sleep_ms": 800, "when": { "setting": "quest_team", "equals": 4 } },
+              { "action": "wait_stable", "timeout_ms": 4000 },
+              {
+                "action": "click",
+                "x": 80,
+                "y": 188,
+                "when": { "setting": "quest_team", "equals": 1 },
+                "require": { "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 170, "h": 90 }, "threshold": 0.9 },
+                "no_verify": true
+              },
+              {
+                "action": "click",
+                "x": 80,
+                "y": 267,
+                "when": { "setting": "quest_team", "equals": 2 },
+                "require": { "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 170, "h": 90 }, "threshold": 0.9 },
+                "no_verify": true
+              },
+              {
+                "action": "click",
+                "x": 80,
+                "y": 346,
+                "when": { "setting": "quest_team", "equals": 3 },
+                "require": { "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 170, "h": 90 }, "threshold": 0.9 },
+                "no_verify": true
+              },
+              {
+                "action": "click",
+                "x": 80,
+                "y": 425,
+                "when": { "setting": "quest_team", "equals": 4 },
+                "require": { "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 170, "h": 90 }, "threshold": 0.9 },
+                "no_verify": true
+              },
               {
                 "action": "click",
                 "template": "formation_sortie.png",
@@ -310,23 +366,23 @@
                 "action": "loop",
                 "max": 30,
                 "until": { "present": { "template": "event_title.png", "roi": { "x": 80, "y": 0, "w": 130, "h": 55 }, "threshold": 0.9 } },
-                "steps": [{ "action": "sleep", "sleep_ms": 8000 }]
+                "steps": [{"action": "sleep", "sleep_ms": 8000}]
               },
-              { "action": "click", "x": 943, "y": 110, "sleep_ms": 1500 },
+              { "action": "click", "x": 943, "y": 110, "on_page": "event", "no_verify": true },
               { "action": "break" }
             ]
           },
           {
             "action": "click",
             "template": "stage_sweep_max.png",
-            "roi": { "x": 1030, "y": 265, "w": 120, "h": 70 },
+            "roi": { "x": 1030, "y": 265, "w": 120, "h": 105 },
             "threshold": 0.9,
-            "sleep_ms": 500
+            "no_verify": true
           },
           {
             "action": "click",
             "template": "stage_sweep_start.png",
-            "roi": { "x": 770, "y": 370, "w": 330, "h": 70 },
+            "roi": { "x": 770, "y": 370, "w": 330, "h": 100 },
             "threshold": 0.9,
             "expect": { "template": "stage_sweep_confirm_question.png", "roi": { "x": 400, "y": 280, "w": 480, "h": 110 }, "threshold": 0.9 },
             "timeout_ms": 3000,
@@ -348,28 +404,32 @@
                 "action": "loop",
                 "max": 10,
                 "until": { "absent": { "template": "stage_sweep_confirm_question.png", "roi": { "x": 400, "y": 280, "w": 480, "h": 110 }, "threshold": 0.9 } },
-                "steps": [{ "action": "sleep", "sleep_ms": 1500 }]
+                "steps": [{"action": "wait_stable", "timeout_ms": 4000}]
               },
               {
                 "action": "wait_template",
                 "template": "popup_stage_info_title.png",
-                "roi": { "x": 540, "y": 100, "w": 200, "h": 80 },
+                "roi": { "x": 540, "y": 70, "w": 200, "h": 110 },
                 "threshold": 0.9,
                 "timeout_ms": 30000
               }
             ],
-            "else": [{ "action": "back" }, { "action": "sleep", "sleep_ms": 800 }]
+            "else": [{"action": "back"}, {"action": "wait_stable", "timeout_ms": 4000}]
           },
           {
             "action": "back",
-            "when": { "present": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 100, "w": 200, "h": 80 }, "threshold": 0.9 } }
+            "when": { "present": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 110 }, "threshold": 0.9 } }
           },
-          { "action": "sleep", "sleep_ms": 800 }
+          { "action": "wait_stable", "timeout_ms": 4000 }
         ],
         "mission": [
           { "action": "goto", "page": "mission_area" },
           { "action": "read_number", "roi": { "x": 500, "y": 8, "w": 105, "h": 30 }, "store": "ap", "optional": true },
-          { "action": "if", "when": { "value": "ap", "lt": 20 }, "then": [{ "action": "break" }] },
+          {
+            "action": "if",
+            "when": { "value": "ap", "lt": 20 },
+            "then": [{"action": "break"}]
+          },
           {
             "action": "if",
             "when": { "setting": "mission_stage", "equals": "highest" },
@@ -381,7 +441,7 @@
                 "threshold": 0.9,
                 "pick": "bottom",
                 "offset": { "x": 397, "y": -16 },
-                "expect": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 100, "w": 200, "h": 80 }, "threshold": 0.9 },
+                "expect": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 110 }, "threshold": 0.9 },
                 "optional": true
               }
             ],
@@ -394,7 +454,6 @@
                 "offset": { "x": 0, "y": 13 },
                 "max_scrolls": 5,
                 "duration_ms": 500,
-                "sleep_ms": 2000,
                 "optional": true,
                 "from": { "x": 940, "y": 250 },
                 "to": { "x": 940, "y": 560 }
@@ -403,20 +462,20 @@
           },
           {
             "action": "if",
-            "when": { "absent": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 100, "w": 200, "h": 80 }, "threshold": 0.9 } },
-            "then": [{ "action": "break" }]
+            "when": { "absent": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 110 }, "threshold": 0.9 } },
+            "then": [{"action": "break"}]
           },
           {
             "action": "click",
             "template": "stage_sweep_max.png",
-            "roi": { "x": 1030, "y": 265, "w": 120, "h": 70 },
+            "roi": { "x": 1030, "y": 265, "w": 120, "h": 105 },
             "threshold": 0.9,
-            "sleep_ms": 500
+            "no_verify": true
           },
           {
             "action": "click",
             "template": "stage_sweep_start.png",
-            "roi": { "x": 770, "y": 370, "w": 330, "h": 70 },
+            "roi": { "x": 770, "y": 370, "w": 330, "h": 100 },
             "threshold": 0.9,
             "expect": { "template": "stage_sweep_confirm_question.png", "roi": { "x": 400, "y": 280, "w": 480, "h": 110 }, "threshold": 0.9 },
             "timeout_ms": 3000,
@@ -438,23 +497,23 @@
                 "action": "loop",
                 "max": 10,
                 "until": { "absent": { "template": "stage_sweep_confirm_question.png", "roi": { "x": 400, "y": 280, "w": 480, "h": 110 }, "threshold": 0.9 } },
-                "steps": [{ "action": "sleep", "sleep_ms": 1500 }]
+                "steps": [{"action": "wait_stable", "timeout_ms": 4000}]
               },
               {
                 "action": "wait_template",
                 "template": "popup_stage_info_title.png",
-                "roi": { "x": 540, "y": 100, "w": 200, "h": 80 },
+                "roi": { "x": 540, "y": 70, "w": 200, "h": 110 },
                 "threshold": 0.9,
                 "timeout_ms": 30000
               }
             ],
-            "else": [{ "action": "back" }, { "action": "sleep", "sleep_ms": 800 }]
+            "else": [{"action": "back"}, {"action": "wait_stable", "timeout_ms": 4000}]
           },
           {
             "action": "back",
-            "when": { "present": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 100, "w": 200, "h": 80 }, "threshold": 0.9 } }
+            "when": { "present": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 110 }, "threshold": 0.9 } }
           },
-          { "action": "sleep", "sleep_ms": 800 }
+          { "action": "wait_stable", "timeout_ms": 4000 }
         ],
         "scrimmage": [
           { "action": "goto", "page": "scrimmage" },
@@ -483,7 +542,11 @@
             "when": { "setting": "academy", "equals": 3 }
           },
           { "action": "read_number", "roi": { "x": 500, "y": 8, "w": 105, "h": 30 }, "store": "ap", "optional": true },
-          { "action": "if", "when": { "value": "ap", "lt": 20 }, "then": [{ "action": "break" }] },
+          {
+            "action": "if",
+            "when": { "value": "ap", "lt": 20 },
+            "then": [{"action": "break"}]
+          },
           {
             "action": "if",
             "when": { "setting": "scrimmage_stage", "equals": "highest" },
@@ -495,7 +558,7 @@
                 "threshold": 0.9,
                 "pick": "bottom",
                 "offset": { "x": 397, "y": -16 },
-                "expect": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 100, "w": 200, "h": 80 }, "threshold": 0.9 },
+                "expect": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 110 }, "threshold": 0.9 },
                 "optional": true
               }
             ],
@@ -508,7 +571,6 @@
                 "offset": { "x": 0, "y": 13 },
                 "max_scrolls": 5,
                 "duration_ms": 500,
-                "sleep_ms": 2000,
                 "optional": true,
                 "from": { "x": 940, "y": 250 },
                 "to": { "x": 940, "y": 560 }
@@ -517,20 +579,20 @@
           },
           {
             "action": "if",
-            "when": { "absent": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 100, "w": 200, "h": 80 }, "threshold": 0.9 } },
-            "then": [{ "action": "break" }]
+            "when": { "absent": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 110 }, "threshold": 0.9 } },
+            "then": [{"action": "break"}]
           },
           {
             "action": "click",
             "template": "stage_sweep_max.png",
-            "roi": { "x": 1030, "y": 265, "w": 120, "h": 70 },
+            "roi": { "x": 1030, "y": 265, "w": 120, "h": 105 },
             "threshold": 0.9,
-            "sleep_ms": 500
+            "no_verify": true
           },
           {
             "action": "click",
             "template": "stage_sweep_start.png",
-            "roi": { "x": 770, "y": 370, "w": 330, "h": 70 },
+            "roi": { "x": 770, "y": 370, "w": 330, "h": 100 },
             "threshold": 0.9,
             "expect": { "template": "stage_sweep_confirm_question.png", "roi": { "x": 400, "y": 280, "w": 480, "h": 110 }, "threshold": 0.9 },
             "timeout_ms": 3000,
@@ -552,23 +614,23 @@
                 "action": "loop",
                 "max": 10,
                 "until": { "absent": { "template": "stage_sweep_confirm_question.png", "roi": { "x": 400, "y": 280, "w": 480, "h": 110 }, "threshold": 0.9 } },
-                "steps": [{ "action": "sleep", "sleep_ms": 1500 }]
+                "steps": [{"action": "wait_stable", "timeout_ms": 4000}]
               },
               {
                 "action": "wait_template",
                 "template": "popup_stage_info_title.png",
-                "roi": { "x": 540, "y": 100, "w": 200, "h": 80 },
+                "roi": { "x": 540, "y": 70, "w": 200, "h": 110 },
                 "threshold": 0.9,
                 "timeout_ms": 30000
               }
             ],
-            "else": [{ "action": "back" }, { "action": "sleep", "sleep_ms": 800 }]
+            "else": [{"action": "back"}, {"action": "wait_stable", "timeout_ms": 4000}]
           },
           {
             "action": "back",
-            "when": { "present": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 100, "w": 200, "h": 80 }, "threshold": 0.9 } }
+            "when": { "present": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 110 }, "threshold": 0.9 } }
           },
-          { "action": "sleep", "sleep_ms": 800 }
+          { "action": "wait_stable", "timeout_ms": 4000 }
         ]
       }
     },

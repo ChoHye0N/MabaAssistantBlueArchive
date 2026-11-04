@@ -51,8 +51,14 @@ public:
         return true;
     }
     bool Swipe(maba::Point, maba::Point, int) override { return true; }
+    bool Scroll(maba::Point, int notches) override {
+        scrolled += notches;
+        return can_scroll;
+    }
     bool Back() override { ++backs; return true; }
 
+    int scrolled = 0;
+    bool can_scroll = true;
     std::vector<maba::Frame> scenes;
     std::size_t scene = 0;
     std::function<void(maba::Point, FakeController&)> on_click;
@@ -64,15 +70,17 @@ public:
 
 class FakeOcr : public maba::IOcr {
 public:
-    std::vector<maba::OcrResult> Recognize(const maba::Frame&, const maba::Rect&,
+    std::vector<maba::OcrResult> Recognize(const maba::Frame& frame, const maba::Rect&,
                                           const std::string& language) override {
         ++calls;
+        last_width = frame.width;
         last_language = language;
         return results;
     }
     std::vector<maba::OcrResult> results{{"123", {}, 0.9f}};
     std::string last_language;
     int calls = 0;
+    int last_width = 0;
 };
 
 // Scenes are told apart by the fill value of the frame (first byte). Each template is visible

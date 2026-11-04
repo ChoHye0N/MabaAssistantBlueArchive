@@ -20,6 +20,9 @@ bool MoveCursorTo(POINT screen);
 
 bool LeftButton(bool down);
 
+// One wheel notch; negative turns it towards the user.
+bool WheelNotch(int notches);
+
 // Press and release a key by hardware scan code (e.g. 0x01 = Esc).
 bool PressScanCode(WORD scan);
 

@@ -26,11 +26,13 @@ const char* ToString(StepAction action) {
         case StepAction::kWaitTemplate: return "wait_template";
         case StepAction::kBack: return "back";
         case StepAction::kSleep: return "sleep";
+        case StepAction::kWaitStable: return "wait_stable";
         case StepAction::kReadNumber: return "read_number";
         case StepAction::kClickColor: return "click_color";
         case StepAction::kClickText: return "click_text";
         case StepAction::kSave: return "save";
         case StepAction::kSwipe: return "swipe";
+        case StepAction::kWheel: return "wheel";
         case StepAction::kIf: return "if";
         case StepAction::kLoop: return "loop";
         case StepAction::kEach: return "each";
@@ -53,11 +55,13 @@ const std::map<std::string, StepAction>& Actions() {
         {"wait_template", StepAction::kWaitTemplate},
         {"back", StepAction::kBack},
         {"sleep", StepAction::kSleep},
+        {"wait_stable", StepAction::kWaitStable},
         {"read_number", StepAction::kReadNumber},
         {"click_color", StepAction::kClickColor},
         {"click_text", StepAction::kClickText},
         {"save", StepAction::kSave},
         {"swipe", StepAction::kSwipe},
+        {"wheel", StepAction::kWheel},
         {"if", StepAction::kIf},
         {"loop", StepAction::kLoop},
         {"each", StepAction::kEach},
@@ -155,6 +159,8 @@ Step ParseStep(const json& obj, const std::string& where, int depth) {
     s.sleep_ms = OptInt(obj, "sleep_ms", where, 0, 0, kMaxSleepMs);
     s.timeout_ms = OptInt(obj, "timeout_ms", where, 5000, 100, kMaxStepTimeoutMs);
     s.optional = OptBool(obj, "optional", where, false);
+    s.no_verify = OptBool(obj, "no_verify", where, false);
+    s.change_roi = ParseRoi(obj, where, "change_roi");
     if (auto w = obj.find("when"); w != obj.end() && !w->is_null())
         s.when = ParseCondition(*w, where + ".when");
 
@@ -191,6 +197,9 @@ Step ParseStep(const json& obj, const std::string& where, int depth) {
             if (auto e = obj.find("expect"); e != obj.end() && !e->is_null())
                 s.expect = ParseTemplateRef(*e, where + ".expect");
             s.retries = OptInt(obj, "retries", where, 2, 0, kMaxClickRetries);
+            s.on_page = OptString(obj, "on_page", where, "");
+            if (auto r = obj.find("require"); r != obj.end() && !r->is_null())
+                s.require = ParseTemplateRef(*r, where + ".require");
             break;
         }
         case StepAction::kWaitTemplate:
@@ -239,6 +248,11 @@ Step ParseStep(const json& obj, const std::string& where, int depth) {
             s.to = ParsePoint(Require(obj, "to", where), where + ".to");
             s.duration_ms = OptInt(obj, "duration_ms", where, 400, 50, 5000);
             break;
+        case StepAction::kWheel:
+            s.point = ParsePoint(obj, where);
+            s.notches = OptInt(obj, "notches", where, 0, -20, 20);
+            if (s.notches == 0) throw ParseError(where + ": 'notches' must be -20..20 and not 0");
+            break;
         case StepAction::kSave:
             s.file = RequireString(obj, "file", where);
             if (s.file.find("..") != std::string::npos || s.file.empty() || s.file[0] == '/' || s.file[0] == '\\' ||
@@ -260,6 +274,7 @@ Step ParseStep(const json& obj, const std::string& where, int depth) {
             s.max = OptInt(obj, "max", where, 1, 1, kMaxLoop);
             s.max_setting = OptString(obj, "max_setting", where, "");
             s.max_value = OptString(obj, "max_value", where, "");
+            s.max_adjust = OptInt(obj, "max_adjust", where, 0, -kMaxLoop, kMaxLoop);
             if (auto u = obj.find("until"); u != obj.end() && !u->is_null())
                 s.until = ParseCondition(*u, where + ".until");
             s.steps = ParseSteps(Require(obj, "steps", where), where + ".steps", depth + 1);
@@ -501,6 +516,11 @@ void ValidateSteps(const TaskSpec& t, const std::vector<Step>& steps, const std:
         const std::string at = where + "[" + std::to_string(i) + "]";
         if ((s.action == StepAction::kGoto || s.action == StepAction::kWaitPage) && !pages.count(s.page))
             problems.push_back(at + " uses unknown page '" + s.page + "'");
+        if (!s.on_page.empty() && !pages.count(s.on_page))
+            problems.push_back(at + " uses unknown page '" + s.on_page + "'");
+        // A fixed point on the wrong screen hits whatever is there.
+        if (s.action == StepAction::kClick && !s.templ && !s.expect && !s.require && s.on_page.empty())
+            problems.push_back(at + " clicks a fixed point without 'expect', 'require' or 'on_page'");
         check_condition(s.when, at);
         check_condition(s.until, at);
         if (!s.max_setting.empty() && !declared(s.max_setting, SettingType::kInt))

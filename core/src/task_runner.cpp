@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
 #include "maba/task_runner.h"
 
+#include "maba/screen_change.h"
+
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -39,6 +41,8 @@ void TaskRunner::Notify(const TaskRunResult& r) {
 }
 
 namespace {
+
+constexpr int kNumberCropMargin = 16;
 
 WaitOptions StepWait(int timeout_ms, const std::atomic<bool>* cancel) {
     WaitOptions w;
@@ -218,6 +222,83 @@ bool TaskRunner::Holds(const Condition& c, Context& ctx) {
     return false;
 }
 
+bool TaskRunner::CheckPrecondition(const Step& s, Context& ctx, std::string& error) {
+    if (!s.on_page.empty()) {
+        bool reached = false;
+        nav_.ObserveUntil([&](const Observation& o) { return o.page == s.on_page; },
+                          StepWait(s.timeout_ms, options_.cancel), reached);
+        if (!reached) {
+            error = "not on page '" + s.on_page + "', nothing clicked";
+            return false;
+        }
+    }
+    if (s.require) {
+        const TemplateRef ref = Substitute(*s.require, ctx.each_value);
+        if (!nav_.WaitForTemplate(ref, StepWait(s.timeout_ms, options_.cancel))) {
+            error = ref.file + " is not visible, nothing clicked";
+            return false;
+        }
+    }
+    return true;
+}
+
+bool TaskRunner::WaitReaction(const Frame& before, const Step& s) {
+    const ReactionOptions& o = options_.reaction;
+    IController& controller = nav_.Controller();
+    const double needed = s.change_roi ? o.changed_share_roi : o.changed_share;
+    const milliseconds timeout{s.timeout_ms};
+    const auto start = nav_.Clock().Now();
+    const auto attempts = timeout.count() / std::max<long long>(o.interval.count(), 1) + 1;
+    for (long long i = 0; i < attempts && nav_.Clock().Now() - start < timeout; ++i) {
+        if (Cancelled()) return false;
+        nav_.Clock().Sleep(o.interval);
+        const Frame current = controller.Screenshot();
+        if (!current.empty() && ChangedShare(before, current, s.change_roi) >= needed) return true;
+    }
+    return false;
+}
+
+void TaskRunner::Settle() {
+    if (!options_.reaction.enabled) return;
+    if (!nav_.WaitSettled(nav_.Settings().settle.timeout))
+        Log(log_, LogLevel::kDebug, "the screen kept moving, going on");
+}
+
+// Runs `act` (a click or back press) and makes sure the screen reacted: `expect` appeared and,
+// with the reaction check on, the screen changed. Retried `retries` times, because the game
+// ignores input while it animates; a step that never gets a reaction fails instead of carrying
+// on from the wrong screen.
+bool TaskRunner::CheckedAction(const Step& s, Context& ctx, const std::function<bool(std::string&)>& act,
+                               const std::string& what, std::string& error) {
+    IController& controller = nav_.Controller();
+    const bool check = options_.reaction.enabled && !s.no_verify;
+    std::optional<TemplateRef> expect;
+    if (s.expect) expect = Substitute(*s.expect, ctx.each_value);
+    const int extra = check || expect ? s.retries : 0;
+    for (int attempt = 0; attempt <= extra; ++attempt) {
+        if (attempt > 0) Log(log_, LogLevel::kInfo, "no reaction to " + what + ", trying again");
+        Frame before;
+        bool expected_already = false;
+        if (check) {
+            before = controller.Screenshot();
+            // Visible before the click proves nothing: then the screen has to change as well.
+            if (expect && !before.empty()) expected_already = nav_.Matcher().Find(before, *expect).found;
+        }
+        if (!act(error)) return false;
+        if (!check && !expect) return true;
+        bool reacted = true;
+        if (expect) reacted = nav_.WaitForTemplate(*expect, StepWait(s.timeout_ms, options_.cancel)).has_value();
+        if (reacted && check && (!expect || expected_already)) reacted = WaitReaction(before, s);
+        if (reacted) {
+            Settle();
+            return true;
+        }
+        if (Cancelled()) return false;
+    }
+    error = expect ? expect->file + " did not appear after " + what : "no reaction to " + what;
+    return false;
+}
+
 bool TaskRunner::ClickTemplate(const Step& s, Context& ctx, std::string& error) {
     IController& controller = nav_.Controller();
     const TemplateRef ref = Substitute(*s.templ, ctx.each_value);
@@ -246,19 +327,14 @@ bool TaskRunner::ClickTemplate(const Step& s, Context& ctx, std::string& error) 
         if (chosen) target = chosen->center;
     }
     target = Offset(target, s.offset);
-    for (int attempt = 0; attempt <= (s.expect ? s.retries : 0); ++attempt) {
-        if (attempt > 0) Log(log_, LogLevel::kInfo, "no reaction to the click on " + ref.file + ", clicking again");
-        if (!controller.Click(target)) {
-            error = Failed("click", controller);
+    return CheckedAction(
+        s, ctx,
+        [&](std::string& why) {
+            if (controller.Click(target)) return true;
+            why = Failed("click", controller);
             return false;
-        }
-        if (!s.expect) return true;
-        if (nav_.WaitForTemplate(Substitute(*s.expect, ctx.each_value), StepWait(s.timeout_ms, options_.cancel)))
-            return true;
-        if (Cancelled()) return false;
-    }
-    error = s.expect->file + " did not appear after clicking " + ref.file;
-    return false;
+        },
+        "clicking " + ref.file, error);
 }
 
 bool TaskRunner::RunStep(const Step& s, Context& ctx, std::string& error) {
@@ -284,23 +360,20 @@ bool TaskRunner::RunStep(const Step& s, Context& ctx, std::string& error) {
         }
         case StepAction::kClick:
         case StepAction::kClickIfPresent: {
+            if (!CheckPrecondition(s, ctx, error)) return false;
             if (s.templ) return ClickTemplate(s, ctx, error);
             Point target = s.point ? *s.point
                                    : s.points[static_cast<std::size_t>(ctx.loop_index.empty() ? 0 : ctx.loop_index.back()) %
                                               s.points.size()];
             target = Offset(target, s.offset);
-            for (int attempt = 0; attempt <= (s.expect ? s.retries : 0); ++attempt) {
-                if (!controller.Click(target)) {
-                    error = Failed("click", controller);
+            return CheckedAction(
+                s, ctx,
+                [&](std::string& why) {
+                    if (controller.Click(target)) return true;
+                    why = Failed("click", controller);
                     return false;
-                }
-                if (!s.expect) return true;
-                if (nav_.WaitForTemplate(Substitute(*s.expect, ctx.each_value), StepWait(s.timeout_ms, options_.cancel)))
-                    return true;
-                if (Cancelled()) return false;
-            }
-            error = s.expect->file + " did not appear after the click";
-            return false;
+                },
+                "the click at " + std::to_string(target.x) + "," + std::to_string(target.y), error);
         }
         case StepAction::kWaitTemplate: {
             const TemplateRef ref = Substitute(*s.templ, ctx.each_value);
@@ -309,13 +382,20 @@ bool TaskRunner::RunStep(const Step& s, Context& ctx, std::string& error) {
             return m.has_value();
         }
         case StepAction::kBack:
-            if (!controller.Back()) {
-                error = Failed("back", controller);
-                return false;
-            }
-            return true;
+            return CheckedAction(
+                s, ctx,
+                [&](std::string& why) {
+                    if (controller.Back()) return true;
+                    why = Failed("back", controller);
+                    return false;
+                },
+                "the back key", error);
         case StepAction::kSleep:
             nav_.Clock().Sleep(milliseconds{s.sleep_ms});
+            return true;
+        case StepAction::kWaitStable:
+            if (!nav_.WaitSettled(milliseconds{s.timeout_ms}))
+                Log(log_, LogLevel::kDebug, "the screen kept moving, going on");
             return true;
         case StepAction::kReadNumber: {
             if (!ocr_) {
@@ -332,7 +412,8 @@ bool TaskRunner::RunStep(const Step& s, Context& ctx, std::string& error) {
                 error = "region capture failed";
                 return false;
             }
-            const auto pieces = ocr_->Recognize(crop, Rect{}, options_.language);
+            // Numbers only: measured on 1920x1080 crops, the margin fixes them but disturbs names.
+            const auto pieces = ocr_->Recognize(AddMargin(crop, kNumberCropMargin), Rect{}, options_.language);
             const std::string text = s.lenient ? TrailingNumber(JoinLeftToRight(pieces))
                                                : JoinLeftToRight(pieces);
             long long value = 0;
@@ -482,6 +563,7 @@ bool TaskRunner::RunStep(const Step& s, Context& ctx, std::string& error) {
                             error = Failed("click", controller);
                             return false;
                         }
+                        Settle();
                         return true;
                     }
                 }
@@ -489,11 +571,19 @@ bool TaskRunner::RunStep(const Step& s, Context& ctx, std::string& error) {
             error = "none of the texts was found";
             return false;
         }
+        case StepAction::kWheel:
+            if (!controller.Scroll(*s.point, s.notches)) {
+                error = Failed("wheel", controller);
+                return false;
+            }
+            Settle();
+            return true;
         case StepAction::kSwipe:
             if (!controller.Swipe(*s.point, s.to, s.duration_ms)) {
                 error = Failed("swipe", controller);
                 return false;
             }
+            Settle();
             return true;
         default:
             break;
@@ -515,7 +605,7 @@ TaskRunner::Flow TaskRunner::RunAction(const Step& s, Context& ctx, std::string&
                 auto it = ctx.result.values.find(s.max_value);
                 count = it == ctx.result.values.end() ? 0 : static_cast<int>(it->second);
             }
-            count = std::clamp(count, 0, kMaxLoop);
+            count = std::clamp(count + s.max_adjust, 0, kMaxLoop);
             ctx.loop_index.push_back(0);
             Flow flow = Flow::kNext;
             for (int i = 0; i < count; ++i) {

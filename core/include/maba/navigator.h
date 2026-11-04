@@ -36,6 +36,15 @@ std::vector<std::string> FindPath(const std::map<std::string, PageDef>& pages,
 std::vector<std::string> ValidatePageGraph(const std::map<std::string, PageDef>& pages,
                                            const std::string& home);
 
+// Waiting for the screen to stop moving instead of for a fixed time.
+struct SettleOptions {
+    bool enabled = false;
+    double max_changed = 12.0;  // ChangedShare between two looks that counts as resting
+    int looks = 2;              // resting looks in a row
+    std::chrono::milliseconds interval{250};
+    std::chrono::milliseconds timeout{6000};  // a loading screen does not count as resting
+};
+
 struct NavigatorOptions {
     std::string home = "main_menu";
     int max_steps = 12;         // clicks + back presses per GoTo
@@ -45,6 +54,7 @@ struct NavigatorOptions {
     std::chrono::milliseconds after_back{800};
     // Pause after arriving by a click: the game ignores input while a page is still sliding in.
     std::chrono::milliseconds after_arrive{700};
+    SettleOptions settle;  // also wait for the screen to rest after arriving
     const std::atomic<bool>* cancel = nullptr;
     // Called with the last frame when GoTo fails (e.g. save it under captures/).
     std::function<void(const Frame&, const std::string& reason)> on_failure;
@@ -91,6 +101,11 @@ public:
 
     // Wait until `ref` is visible (popups settled on every attempt). nullopt on timeout.
     std::optional<MatchResult> WaitForTemplate(const TemplateRef& ref, const WaitOptions& wait);
+
+    // Waits until the screen rests (see SettleOptions), at most `timeout`. False when it kept
+    // moving (an animated screen may never rest), which callers treat as a warning at most.
+    bool WaitSettled(std::chrono::milliseconds timeout);
+    const NavigatorOptions& Settings() const { return options_; }
 
     IController& Controller() { return controller_; }
     IMatcher& Matcher() { return matcher_; }

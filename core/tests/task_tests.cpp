@@ -215,7 +215,8 @@ MABA_TEST(RepoTaskFilesLoad) {
     CHECK(order.ok);
     // The owner's run order (docs/ROADMAP.md); a task file that breaks it fails here.
     const std::vector<std::string> expected = {
-        "cafe", "schedule", "circle", "free_package", "shop", "bounty", "spend_ap",
+        "cafe", "schedule", "circle", "free_package", "shop", "bounty", "commission",
+        "spend_ap",
         "tactical_challenge", "mail_claim_all", "spend_ap_rest", "mission_claim_all"};
     std::vector<std::string> known;
     for (const auto& id : order.order)

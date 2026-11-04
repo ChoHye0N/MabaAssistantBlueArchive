@@ -29,7 +29,8 @@ Rules:
 - **Start-up (`enter`, home page only)**: screens before the main screen (title, event splash, loading) have no stable anchors. At the start of a run, while no known page is visible, `tap` is clicked every `interval_ms` (100..10000, default 2000), at most `max_taps` times (1..100, default 30). Login popups are dismissed by `popups/` before each look. Pick a point that is harmless on the main screen.
 - **Anchors**: a page is detected when every anchor matches. `threshold` defaults to 0.9 and must be in (0, 1]. A `roi` with zero width or height means "whole frame".
 - **Transitions**: `click` is either `{ "template": ..., "roi"?, "threshold"? }` (click the center of the match) or a fixed point `{ "x": ..., "y": ... }`. Every `to` must name a defined page (`ValidatePageGraph` warns otherwise).
-- **Templates with masks**: transparent pixels (alpha 0, e.g. masked nicknames) are ignored by matching.
+- **Templates with masks**: transparent pixels (alpha 0) are ignored by matching, which stays `TM_CCOEFF_NORMED`. Use them for background showing through a template (outside a round button) and for masked personal data, never for text that tells two templates apart.
+- **Look-alike titles**: `업무` and `임무` differ by one letter and score 0.906 against each other. Raise `threshold` for such pairs (0.95) instead of leaving neighbouring pixels in the crop.
 - **Templates** resolve in this order: `assets-local/<lang>/`, `assets/<lang>/`, `assets-local/common/`, `assets/common/`. Language-neutral anchors (icons, layout) belong in `common/`.
 - **ROIs** for OCR should be tight around digits (AP value, ticket counts). Digits are language-independent. Identify text items by icon templates instead of OCR where possible.
 - **`roi_by_lang`** is an optional per-language override, needed only when text length changes the layout. Without an entry the base `rois` apply.
@@ -79,13 +80,15 @@ Rules:
 | `click_if_present` | `template` (+`roi`, `threshold`) | Same, but a missing template is not an error |
 | `wait_template` | `template` (+`roi`, `threshold`) | Wait until visible |
 | `back` | | Back key |
-| `sleep` | `sleep_ms` (1..10000) | Fixed pause |
+| `sleep` | `sleep_ms` (1..10000) | Fixed pause. Only where time itself matters (polling a battle, a cooldown); otherwise `wait_stable` |
+| `wait_stable` | `timeout_ms` | Wait until the screen stops moving. A nearly black loading screen does not count as resting. A screen that never rests is not an error |
 | `read_number` | `roi`, `store`, `lenient` | OCR on a native-resolution crop after popups are settled; `120/240` stores `store` = 120 and `store_max` = 240. `lenient: true` reads the number at the end of the text ("tickets 5/5") |
 | `click_color` | `color`, `offset`, `retry_offset`, `max` (1..50) | Click colour blobs one at a time, looking again after each click (moving targets), until none is left or `max` is reached. A blob still there after its click is clicked once more at `retry_offset` (when given) and then left alone. None found is not an error |
 | `click_text` | `roi`, `texts`, `text_setting` (list, or a choice for one text such as a stage number) or `text_key` (a key of `strings/<lang>.json`, `{value}` filled in inside `each`), `click_x`, `offset`, `max_scrolls` (0..80), `from`, `to` | OCR the region (native resolution) and click the first wanted text found (spaces ignored, whole text must match); `click_x` clicks the row's button instead of the text. Not found: swipe `from` -> `to` and read again, up to `max_scrolls` times, then fail (use `optional`) |
 | `swipe` | `from`, `to`, `duration_ms` (50..5000) | Drag |
+| `wheel` | `x`, `y`, `notches` (-20..20, not 0) | Mouse wheel at a point; negative turns it towards the user (zooms the cafe out). Emulators over ADB have no wheel: mark the step `optional` |
 | `if` | `when`, `then`, `else` | Run `then` when the condition holds, else `else` |
-| `loop` | `max` (1..50) or `max_setting` (int setting) or `max_value` (stored number), `until`, `steps` | Run `steps` up to that many times; `until` is checked before each iteration |
+| `loop` | `max` (1..50) or `max_setting` (int setting) or `max_value` (stored number), `max_adjust`, `until`, `steps` | Run `steps` up to that many times; `max_adjust` is added to the count (-1 for a quantity stepper that starts at 1); `until` is checked before each iteration |
 | `each` | `setting` (list), `cases`, `steps` | For every value of the list, in order: its `cases` entry, then `steps` (`{value}` in a template name is replaced by the value) |
 | `save` | `file`, `values`, `history` | Write the stored numbers into a JSON record `file` under the data directory (`{name}` = a stored number, e.g. `accounts/{uid}.json`); `history` also appends them with a UTC timestamp (newest 1000 kept). The data directory is outside the repository (records hold personal data) |
 | `break` | | Leave the innermost `loop`, or the current value of `each` |
@@ -93,6 +96,11 @@ Rules:
 | `fail` | `message` | Fail the task |
 
 Click options (`click`, `click_if_present`): `pick` (`best`, `top`, `bottom`, `left`, `right`) chooses among several matches; `offset` `{x, y}` moves the click from the match (may be negative); `expect` (a template) is waited for after the click, and the click is repeated up to `retries` (0..5, default 2) times when it does not appear, because the game ignores input while a screen is still sliding in.
+
+Reaction check (`click`, `click_if_present`, `back`): the screen is compared before and after, and a step whose action changed nothing is repeated `retries` times (default 2), then fails. `expect` replaces the comparison, unless the template was already visible before the click: then the screen must change as well. After every reaction the runner waits for the screen to rest.
+- `change_roi`: compare only this region, for changes too small to show on the whole frame (a number, a check box).
+- `no_verify: true`: no check, for clicks where no change is normal or a repeat would undo them (toggles, a tab that may already be open, MAX when one sweep is all the AP allows).
+- A fixed-point click must name the screen it belongs to: `expect`, `on_page` (a page id) or `require` (a template). With `on_page` or `require` nothing is clicked on any other screen. `ValidateTasks` rejects a fixed-point click without one of them.
 
 Conditions (`when`, `until`):
 - `{"setting": key, "equals" | "not_equals": value}`, `{"setting": key, "contains": item}` (list).

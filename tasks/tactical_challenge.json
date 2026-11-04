@@ -33,16 +33,14 @@
           "template": "tactical_claim.png",
           "roi": { "x": 290, "y": 350, "w": 130, "h": 80 },
           "threshold": 0.9,
-          "timeout_ms": 1500,
-          "sleep_ms": 2500
+          "timeout_ms": 1500
         },
         {
           "action": "click_if_present",
           "template": "tactical_claim.png",
           "roi": { "x": 290, "y": 430, "w": 130, "h": 80 },
           "threshold": 0.9,
-          "timeout_ms": 1500,
-          "sleep_ms": 2500
+          "timeout_ms": 1500
         }
       ]
     },
@@ -88,10 +86,11 @@
           "action": "click",
           "x": 1148,
           "y": 604,
-          "sleep_ms": 500,
           "when": {
             "no_color": { "hsv_min": [88, 140, 235], "hsv_max": [100, 255, 255], "area": [20, 400], "roi": { "x": 1130, "y": 586, "w": 38, "h": 38 } }
-          }
+          },
+          "require": { "template": "tactical_formation_title.png", "roi": { "x": 80, "y": 0, "w": 180, "h": 55 }, "threshold": 0.9 },
+          "change_roi": { "x": 1128, "y": 584, "w": 40, "h": 40 }
         },
         {
           "action": "click",
@@ -104,7 +103,7 @@
           "action": "loop",
           "max": 20,
           "until": { "absent": { "template": "popup_battle_result.png", "roi": { "x": 540, "y": 100, "w": 200, "h": 170 }, "threshold": 0.9 } },
-          "steps": [{ "action": "sleep", "sleep_ms": 3000 }]
+          "steps": [{"action": "sleep", "sleep_ms": 3000}]
         },
         {
           "action": "wait_template",

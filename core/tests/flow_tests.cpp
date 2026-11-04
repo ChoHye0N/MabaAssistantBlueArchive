@@ -11,6 +11,7 @@
 #include "fakes.h"
 #include "maba/color.h"
 #include "maba/task.h"
+#include "maba/screen_change.h"
 #include "maba/task_runner.h"
 #include "nav_rig.h"
 #include "test_framework.h"
@@ -163,6 +164,182 @@ MABA_TEST(SettingsSelectBranchesAndLoopCounts) {
         CHECK(c[0].x == 10 && c[1].x == 20 && c[2].x == 10);  // loop index cycles the points
         CHECK(c[3].x == 200 && c[4].x == 100);                // list order, break leaves "b" only
     }
+}
+
+MABA_TEST(LoopCountAdjustedBySetting) {
+    const auto clicks = [](const char* settings) {
+        NavRig rig;
+        maba::RunnerOptions options;
+        const auto task = Task(R"({"id": "t", "settings": [{"key": "n", "type": "int", "default": 1, "min": 1, "max": 5}],
+            "steps": [{"action": "loop", "max_setting": "n", "max_adjust": -1, "steps": [{"action": "click", "x": 10, "y": 10}]}]})");
+        std::string error;
+        CHECK(maba::ResolveSettings({task}, settings, options.settings, error));
+        maba::TaskRunner runner(rig.Nav(), nullptr, options);
+        CHECK(runner.RunTask(task).status == maba::TaskStatus::kSucceeded);
+        return rig.controller.clicks.size();
+    };
+    CHECK(clicks("{}") == 0);  // default 1: the stepper already shows 1
+    CHECK(clicks(R"({"t": {"n": 3}})") == 2);
+    CHECK(!maba::ParseTask(R"({"id": "t", "steps": [{"action": "loop", "max": 1, "max_adjust": 99, "steps": []}]})").ok);
+}
+
+// Scenes far enough apart for ChangedShare, with the reaction check on.
+struct ReactionRig : NavRig {
+    ReactionRig() {
+        controller.scenes[kMainScene] = maba_test::BlankFrame(maba::kNormWidth, maba::kNormHeight, 60);
+        controller.scenes[kMailScene] = maba_test::BlankFrame(maba::kNormWidth, maba::kNormHeight, 160);
+        matcher.Add("main.png", {60});
+        matcher.Add("mail_button.png", {60}, {1100, 40, 60, 50});
+        matcher.Add("mail_title.png", {160});
+        options.reaction.enabled = true;
+        options.reaction.interval = std::chrono::milliseconds{100};
+    }
+    maba::RunnerOptions options;
+};
+
+MABA_TEST(ClickWithoutReactionFailsAfterRetries) {
+    ReactionRig rig;
+    maba::TaskRunner runner(rig.Nav(), nullptr, rig.options);
+    const auto r = runner.RunTask(Task(R"({"id": "t", "steps": [
+        {"action": "click", "x": 5, "y": 5, "timeout_ms": 500},
+        {"action": "fail", "message": "must not get here"}]})"));
+    CHECK(r.status == maba::TaskStatus::kFailed);
+    CHECK(r.message.find("no reaction") != std::string::npos);
+    CHECK(rig.controller.clicks.size() == 3);  // first click and two retries
+}
+
+MABA_TEST(IgnoredClickIsRepeatedUntilTheScreenReacts) {
+    ReactionRig rig;
+    int seen = 0;
+    rig.controller.on_click = [&](maba::Point, maba_test::FakeController& c) {
+        if (++seen == 2) c.scene = NavRig::kMailScene;  // the game ignored the first click
+    };
+    maba::TaskRunner runner(rig.Nav(), nullptr, rig.options);
+    const auto r = runner.RunTask(Task(R"({"id": "t", "steps": [{"action": "click", "x": 5, "y": 5, "timeout_ms": 500}]})"));
+    CHECK(r.status == maba::TaskStatus::kSucceeded);
+    CHECK(rig.controller.clicks.size() == 2);
+}
+
+MABA_TEST(ExpectVisibleBeforeTheClickNeedsAChange) {
+    ReactionRig rig;
+    maba::TaskRunner runner(rig.Nav(), nullptr, rig.options);
+    const auto r = runner.RunTask(Task(R"({"id": "t", "steps": [
+        {"action": "click", "x": 5, "y": 5, "expect": {"template": "main.png"}, "timeout_ms": 500}]})"));
+    CHECK(r.status == maba::TaskStatus::kFailed);
+    CHECK(rig.controller.clicks.size() == 3);
+}
+
+MABA_TEST(ToggleClickIsNotChecked) {
+    ReactionRig rig;
+    maba::TaskRunner runner(rig.Nav(), nullptr, rig.options);
+    const auto r = runner.RunTask(Task(R"({"id": "t", "steps": [{"action": "click", "x": 5, "y": 5, "no_verify": true}]})"));
+    CHECK(r.status == maba::TaskStatus::kSucceeded);
+    CHECK(rig.controller.clicks.size() == 1);
+}
+
+MABA_TEST(ChangeRoiLooksOnlyThere) {
+    ReactionRig rig;
+    rig.controller.on_click = [](maba::Point, maba_test::FakeController& c) {
+        for (int y = 0; y < 20; ++y)
+            for (int x = 0; x < 20 * 3; ++x) c.scenes[c.scene].bgr[static_cast<std::size_t>(y) * maba::kNormWidth * 3 + x] = 255;
+    };
+    maba::TaskRunner runner(rig.Nav(), nullptr, rig.options);
+    const auto r = runner.RunTask(Task(R"({"id": "t", "steps": [
+        {"action": "click", "x": 5, "y": 5, "timeout_ms": 500, "change_roi": {"x": 0, "y": 0, "w": 40, "h": 40}}]})"));
+    CHECK(r.status == maba::TaskStatus::kSucceeded);
+    CHECK(rig.controller.clicks.size() == 1);
+}
+
+MABA_TEST(BackWithoutReactionFails) {
+    ReactionRig rig;
+    maba::TaskRunner runner(rig.Nav(), nullptr, rig.options);
+    const auto r = runner.RunTask(Task(R"({"id": "t", "steps": [{"action": "back", "timeout_ms": 500}]})"));
+    CHECK(r.status == maba::TaskStatus::kFailed);
+    CHECK(r.message.find("back key") != std::string::npos);
+    CHECK(rig.controller.backs == 3);
+}
+
+MABA_TEST(FixedClickOnTheWrongScreenClicksNothing) {
+    ReactionRig rig;
+    maba::TaskRunner runner(rig.Nav(), nullptr, rig.options);
+    const auto wrong_page = runner.RunTask(Task(R"({"id": "t", "steps": [
+        {"action": "click", "x": 5, "y": 5, "on_page": "mail", "timeout_ms": 300}]})"));
+    CHECK(wrong_page.status == maba::TaskStatus::kFailed);
+    CHECK(wrong_page.message.find("not on page") != std::string::npos);
+    const auto missing = runner.RunTask(Task(R"({"id": "t", "steps": [
+        {"action": "click", "x": 5, "y": 5, "require": {"template": "mail_title.png"}, "timeout_ms": 300}]})"));
+    CHECK(missing.status == maba::TaskStatus::kFailed);
+    CHECK(missing.message.find("not visible") != std::string::npos);
+    CHECK(rig.controller.clicks.empty());
+}
+
+MABA_TEST(FixedClickNeedsAGuardInTaskData) {
+    NavRig rig;
+    const auto check = [&](const char* json) { return maba::ValidateTasks({Task(json)}, rig.pages).size(); };
+    CHECK(check(R"({"id": "t", "steps": [{"action": "click", "x": 5, "y": 5}]})") == 1);
+    CHECK(check(R"({"id": "t", "steps": [{"action": "click", "x": 5, "y": 5, "on_page": "mail"}]})") == 0);
+    CHECK(check(R"({"id": "t", "steps": [{"action": "click", "x": 5, "y": 5, "on_page": "nowhere"}]})") == 1);
+    CHECK(check(R"({"id": "t", "steps": [{"action": "click", "x": 5, "y": 5, "expect": {"template": "a.png"}}]})") == 0);
+}
+
+MABA_TEST(WaitStableEndsOnARestingScreen) {
+    NavRig rig;
+    maba::TaskRunner runner(rig.Nav(), nullptr);
+    const auto r = runner.RunTask(Task(R"({"id": "t", "steps": [{"action": "wait_stable", "timeout_ms": 2000}]})"));
+    CHECK(r.status == maba::TaskStatus::kSucceeded);
+}
+
+MABA_TEST(LoadingScreenIsNotARestingScreen) {
+    CHECK(maba::IsLoadingScreen(maba_test::BlankFrame(1280, 720, 0)));
+    CHECK(!maba::IsLoadingScreen(maba_test::BlankFrame(1280, 720, 200)));
+    NavRig rig;
+    rig.controller.scenes[rig.controller.scene] = maba_test::BlankFrame(maba::kNormWidth, maba::kNormHeight, 0);
+    CHECK(!rig.Nav().WaitSettled(std::chrono::milliseconds{2000}));  // bounded, and not "settled"
+}
+
+MABA_TEST(NumbersAreReadWithAMarginAroundTheCrop) {
+    NavRig rig;
+    maba_test::FakeOcr ocr;
+    maba::TaskRunner runner(rig.Nav(), &ocr);
+    const auto r = runner.RunTask(Task(R"({"id": "t", "steps": [
+        {"action": "read_number", "roi": {"x": 0, "y": 0, "w": 100, "h": 30}, "store": "n"}]})"));
+    CHECK(r.status == maba::TaskStatus::kSucceeded);
+    CHECK(ocr.last_width == 100 * 3 / 2 + 32);  // the fake crop is 1.5 times the region
+
+    auto small = maba_test::BlankFrame(2, 2, 7);
+    small.bgr[0] = 9;
+    const auto wide = maba::AddMargin(small, 3);
+    CHECK(wide.width == 8 && wide.height == 8);
+    CHECK(wide.bgr[0] == 9);                   // corner repeats the nearest pixel
+    CHECK(wide.bgr.back() == 7);
+    CHECK(maba::AddMargin(small, 0).width == 2);
+}
+
+MABA_TEST(WheelStepTurnsTheWheelAndNeedsAPlatformThatHasOne) {
+    NavRig rig;
+    maba::TaskRunner runner(rig.Nav(), nullptr);
+    const auto ok = runner.RunTask(Task(R"({"id": "t", "steps": [{"action": "wheel", "x": 640, "y": 360, "notches": -8}]})"));
+    CHECK(ok.status == maba::TaskStatus::kSucceeded);
+    CHECK(rig.controller.scrolled == -8);
+
+    rig.controller.can_scroll = false;  // emulators: the zoom is a convenience, the task goes on
+    const auto skipped = runner.RunTask(Task(R"({"id": "t", "steps": [
+        {"action": "wheel", "x": 640, "y": 360, "notches": -8, "optional": true}]})"));
+    CHECK(skipped.status == maba::TaskStatus::kSucceeded);
+    CHECK(!maba::ParseTask(R"({"id": "t", "steps": [{"action": "wheel", "x": 1, "y": 1}]})").ok);
+}
+
+MABA_TEST(ChangedShareCountsStrongChangesOnly) {
+    const auto base = maba_test::BlankFrame(100, 100, 100);
+    auto small = maba_test::BlankFrame(100, 100, 110);  // lighting: many pixels, a little
+    CHECK(maba::ChangedShare(base, small) == 0.0);
+    CHECK(maba::ChangedShare(base, maba_test::BlankFrame(100, 100, 200)) == 100.0);
+    CHECK(maba::ChangedShare(base, maba_test::BlankFrame(50, 50, 100)) == 100.0);
+    auto corner = base;
+    for (int y = 0; y < 10; ++y)
+        for (int x = 0; x < 30; ++x) corner.bgr[static_cast<std::size_t>(y) * 300 + x] = 255;
+    CHECK(maba::ChangedShare(base, corner) < 2.0);
+    CHECK(maba::ChangedShare(base, corner, maba::Rect{0, 0, 10, 10}) == 100.0);
 }
 
 MABA_TEST(IfPresentEndAndFail) {

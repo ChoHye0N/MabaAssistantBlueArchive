@@ -36,6 +36,14 @@ bool LeftButton(bool down) {
     return SendInput(1, &in, sizeof(INPUT)) == 1;
 }
 
+bool WheelNotch(int notches) {
+    INPUT in{};
+    in.type = INPUT_MOUSE;
+    in.mi.dwFlags = MOUSEEVENTF_WHEEL;
+    in.mi.mouseData = static_cast<DWORD>(notches * WHEEL_DELTA);
+    return SendInput(1, &in, sizeof(INPUT)) == 1;
+}
+
 bool PressScanCode(WORD scan) {
     INPUT in[2]{};
     in[0].type = in[1].type = INPUT_KEYBOARD;

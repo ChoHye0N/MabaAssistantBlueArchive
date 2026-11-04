@@ -110,6 +110,7 @@ RunReport Assistant::Run(const std::vector<std::string>& selected, const std::at
     NavigatorOptions nav_options = config_.navigator;
     nav_options.cancel = cancel;
     nav_options.on_failure = on_failure;
+    nav_options.settle.enabled = true;
     Navigator navigator(*controller_, *matcher_, pages_, popups, clock, nav_options, log_);
     RunnerOptions runner_options;
     runner_options.language = config_.language;
@@ -117,6 +118,7 @@ RunReport Assistant::Run(const std::vector<std::string>& selected, const std::at
     runner_options.on_task = std::move(on_task);
     runner_options.strings = strings_;
     runner_options.data_dir = config_.data_dir;
+    runner_options.reaction.enabled = true;
     if (!ResolveSettings(tasks_, settings_json, runner_options.settings, report.error)) return report;
     TaskRunner runner(navigator, ocr_.get(), runner_options, log_);
     return runner.Run(tasks_, selected);
