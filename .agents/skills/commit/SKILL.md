@@ -7,7 +7,7 @@ description: Review pending changes and commit them in this repository's message
 
 ## Procedure
 1. Run `git status` and `git diff`. One logical change per commit; if changes are mixed, propose splitting them.
-2. Build and run tests: `cmake --build --preset linux-dev` then `ctest --preset linux-dev`. If they fail, do not commit; report the cause. On Windows, also build the `windows-msvc` preset when the change touches Windows-only code.
+2. Build and run tests: `cmake --build --preset linux-dev` then `ctest --preset linux-dev`; on Windows use the `windows-msvc` preset. If they fail, do not commit; report the cause. For GUI changes also run `dotnet build gui/Maba.Gui -c Release` and `python tools/check_ui_strings.py`; for tools, `python -m unittest discover tools/tests`. Check that the build itself succeeded: `ctest` also passes on old binaries.
 3. Stage only the files you mean to commit with `git add <paths>`. Do not use `git add -A` or `git add .` (exception: the very first scaffold commit, after reviewing `git status`). Never stage `assets-local/`, `.agents/local/` or `.privacy-terms.local` (gitignored anyway).
 4. Write the message below and run `git commit`. Never use `--no-verify`: the hooks (privacy scan, noreply email, message rules) are the safety net. If a hook fails, fix the cause and commit again.
 
@@ -44,3 +44,4 @@ revert(vision): ROI 지정 기능 제거
 - Commit messages and PR descriptions contain the change description and, if any, human co-authors. Do not add tool-generated footers, session links or similar marks. The `commit-msg` and `pre-push` hooks reject them.
 - The commit author and committer use the contributor's GitHub noreply identity (see `CONTRIBUTING.md`), never a real name or mailbox.
 - Push only when the maintainer asks. Never force-push. Never create a remote on your own.
+- Build or publish a release, tag or release package only on the maintainer's explicit order.

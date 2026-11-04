@@ -18,17 +18,20 @@ GUI (C#, WPF + HandyControls) --P/Invoke (C ABI, JSON strings)-- Core (C++)
                                              |- Task Engine  task steps, dependencies, schedule
                                              |- OCR Bridge   Python sidecar (RapidOCR + PaddleOCR models)
 ```
-Entry points: `assistant.h` (composition), `navigator.h`, `popup.h`, `task.h`, `task_runner.h`, `adb_controller.h`, `ocr_sidecar.h`, `maba_api.h`.
+Entry points: `assistant.h` (composition), `navigator.h`, `popup.h`, `task.h`, `task_runner.h`, `color.h`, `adb_controller.h`, `emulator.h`, `steam_launch.h`, `schedule.h`, `ocr_sidecar.h`, `maba_api.h`.
+
+For the C ABI, raise `MabaApiVersion()` and the GUI's `ExpectedApiVersion` together on any contract change.
 
 - Core and GUI talk only through the C ABI (few functions + JSON), so the GUI can change without touching Core.
 - Python is for OCR and model training/tools only. Do not move game flow control into Python.
 
 ## Controller rules
-- Keep the interface small: `Screenshot()`, `Click`, `Swipe`, `Back`. One implementation per platform (Steam PC, each emulator type).
+- Keep the interface small: `Screenshot()`, `CaptureRegion`, `Click`, `Swipe`, `Back`, `Error()`. One implementation per platform (Steam PC, each emulator type).
 - **The internal coordinate space is 1280x720.** Controllers return frames already scaled to 1280x720 and accept normalized coordinates; all scaling lives inside the Controller (`coords.h`). Otherwise any UI scale mismatch (e.g. Steam UI at 0.8x of the template) breaks every layer above.
 - Use screen capture and ordinary input only. No game memory reads/writes, no code injection, no packet manipulation.
 - `CaptureRegion(Rect)` returns a native-resolution crop for OCR; the downscaled 1280x720 frame can lose text detail.
-- Emulators differ by type and version: separate implementations, and document the supported list.
+- Emulators differ by type and version: document the supported list and mark what is not verified.
+- Starting and closing the game or emulator stays outside the controllers (`EmulatorSession`, `SteamSession`). Every wait is bounded and stoppable, only an emulator started by this run is closed, and a run stopped by the user leaves everything running.
 
 ## Navigator rules
 - Never handle popups inside an individual task. A **global popup handler** (known popups -> dismiss) and a **"detect current page, return to main" routine** live in Core and run around every action. Unexpected screens and popups were the most common failure cause in the reference projects' bug reports.
@@ -41,8 +44,9 @@ Entry points: `assistant.h` (composition), `navigator.h`, `popup.h`, `task.h`, `
 ## Languages
 - Korean (`ko`) is the baseline for behavior and design; other languages come later. Keep UI text out of logic: strings live in `strings/<lang>.json` by key (`docs/PAGE_FORMAT.md`).
 - Supported languages are data (`config/languages.json`), not code. Confirmed: Korean, English, Traditional Chinese, Thai. Japanese is unverified: confirm on the Steam page before enabling.
-- Template lookup order: `assets/<lang>/` then `assets/common/`. Icon/layout anchors go to common; only UI containing text goes to per-language folders.
-- Track support per task per language in a matrix; CI should check that every declared language has the required templates.
+- Template lookup order: `assets-local/` then `assets/`, per language then common. Icon/layout anchors go to common; only UI containing text goes to per-language folders.
+- The GUI display language (`gui/Maba.Gui/Resources/Strings.<lang>.xaml`, Korean and English) is separate from the game client language (templates, OCR, `strings/`). Add every UI key to both tables; `tools/check_ui_strings.py` checks them.
+- `tools/check_templates.py` prints the task x language matrix; CI fails if a `ready` task misses a template in a confirmed language.
 
 ## License and resources
 - Every source file starts with an SPDX header: `SPDX-License-Identifier: AGPL-3.0-only` and `SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors` (collective holder, never a personal name).
@@ -53,8 +57,9 @@ Entry points: `assistant.h` (composition), `navigator.h`, `popup.h`, `task.h`, `
 See `AGENTS.md`. Never commit personal data or local-only agent files; run `python tools/privacy_check.py` before pushing.
 
 ## Scope
-- In scope: daily tasks (cafe, schedule, shop, AP spending, mail, missions).
-- Deferred: Total Assault, Limit-Release Showdown, story. They need AI or real gameplay. Model choice and training come later.
+- In scope: daily tasks (`tasks/*.json`; the list and order are in `ba-add-daily-task`).
+- Deferred: Total Assault and Limit-Release Showdown. They need AI or real gameplay. Model choice and training come later.
+- Story is only skipped, never read or chosen.
 
 ## Working mode (agents)
 - Default to one main agent. Interfaces (IController, IOcr, task definitions) and Core are tightly coupled; parallel agents editing them cause conflicts and rework, and each subagent starts cold at real cost.
