@@ -23,6 +23,9 @@ Lists, per task and language, the templates the task needs (its steps including 
 ## GUI string tables (`check_ui_strings.py`)
 `python tools/check_ui_strings.py` compares every `gui/Maba.Gui/Resources/Strings.<lang>.xaml` with the Korean baseline: missing or extra keys, duplicates, empty texts and `{0}` placeholders that differ. Exit 1 on any problem (CI runs it). Standard library only.
 
+## OCR accuracy (`measure_ocr.py`)
+`ocr/.venv/Scripts/python tools/measure_ocr.py LABELS` runs the sidecar's engine over a label file and prints, per kind of sample, the exact reads, character errors, mean confidence and time per crop, then every miss. The label format is in the file's header. Labels point at screenshots, so keep them in `assets-local/`. Results: `docs/notes/ocr-accuracy.md`.
+
 ## Privacy check (available now)
 `python tools/privacy_check.py` scans files that would be committed for emails, local user paths, tokens, keys and any personal terms listed in `.privacy-terms.local` (gitignored). `--staged` checks staged content only. Enable the pre-commit hook once per clone with `git config core.hooksPath .githooks`; it also requires the commit author email to be a GitHub noreply address.
 

@@ -22,7 +22,7 @@ Core uses `ocr/.venv` automatically (`DefaultOcrCommand`), then the Python runti
 | Traditional Chinese | `chinese_cht` | PP-OCRv4 mobile |
 | Japanese | `japan` | PP-OCRv4 mobile |
 
-Accuracy on real game crops is not measured yet (roadmap M3). Read digits where possible: they are language-independent.
+Accuracy on game crops (Korean): `docs/notes/ocr-accuracy.md`. Read digits where possible: they are language-independent. Leave icons out of a region. `read_number` adds a margin around its crop: crops that end at the text make detection fail or split the number.
 
 ## Tests
 ```
