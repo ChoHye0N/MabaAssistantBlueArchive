@@ -10,4 +10,4 @@ Rules:
 
 | Asset set (folder or pattern) | Source URL | License / terms as stated there | Retrieved | Version / commit | Committed? | Notes |
 |---|---|---|---|---|---|---|
-| | | | | | | |
+| `assets-local/students/names.json` (student names in Korean and English) | Community game database, public data files (URL in the maintainer's local notes) | None stated | 2026-11-04 | 281 students | no | Local only. Name lists only, no images. |
