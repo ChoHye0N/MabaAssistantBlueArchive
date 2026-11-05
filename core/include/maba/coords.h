@@ -16,4 +16,8 @@ Point ToNormalized(Point native_point, Size native);
 // True if the surface is 16:9 within the tolerance.
 bool IsSupportedAspect(Size native, double tolerance = 0.01);
 
+// True if a window this size should be changed to 1280x720 before a run: not 16:9, or so small
+// that text is not readable.
+bool NeedsWindowFit(Size client);
+
 }  // namespace maba

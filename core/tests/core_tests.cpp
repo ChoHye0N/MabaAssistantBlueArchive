@@ -53,6 +53,11 @@ MABA_TEST(CoordsInvalidSize) {
 }
 
 MABA_TEST(Aspect) {
+    CHECK(!maba::NeedsWindowFit({1280, 720}));
+    CHECK(!maba::NeedsWindowFit({1920, 1080}));
+    CHECK(maba::NeedsWindowFit({960, 540}));
+    CHECK(maba::NeedsWindowFit({1500, 720}));
+    CHECK(maba::NeedsWindowFit({0, 0}));
     CHECK(maba::IsSupportedAspect({1920, 1080}));
     CHECK(maba::IsSupportedAspect({1280, 720}));
     CHECK(maba::IsSupportedAspect({2560, 1440}));

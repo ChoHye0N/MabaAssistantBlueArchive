@@ -145,6 +145,8 @@ bool ConnectController(MabaInstance* h, const json& args, std::string& error) {
             o.capture = args.value("capture", std::string("bitblt")) == "printwindow"
                             ? maba::win::CaptureMethod::PrintWindow
                             : maba::win::CaptureMethod::BitBlt;
+            o.fit_window = args.value("fit_window", true);
+            o.log = log;
             auto c = std::make_unique<maba::win::SteamController>(o);
             if (!c->Connect()) {
                 error = c->LastError();

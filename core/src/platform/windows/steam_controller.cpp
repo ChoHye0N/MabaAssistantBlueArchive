@@ -62,8 +62,49 @@ bool SteamController::Connect() {
     const wchar_t* title = options_.window_title.empty() ? nullptr : options_.window_title.c_str();
     hwnd_ = FindWindowW(cls, title);
     if (!hwnd_) return Fail("game window not found (is the Steam client running?)");
+    FitWindow();
     last_error_.clear();
     return true;
+}
+
+// Once per connection: a size changed during a run fails that task, and the next run fits it again.
+void SteamController::FitWindow() {
+    DpiAwareScope dpi;
+    if (IsIconic(hwnd_)) return;
+    const auto client_size = [this] {
+        RECT rc{};
+        GetClientRect(hwnd_, &rc);
+        return Size{rc.right - rc.left, rc.bottom - rc.top};
+    };
+    Size size = client_size();
+    if (!NeedsWindowFit(size)) return;
+    const std::string old = std::to_string(size.width) + "x" + std::to_string(size.height);
+    if (!options_.fit_window) {
+        Log(options_.log, LogLevel::kWarn, "the game window is " + old + ": use 16:9, at least 1280x720");
+        return;
+    }
+    if (IsZoomed(hwnd_)) {
+        ShowWindow(hwnd_, SW_RESTORE);
+        Sleep(300);
+        size = client_size();
+    }
+    // The frame around the client area is measured, so this holds at any display scale.
+    RECT outer{};
+    if (!GetWindowRect(hwnd_, &outer)) return;
+    const int width = outer.right - outer.left - size.width + kNormWidth;
+    const int height = outer.bottom - outer.top - size.height + kNormHeight;
+    SetWindowPos(hwnd_, nullptr, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+    for (int i = 0; i < 20; ++i) {
+        Sleep(100);
+        size = client_size();
+        if (size.width == kNormWidth && size.height == kNormHeight) break;
+    }
+    if (NeedsWindowFit(size)) {
+        Log(options_.log, LogLevel::kWarn, "could not change the game window from " + old);
+        return;
+    }
+    Sleep(500);  // the game lays its screen out again
+    Log(options_.log, LogLevel::kInfo, "game window changed from " + old + " to 1280x720");
 }
 
 bool SteamController::EnsureWindow() {
@@ -76,7 +117,7 @@ bool SteamController::EnsureWindow() {
     const Size size{rc.right - rc.left, rc.bottom - rc.top};
     if (!IsSupportedAspect(size)) {
         return Fail("client area " + std::to_string(size.width) + "x" + std::to_string(size.height) +
-                    " is not 16:9; set a 16:9 window size in the game");
+                    " is not 16:9; set a 16:9 window, at least 1280x720");
     }
     native_ = size;
     return true;

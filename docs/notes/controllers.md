@@ -8,7 +8,7 @@ Notes in our own words, written before implementing the controllers and the star
 - Network serials (`host:port`, e.g. MuMu 12 `127.0.0.1:16384`) need `adb connect <serial>` first; local ones (`emulator-5554`) do not.
 - `adb devices` lists `serial<TAB>state`. Only `device` is usable; `offline` and `unauthorized` must be reported as such.
 - `adb -s <serial> shell wm size` prints `Physical size: WxH` and, when the resolution was changed, `Override size: WxH`; the override is the real one. Some emulators report portrait numbers for a landscape screen, so the larger side is the width.
-- The game needs a 16:9 screen; reject anything else with a message that names supported resolutions.
+- The game window can be resized freely. A run needs 16:9 and at least 1280x720: at the start it changes any other window to 1280x720 (`fit_window`), and a size it cannot use is rejected with a message. Confirmed: the game accepts a size set from outside.
 
 Default serials (all **verify**, they change with versions and instance numbers):
 

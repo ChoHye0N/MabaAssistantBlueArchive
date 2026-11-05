@@ -468,7 +468,10 @@ bool TaskRunner::RunStep(const Step& s, Context& ctx, std::string& error) {
                 error = "region capture failed";
                 return false;
             }
-            const std::string text = JoinLeftToRight(ocr_->Recognize(crop, Rect{}, options_.language));
+            std::string text = JoinLeftToRight(ocr_->Recognize(crop, Rect{}, options_.language));
+            // A small window gives text close to the crop's edge, which the reader then misses.
+            if (text.empty())
+                text = JoinLeftToRight(ocr_->Recognize(AddMargin(crop, kNumberCropMargin), Rect{}, options_.language));
             if (text.empty()) {
                 error = "no text in the region";
                 return false;

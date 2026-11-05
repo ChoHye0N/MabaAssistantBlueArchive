@@ -12,6 +12,7 @@ public sealed class AppSettings
     public string UiLanguage { get; set; } = "";      // display language: "" = Windows language, "ko", "en"
     public string Controller { get; set; } = "steam"; // "steam" | "adb"
     public string Capture { get; set; } = "bitblt";   // Steam: "bitblt" | "printwindow"
+    public bool FitWindow { get; set; } = true;       // Steam: change a window that is not 16:9 or too small
     public string AdbPath { get; set; } = "adb";
     public string AdbSerial { get; set; } = "127.0.0.1:16384";
     public string AdbScreencap { get; set; } = "auto";

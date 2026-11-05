@@ -122,6 +122,7 @@
     <sys:String x:Key="Settings.StartGame">Start the game if it is not running</sys:String>
     <sys:String x:Key="Settings.CloseGameAfter">Close the game when done</sys:String>
     <sys:String x:Key="Settings.CloseEmulatorAfter">Close the emulator when done (only if this run started it)</sys:String>
+    <sys:String x:Key="Settings.FitWindow">Change the game window to 1280x720 at the start of a run when it is not 16:9 or smaller than that</sys:String>
     <sys:String x:Key="Settings.SteamStartGame">Start the game through Steam if it is not running</sys:String>
     <sys:String x:Key="Settings.SteamLaunchHint">If Steam is not running, it starts first and the run waits for it to sign in (up to 3 minutes). The game is closed through its window, and ended if it does not close. A run you stop yourself leaves the game open.</sys:String>
     <sys:String x:Key="Settings.LaunchHint">Starting the emulator and waiting for it to boot can take a few minutes. A run you stop yourself leaves the game and the emulator open.</sys:String>

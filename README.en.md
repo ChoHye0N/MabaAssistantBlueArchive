@@ -141,7 +141,7 @@ Run `MabaAssistantBlueArchive.exe`.
 
 ### Before Running
 
-- Run the game in 16:9 windowed mode.
+- Run the game in a 16:9 window of at least 1280x720. A window that does not fit is changed to 1280x720 at the start of a run (can be turned off in the settings).
 - Leave the mouse alone while MABA is running. If another window covers the game, MABA stops instead of clicking.
 - Run the game and MABA with the same privilege level. If only the game runs as administrator, Windows blocks the input.
 - Set up teams 1-4 for quests in advance.

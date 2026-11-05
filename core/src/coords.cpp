@@ -35,4 +35,6 @@ bool IsSupportedAspect(Size native, double tolerance) {
     return std::abs(ratio - 16.0 / 9.0) <= tolerance;
 }
 
+bool NeedsWindowFit(Size client) { return !IsSupportedAspect(client) || client.width < kNormWidth; }
+
 }  // namespace maba

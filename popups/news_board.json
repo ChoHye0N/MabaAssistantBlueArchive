@@ -1,12 +1,48 @@
 {
   "id": "news_board",
   "notes": [
-    "Web news board that opens on the main screen a few seconds after login. The anchor is the 'main news' header (text, per language).",
-    "verify: the header moves if the board is scrolled; it is not scrolled when the board opens."
+    "Web news board that opens on the main screen a few seconds after login. Web text does not scale with the window, so no text template fits every window size.",
+    "Recognized by the wide white body over the main screen; measured on 1280 and 1920 windows: the board has at least 96000 white pixels here, other screens at most 16500."
   ],
   "priority": 12,
   "anchors": [
-    { "template": "popup_news_board.png", "roi": { "x": 130, "y": 435, "w": 140, "h": 70 }, "threshold": 0.9 }
+    {
+      "template": "main_menu_mail_icon.png",
+      "roi": {
+        "x": 1110,
+        "y": 0,
+        "w": 90,
+        "h": 70
+      },
+      "threshold": 0.9
+    }
   ],
-  "dismiss": { "x": 1121, "y": 113 }
+  "colors": [
+    {
+      "hsv_min": [
+        0,
+        0,
+        240
+      ],
+      "hsv_max": [
+        180,
+        20,
+        255
+      ],
+      "area": [
+        40000,
+        158400
+      ],
+      "roi": {
+        "x": 200,
+        "y": 440,
+        "w": 880,
+        "h": 180
+      }
+    }
+  ],
+  "dismiss": {
+    "x": 1121,
+    "y": 113
+  }
 }

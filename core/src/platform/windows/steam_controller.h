@@ -13,6 +13,7 @@
 
 #include "gdi_capture.h"
 #include "maba/controller.h"
+#include "maba/log.h"
 
 namespace maba::win {
 
@@ -22,6 +23,8 @@ struct SteamControllerOptions {
     std::wstring window_class = L"UnityWndClass";
     std::wstring window_title = L"Blue Archive";
     bool bring_to_front = true;  // SetForegroundWindow before input
+    bool fit_window = false;     // Connect changes a window that is not 16:9 or too small to 1280x720
+    LogFn log;
     bool restore_cursor = true;  // put the cursor back after each click/swipe
     int move_settle_ms = 100;    // pause after moving, before pressing (the game reads the
                                  // cursor once per frame; a quicker press lands at the old spot)
@@ -54,6 +57,7 @@ public:
 
 private:
     bool EnsureWindow();
+    void FitWindow();
     bool CaptureNative(cv::Mat& out);
     bool PrepareInput();
     bool ToScreen(Point normalized, POINT& screen);

@@ -42,6 +42,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _dispatcher = dispatcher;
         _controller = settings.Controller;
         _capture = settings.Capture;
+        _fitWindow = settings.FitWindow;
         _adbPath = settings.AdbPath;
         _adbSerial = settings.AdbSerial;
         _adbScreencap = settings.AdbScreencap;
@@ -113,6 +114,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     [ObservableProperty] private string _controller;
     [ObservableProperty] private string _capture;
+    [ObservableProperty] private bool _fitWindow;
     [ObservableProperty] private string _adbPath;
     [ObservableProperty] private string _adbSerial;
     [ObservableProperty] private string _adbScreencap;
@@ -267,6 +269,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         }
         _settings.Controller = Controller;
         _settings.Capture = Capture;
+        _settings.FitWindow = FitWindow;
         _settings.AdbPath = AdbPath;
         _settings.AdbSerial = AdbSerial;
         _settings.AdbScreencap = AdbScreencap;
@@ -321,7 +324,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             ["maatouch_path"] = MaaTouchPath,
             ["back_keycode"] = BackKeycode,
         }
-        : new JsonObject { ["type"] = "steam", ["capture"] = Capture };
+        : new JsonObject { ["type"] = "steam", ["capture"] = Capture, ["fit_window"] = FitWindow };
 
     // Emulator runs with start/stop options: Core starts the emulator and the game and connects on
     // its worker (this can take minutes), so the UI thread does not connect itself.

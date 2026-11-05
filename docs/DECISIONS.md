@@ -34,6 +34,7 @@ Fixed choices. Change one only with a note here.
 | 28 | The `release` workflow starts by hand and creates a draft. Publishing stays the maintainer's decision. |
 | 29 | Templates (the owner's captures, no personal data) are committed in `assets/`, so a checkout and a release have everything. Game images stay NEXON's and outside the project license. |
 | 30 | Updates are a notice only: at start the GUI asks GitHub for the latest full release and links to it. Automatic installation is on hold. The repository name comes from the release build, so a move needs no code change. |
+| 31 | The game window is freely resizable, so a run accepts 16:9 from 1280x720 up and changes anything else to 1280x720. Checked at 1280 and 1600 wide, full screen at 1920; 2560 is open. |
 
 ## Checklist for a public repository
 - [ ] `python tools/privacy_check.py` passes, and the whole history is scanned (`git log -p` for personal data, paths, keys).

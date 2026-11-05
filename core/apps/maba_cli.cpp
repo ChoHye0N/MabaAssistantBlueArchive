@@ -284,6 +284,8 @@ int CmdRun(const Args& args) {
     } else if (controller == "steam") {
         maba::win::SteamControllerOptions o;
         if (!ParseCapture(args, o.capture)) return 2;
+        o.fit_window = !args.count("no-fit-window");
+        o.log = PrintLog;
         auto c = std::make_unique<maba::win::SteamController>(o);
         if (!c->Connect()) {
             std::fprintf(stderr, "connect failed: %s\n", c->LastError().c_str());
