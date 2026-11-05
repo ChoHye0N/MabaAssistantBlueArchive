@@ -146,6 +146,11 @@ MABA_TEST(DefaultOcrCommandFindsBundledPython) {
     fs::create_directories(root / "ocr" / ".venv" / "Scripts", ec);
     std::ofstream(root / "ocr" / ".venv" / "Scripts" / "python.exe") << "";
     CHECK(maba::DefaultOcrCommand(root).front().find(".venv") != std::string::npos);  // venv wins
+    // A release: the data folder has ocr/ beside it.
+    fs::remove_all(root / "ocr" / ".venv", ec);
+    fs::create_directories(root / "data", ec);
+    const auto release = maba::DefaultOcrCommand(root / "data");
+    CHECK(release.front() == bundled.front());
 #endif
     fs::remove_all(root, ec);
 }

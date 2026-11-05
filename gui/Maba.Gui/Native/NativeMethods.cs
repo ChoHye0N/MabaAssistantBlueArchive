@@ -10,6 +10,22 @@ internal static partial class NativeMethods
 {
     private const string Lib = "MabaCore";
 
+    // A release keeps the native libraries in bin/; during development they sit beside the executable.
+    static NativeMethods() => NativeLibrary.SetDllImportResolver(typeof(NativeMethods).Assembly, Resolve);
+
+    private static IntPtr Resolve(string name, System.Reflection.Assembly assembly, DllImportSearchPath? path)
+    {
+        var bin = System.IO.Path.Combine(AppContext.BaseDirectory, "bin");
+        var file = System.IO.Path.Combine(bin, Lib + ".dll");
+        if (name != Lib || !System.IO.File.Exists(file)) return IntPtr.Zero;
+        SetDllDirectoryW(bin);  // the libraries MabaCore needs in turn
+        return NativeLibrary.Load(file);
+    }
+
+    [LibraryImport("kernel32", StringMarshalling = StringMarshalling.Utf16)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool SetDllDirectoryW(string path);
+
     // Must match MabaApiVersion() in the native library.
     public const int ExpectedApiVersion = 5;
 

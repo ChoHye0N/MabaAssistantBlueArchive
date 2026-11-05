@@ -16,12 +16,13 @@ namespace fs = std::filesystem;
 
 std::vector<std::string> DefaultOcrCommand(const fs::path& root) {
     std::error_code ec;
+    // Beside the data in the repository, one level up in a release (data/ and ocr/).
+    const fs::path ocr = fs::is_directory(root / "ocr", ec) ? root / "ocr" : root.parent_path() / "ocr";
 #ifdef _WIN32
     // A development venv first, then the Python runtime bundled with a release.
-    const fs::path candidates[] = {root / "ocr" / ".venv" / "Scripts" / "python.exe",
-                                   root / "ocr" / "python" / "python.exe"};
+    const fs::path candidates[] = {ocr / ".venv" / "Scripts" / "python.exe", ocr / "python" / "python.exe"};
 #else
-    const fs::path candidates[] = {root / "ocr" / ".venv" / "bin" / "python"};
+    const fs::path candidates[] = {ocr / ".venv" / "bin" / "python"};
 #endif
     std::string python = "python";
     for (const auto& c : candidates) {
@@ -30,7 +31,7 @@ std::vector<std::string> DefaultOcrCommand(const fs::path& root) {
             break;
         }
     }
-    return {python, PathToUtf8(root / "ocr" / "server.py")};
+    return {python, PathToUtf8(ocr / "server.py")};
 }
 
 Assistant::Assistant(AssistantConfig config, LogFn log)

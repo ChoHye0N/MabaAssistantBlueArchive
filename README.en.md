@@ -129,6 +129,13 @@ Download the latest archive from [GitHub Releases](../../releases/latest).
 
 Unpack the archive into any folder.
 
+| Location | Contents |
+|---|---|
+| `MabaAssistantBlueArchive.exe` | The program |
+| `bin/` | Core library, command line tool |
+| `data/` | Tasks, screen definitions, templates, template tools |
+| `ocr/` | Python and models for OCR |
+
 ### 3. Run
 
 Run `MabaAssistantBlueArchive.exe`.
@@ -154,7 +161,7 @@ The default screen-recognition templates are based on the Korean client.
 
 If recognition fails because of a different screen layout or UI, capture the templates again with the [template capture tool](tools/README.md).
 
-Custom templates go in `assets-local/` and take precedence over the default templates.
+Custom templates go in `assets-local/` (`data/assets-local/` in a release) and take precedence over the default templates.
 
 When capturing, mask your nickname, UID, friend list and mail contents.
 

@@ -129,6 +129,13 @@ MabaAssistantBlueArchive/
 
 다운로드한 압축 파일을 원하는 폴더에 압축 해제합니다.
 
+| 위치 | 내용 |
+|---|---|
+| `MabaAssistantBlueArchive.exe` | 프로그램 |
+| `bin/` | 코어 라이브러리, 명령줄 도구 |
+| `data/` | 숙제, 화면 정의, 템플릿, 템플릿 도구 |
+| `ocr/` | OCR용 Python과 모델 |
+
 ### 3. Run
 
 `MabaAssistantBlueArchive.exe`를 실행합니다.
@@ -154,7 +161,7 @@ MabaAssistantBlueArchive/
 
 화면 구성이나 UI 차이로 인해 인식이 실패한다면 [템플릿 캡처 도구](tools/README.md)를 이용해 다시 캡처할 수 있습니다.
 
-사용자 정의 템플릿은 `assets-local/`에 저장하며 기본 템플릿보다 우선 적용됩니다.
+사용자 정의 템플릿은 `assets-local/`(릴리스는 `data/assets-local/`)에 저장하며 기본 템플릿보다 우선 적용됩니다.
 
 캡처할 때는 닉네임, UID, 친구 목록, 우편 내용이 보이지 않도록 마스크로 가려 주세요.
 

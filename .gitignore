@@ -47,3 +47,6 @@ captures/
 
 # Per-account records (UID, owned students, resources)
 local-data/
+
+# Release builds
+dist/

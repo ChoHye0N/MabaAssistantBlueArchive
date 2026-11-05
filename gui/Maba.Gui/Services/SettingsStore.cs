@@ -77,10 +77,13 @@ public sealed class SettingsStore
         File.Move(tmp, FilePath, overwrite: true);
     }
 
-    // The data root holds pages/, tasks/, config/ (the repository root during development,
-    // the install folder in a release). Searches upward from the executable.
+    // The data root holds pages/, tasks/, config/: data/ beside the executable in a release, the
+    // repository root during development (searched upward from the executable).
     public static string ResolveDataRoot(string configured)
     {
+        // First: a saved path can point at an older release in another folder.
+        var release = Path.Combine(AppContext.BaseDirectory, "data");
+        if (IsDataRoot(release)) return release;
         if (!string.IsNullOrWhiteSpace(configured) && IsDataRoot(configured)) return configured;
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         for (var i = 0; dir is not null && i < 8; ++i, dir = dir.Parent)

@@ -35,7 +35,7 @@
     <MabaCoreDir Condition="'$(MabaCoreDir)' == ''">$(MSBuildThisFileDirectory)..\..\build\windows-msvc\core\Release\</MabaCoreDir>
   </PropertyGroup>
   <ItemGroup Condition="Exists('$(MabaCoreDir)MabaCore.dll')">
-    <None Include="$(MabaCoreDir)*.dll" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    <None Include="$(MabaCoreDir)*.dll" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" Visible="false" />
   </ItemGroup>
 
 </Project>
