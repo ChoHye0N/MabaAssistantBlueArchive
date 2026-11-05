@@ -1,6 +1,6 @@
 # Contributing
 
-Project: MabaAssistantBlueArchive (MABA). It is developed privately until the first public release.
+Project: MabaAssistantBlueArchive (MABA).
 
 ## Setup
 ```

@@ -10,6 +10,12 @@
     <sys:String x:Key="Tab.Tasks">Dailies</sys:String>
     <sys:String x:Key="Tab.Account">My info</sys:String>
     <sys:String x:Key="Account.Empty">Nothing recorded yet. Run the account record task to see each account here.</sys:String>
+    <sys:String x:Key="Update.Available">New version {0}</sys:String>
+    <sys:String x:Key="Settings.CheckUpdates">Check for a new version at start (connects to GitHub, only shows a notice)</sys:String>
+    <sys:String x:Key="Account.Delete">Delete record</sys:String>
+    <sys:String x:Key="Account.DeleteQuestion">Delete the record of {0} (UID {1})? Its saved history goes with it and cannot be restored.</sys:String>
+    <sys:String x:Key="Account.DeleteConfirm">Delete</sys:String>
+    <sys:String x:Key="Account.DeleteCancel">Cancel</sys:String>
     <sys:String x:Key="Account.Uid">UID</sys:String>
     <sys:String x:Key="Account.Level">Level</sys:String>
     <sys:String x:Key="Account.Ap">AP</sys:String>

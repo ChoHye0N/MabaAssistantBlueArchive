@@ -11,6 +11,12 @@
     <sys:String x:Key="Tab.Account">내 정보</sys:String>
     <sys:String x:Key="Tab.Settings">설정</sys:String>
     <sys:String x:Key="Account.Empty">아직 기록이 없습니다. 숙제의 계정 기록을 실행하면 계정별로 표시됩니다.</sys:String>
+    <sys:String x:Key="Update.Available">새 버전 {0}</sys:String>
+    <sys:String x:Key="Settings.CheckUpdates">시작할 때 새 버전 확인 (GitHub에 접속, 알림만 표시)</sys:String>
+    <sys:String x:Key="Account.Delete">기록 삭제</sys:String>
+    <sys:String x:Key="Account.DeleteQuestion">{0} (UID {1})의 기록을 삭제할까요? 저장된 변화 이력도 함께 지워지며 되돌릴 수 없습니다.</sys:String>
+    <sys:String x:Key="Account.DeleteConfirm">삭제</sys:String>
+    <sys:String x:Key="Account.DeleteCancel">취소</sys:String>
     <sys:String x:Key="Account.Uid">UID</sys:String>
     <sys:String x:Key="Account.Level">레벨</sys:String>
     <sys:String x:Key="Account.Ap">활동력</sys:String>

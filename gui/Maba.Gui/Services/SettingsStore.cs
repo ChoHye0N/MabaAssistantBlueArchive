@@ -29,6 +29,7 @@ public sealed class AppSettings
     public bool SteamStartGame { get; set; }
     public bool SteamCloseGame { get; set; }
     public bool OcrEnabled { get; set; } = true;
+    public bool CheckUpdates { get; set; } = true;
     public List<string> SelectedTasks { get; set; } = new();
     // Task settings by task id and key, as JSON values (see tasks/<id>.json "settings").
     public Dictionary<string, Dictionary<string, System.Text.Json.Nodes.JsonNode?>> TaskSettings { get; set; } = new();

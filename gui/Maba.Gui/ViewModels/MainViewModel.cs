@@ -57,6 +57,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _steamStartGame = settings.SteamStartGame;
         _steamCloseGame = settings.SteamCloseGame;
         _ocrEnabled = settings.OcrEnabled;
+        _checkUpdates = settings.CheckUpdates;
         _scheduleEnabled = settings.ScheduleEnabled;
         _resetHourUtc = settings.ResetHourUtc;
         _resetMinuteUtc = settings.ResetMinuteUtc;
@@ -127,6 +128,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool _steamStartGame;
     [ObservableProperty] private bool _steamCloseGame;
     [ObservableProperty] private bool _ocrEnabled;
+    [ObservableProperty] private bool _checkUpdates;
+    [ObservableProperty] private string _updateText = "";
+    private string _updateUrl = "";
     [ObservableProperty] private bool _scheduleEnabled;
     [ObservableProperty] private int _resetHourUtc;
     [ObservableProperty] private int _resetMinuteUtc;
@@ -163,6 +167,21 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _initializing = false;
         UpdateNextRun();
         _scheduleTimer.Start();
+        if (CheckUpdates) _ = CheckForUpdateAsync();
+    }
+
+    private async Task CheckForUpdateAsync()
+    {
+        if (await UpdateChecker.CheckAsync() is not { } update) return;
+        _updateUrl = update.Url;
+        UpdateText = Strings.Format("Update.Available", update.Version);
+    }
+
+    [RelayCommand]
+    private void OpenUpdate()
+    {
+        if (_updateUrl.Length == 0) return;
+        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(_updateUrl) { UseShellExecute = true });
     }
 
     private void CreateCore()
@@ -263,6 +282,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _settings.SteamStartGame = SteamStartGame;
         _settings.SteamCloseGame = SteamCloseGame;
         _settings.OcrEnabled = OcrEnabled;
+        _settings.CheckUpdates = CheckUpdates;
         _settings.ScheduleEnabled = ScheduleEnabled;
         _settings.ResetHourUtc = Math.Clamp(ResetHourUtc, 0, 23);
         _settings.ResetMinuteUtc = Math.Clamp(ResetMinuteUtc, 0, 59);
@@ -410,13 +430,33 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void ClearLog() => Log.Clear();
 
+    private static string AccountsFolder =>
+        System.IO.Path.Combine(System.IO.Path.GetDirectoryName(SettingsStore.FilePath)!, "accounts");
+
     // One box per accounts/<uid>.json: a new UID seen by the account record gets its own file.
     private void LoadAccounts()
     {
         Accounts.Clear();
-        var folder = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(SettingsStore.FilePath)!, "accounts");
-        foreach (var card in AccountCard.LoadAll(folder)) Accounts.Add(card);
+        foreach (var card in AccountCard.LoadAll(AccountsFolder)) Accounts.Add(card);
         OnPropertyChanged(nameof(HasAccounts));
+    }
+
+    // The history lives in the same file, so this cannot be undone; the next account record starts over.
+    [RelayCommand]
+    private void DeleteAccount(AccountCard card)
+    {
+        var question = string.Format(Strings.Get("Account.DeleteQuestion"), card.Nickname, card.Uid);
+        if (!Views.ConfirmDialog.Ask(Strings.Get("Account.Delete"), question,
+                                     Strings.Get("Account.DeleteConfirm"), Strings.Get("Account.DeleteCancel"))) return;
+        try
+        {
+            System.IO.File.Delete(System.IO.Path.Combine(AccountsFolder, card.Uid + ".json"));
+        }
+        catch (Exception e) when (e is System.IO.IOException or UnauthorizedAccessException)
+        {
+            StatusText = e.Message;
+        }
+        LoadAccounts();
     }
 
     private void OnCoreEvent(JsonObject e)

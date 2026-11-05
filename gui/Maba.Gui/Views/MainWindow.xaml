@@ -22,6 +22,9 @@
                            Text="{Binding CoreVersion, StringFormat=Core {0}}" />
                 <TextBlock DockPanel.Dock="Right" Margin="0,0,16,0" Foreground="{DynamicResource SecondaryTextBrush}"
                            Text="{Binding NextRunText}" />
+                <TextBlock DockPanel.Dock="Right" Margin="0,0,16,0">
+                    <Hyperlink Command="{Binding OpenUpdateCommand}"><Run Text="{Binding UpdateText, Mode=OneWay}" /></Hyperlink>
+                </TextBlock>
                 <TextBlock Text="{Binding StatusText}" TextTrimming="CharacterEllipsis" />
             </DockPanel>
         </Border>
@@ -151,9 +154,17 @@
                                                 <RowDefinition Height="Auto" />
                                                 <RowDefinition Height="Auto" />
                                             </Grid.RowDefinitions>
-                                            <TextBlock Grid.ColumnSpan="2" Style="{StaticResource TextBlockSubTitleBold}"
+                                            <TextBlock Grid.ColumnSpan="2" Style="{StaticResource TextBlockSubTitleBold}" Margin="0,0,32,0"
                                                        HorizontalAlignment="Left" TextTrimming="CharacterEllipsis"
                                                        Text="{Binding Nickname}" />
+                                            <Button Grid.ColumnSpan="2" HorizontalAlignment="Right" VerticalAlignment="Top"
+                                                    Width="28" Height="28" Padding="5"
+                                                    Style="{StaticResource ButtonIcon}" Foreground="{DynamicResource DangerBrush}"
+                                                    hc:IconElement.Geometry="M9 3V4H4V6H5V20A2 2 0 0 0 7 22H17A2 2 0 0 0 19 20V6H20V4H15V3H9M7 6H17V20H7V6M9 8V18H11V8H9M13 8V18H15V8H13Z"
+                                                    ToolTip="{DynamicResource Account.Delete}"
+                                                    AutomationProperties.Name="{DynamicResource Account.Delete}"
+                                                    Command="{Binding DataContext.DeleteAccountCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding}" />
                                             <TextBlock Grid.Row="1" Margin="0,8,0,0" Text="{DynamicResource Account.Uid}"
                                                        Foreground="{DynamicResource SecondaryTextBrush}" />
                                             <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,8,0,0" Text="{Binding Uid}" />
@@ -274,6 +285,7 @@
                                        Text="{DynamicResource Settings.LaunchHint}" />
                         </StackPanel>
 
+                        <CheckBox Content="{DynamicResource Settings.CheckUpdates}" IsChecked="{Binding CheckUpdates}" Margin="0,0,0,8" />
                         <CheckBox Content="{DynamicResource Settings.Ocr}" IsChecked="{Binding OcrEnabled}" Margin="0,4,0,8" />
                         <hc:TextBox hc:InfoElement.Title="{DynamicResource Settings.DataRoot}"
                                     hc:InfoElement.TitlePlacement="Left" hc:InfoElement.TitleWidth="140"

@@ -6,6 +6,7 @@
 param(
     [Parameter(Mandatory)] [string] $Version,
     [string] $OutDir = 'dist',
+    [string] $Repository = '',  # owner/name: turns on the new-version notice
     [string] $PythonVersion = '3.12.10'
 )
 $ErrorActionPreference = 'Stop'
@@ -21,7 +22,7 @@ New-Item -ItemType Directory -Force $pkg | Out-Null
 
 # GUI with its own .NET runtime, plus MabaCore and the OpenCV DLLs
 $publish = Join-Path $out 'publish'
-& dotnet publish gui/Maba.Gui -c Release -r win-x64 --self-contained true -o $publish -v quiet
+& dotnet publish gui/Maba.Gui -c Release -r win-x64 --self-contained true -o $publish -v quiet "-p:Version=$Version" "-p:MabaRepository=$Repository"
 if ($LASTEXITCODE -ne 0) { throw 'dotnet publish failed' }
 Get-ChildItem $publish -File | Where-Object { $_.Extension -ne '.pdb' } | Copy-Item -Destination $pkg
 Get-ChildItem $publish -Directory | Copy-Item -Destination $pkg -Recurse

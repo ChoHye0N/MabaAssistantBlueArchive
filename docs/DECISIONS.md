@@ -33,6 +33,7 @@ Fixed choices. Change one only with a note here.
 | 27 | Background in a template is made transparent from evidence: pixels that change between frames showing the same UI, after normalizing brightness. Masked matching stays `TM_CCOEFF_NORMED`. PNG alpha is used, not black paint, so black text is not lost. |
 | 28 | The `release` workflow starts by hand and creates a draft. Publishing stays the maintainer's decision. |
 | 29 | Templates (the owner's captures, no personal data) are committed in `assets/`, so a checkout and a release have everything. Game images stay NEXON's and outside the project license. |
+| 30 | Updates are a notice only: at start the GUI asks GitHub for the latest full release and links to it. Automatic installation is on hold. The repository name comes from the release build, so a move needs no code change. |
 
 ## Checklist for a public repository
 - [ ] `python tools/privacy_check.py` passes, and the whole history is scanned (`git log -p` for personal data, paths, keys).

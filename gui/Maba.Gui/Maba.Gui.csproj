@@ -19,6 +19,10 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
 
+  <ItemGroup Condition="'$(MabaRepository)' != ''">
+    <AssemblyMetadata Include="Repository" Value="$(MabaRepository)" />
+  </ItemGroup>
+
   <ItemGroup>
     <!-- Versions pinned; licenses in THIRD_PARTY_NOTICES.md and the README library table. -->
     <PackageReference Include="HandyControls" Version="3.7.0" />

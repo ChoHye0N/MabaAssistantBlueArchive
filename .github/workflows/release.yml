@@ -55,9 +55,10 @@ jobs:
           ocr\.venv\Scripts\python -c "import sys; sys.path.insert(0, 'ocr'); from server import RapidOcrEngine; RapidOcrEngine()._engine('korean')"
       - name: Package
         shell: pwsh
-        run: .\tools\build_package.ps1 -Version "${{ inputs.version }}"
+        run: .\tools\build_package.ps1 -Version "${{ inputs.version }}" -Repository "${{ github.repository }}"
       - name: Draft release
         env:
           GH_TOKEN: ${{ github.token }}
         shell: pwsh
-        run: gh release create "v${{ inputs.version }}" "dist\MABA-${{ inputs.version }}-win-x64.zip" --draft --prerelease --target "${{ github.sha }}" --title "MABA v${{ inputs.version }}" --notes "Draft built from ${{ github.sha }}."
+        # A version with a suffix (0.2.0-beta.1) is a pre-release, which the new-version notice skips.
+        run: gh release create "v${{ inputs.version }}" "dist\MABA-${{ inputs.version }}-win-x64.zip" --draft --prerelease=${{ contains(inputs.version, '-') }} --target "${{ github.sha }}" --title "MABA v${{ inputs.version }}" --notes "Draft built from ${{ github.sha }}."

@@ -49,7 +49,9 @@
 - [ ] Schedule: prefer rooms with configured students across the chosen locations; otherwise spend tickets in list order
 - [x] Account record per UID: nickname, level, credits, pyroxene, AP with history (`account_info`); GUI tab "My info" with one box per record
 - [ ] On hold: record the owned students. Reading the student list with OCR gave misreads and noise; it needs a dictionary of student names per language to correct them (see `assets/PROVENANCE.md`)
-- [ ] Verify in a live battle: AUTO/3x popups, event quest clearing with the configured team
+- [x] Verified in live battles: AUTO/3x popups, event quest and bounty cleared with teams 1 and 2, sortie with an empty team refused
+- [x] Verified live: defeat through hint to the lobby (AP back), pause and give-up dialogs, a run started in the middle of a battle, no tickets, not enough AP followed by mail
+- [ ] Verify a sortie and an empty team in a real task with the repeated looks for a gone button; a sweep count above the AP; a battle in a mission grid map
 
 ## M4
 - [x] Emulator controller over ADB: raw/PNG screencap with probe, `input` or MaaTouch, CRLF repair, reconnect (`adb_controller.h`), unit-tested with a fake adb
@@ -69,7 +71,8 @@
 - [x] Language matrix + CI template check (`tools/check_templates.py`, `.github/workflows/ci.yml`)
 - [x] CI: Windows build of Core and GUI; `release` workflow for a draft archive
 - [x] Templates committed in `assets/`, so releases get them from the repository
-- [ ] Automatic update: first resources, then a new-version notice
+- [x] New-version notice in the GUI
+- [ ] On hold: automatic update of resources, then of the program
 
 ## Open questions to verify in the real game
 Game facts and their **verify** marks are in `docs/notes/game-structure.md`.
