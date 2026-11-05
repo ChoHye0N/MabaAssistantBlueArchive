@@ -32,6 +32,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private bool _runIsScheduled;
     private bool _initializing = true;
 
+    public ObservableCollection<AccountCard> Accounts { get; } = new();
+    public bool HasAccounts => Accounts.Count > 0;
+
     public MainViewModel(AppSettings settings, SettingsStore store, Dispatcher dispatcher)
     {
         _settings = settings;
@@ -156,6 +159,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public void Initialize()
     {
         CreateCore();
+        LoadAccounts();
         _initializing = false;
         UpdateNextRun();
         _scheduleTimer.Start();
@@ -406,6 +410,15 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void ClearLog() => Log.Clear();
 
+    // One box per accounts/<uid>.json: a new UID seen by the account record gets its own file.
+    private void LoadAccounts()
+    {
+        Accounts.Clear();
+        var folder = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(SettingsStore.FilePath)!, "accounts");
+        foreach (var card in AccountCard.LoadAll(folder)) Accounts.Add(card);
+        OnPropertyChanged(nameof(HasAccounts));
+    }
+
     private void OnCoreEvent(JsonObject e)
     {
         switch (e["type"]?.GetValue<string>())
@@ -426,6 +439,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             case "run" when e["status"]?.GetValue<string>() == "finished":
             {
                 IsRunning = false;
+                LoadAccounts();
                 var ok = e["ok"]?.GetValue<bool>() ?? false;
                 var cancelled = e["cancelled"]?.GetValue<bool>() ?? false;
                 var error = e["error"]?.GetValue<string>() ?? "";

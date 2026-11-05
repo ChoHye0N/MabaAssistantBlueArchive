@@ -8,6 +8,13 @@
     <sys:String x:Key="App.Title">MABA - Blue Archive Daily Assistant</sys:String>
 
     <sys:String x:Key="Tab.Tasks">Dailies</sys:String>
+    <sys:String x:Key="Tab.Account">My info</sys:String>
+    <sys:String x:Key="Account.Empty">Nothing recorded yet. Run the account record task to see each account here.</sys:String>
+    <sys:String x:Key="Account.Uid">UID</sys:String>
+    <sys:String x:Key="Account.Level">Level</sys:String>
+    <sys:String x:Key="Account.Ap">AP</sys:String>
+    <sys:String x:Key="Account.Credits">Credits</sys:String>
+    <sys:String x:Key="Account.Pyroxene">Pyroxene</sys:String>
     <sys:String x:Key="Tab.Settings">Settings</sys:String>
     <sys:String x:Key="Tab.Log">Log</sys:String>
 
@@ -17,7 +24,7 @@
     <sys:String x:Key="Tasks.Reload">Reload data</sys:String>
     <sys:String x:Key="Tasks.After">After</sys:String>
     <sys:String x:Key="Tasks.Ocr">OCR</sys:String>
-    <sys:String x:Key="Tasks.Hint">Dailies run in list order. AP is collected first and then spent; after the Mailbox (AP above the cap), the remaining AP is spent once more.</sys:String>
+    <sys:String x:Key="Tasks.Hint">Dailies run in list order.</sys:String>
     <sys:String x:Key="Tasks.Settings">Settings</sys:String>
     <sys:String x:Key="Task.NotImplemented">Not implemented yet</sys:String>
     <!-- Display names by task id (tasks/*.json); a missing id falls back to the task's own name. -->
@@ -27,11 +34,12 @@
     <sys:String x:Key="Task.free_package">Pyroxene shop: daily free package</sys:String>
     <sys:String x:Key="Task.shop">Shop: buy from the General list</sys:String>
     <sys:String x:Key="Task.commission">Commissions: sweep a set number of times</sys:String>
+    <sys:String x:Key="Task.scrimmage">Scrimmage: spend tickets</sys:String>
     <sys:String x:Key="Task.bounty">Bounty: use tickets</sys:String>
-    <sys:String x:Key="Task.spend_ap">Spend AP (event first)</sys:String>
+    <sys:String x:Key="Task.spend_event">Event: spend AP</sys:String>
+    <sys:String x:Key="Task.spend_mission">Missions: spend AP</sys:String>
     <sys:String x:Key="Task.tactical_challenge">Tactical Challenge: claim rewards, use tickets</sys:String>
     <sys:String x:Key="Task.mail_claim_all">Mailbox: claim all</sys:String>
-    <sys:String x:Key="Task.spend_ap_rest">Spend remaining AP (after the Mailbox)</sys:String>
     <sys:String x:Key="Task.mission_claim_all">Tasks: claim all</sys:String>
     <sys:String x:Key="Task.account_info">Account record: Credits, Pyroxene and AP per UID</sys:String>
     <!-- Setting labels by task id and key; a missing one falls back to the task file's description. -->
@@ -40,33 +48,25 @@
     <sys:String x:Key="Setting.cafe.invite">Use invitation tickets</sys:String>
     <sys:String x:Key="Setting.cafe.invite_first">Students to invite to café 1 (by priority, comma-separated, as shown in the game)</sys:String>
     <sys:String x:Key="Setting.cafe.invite_second">Students to invite to café 2 (by priority, comma-separated)</sys:String>
-    <sys:String x:Key="Setting.shop.buy_reports">With "buy all", also buy Activity Reports (row 1)</sys:String>
-    <sys:String x:Key="Setting.spend_ap.clear_quests">Clear event quests not cleared yet</sys:String>
-    <sys:String x:Key="Setting.spend_ap.quest_team">Team for quests (1-4, with bonus students)</sys:String>
-    <sys:String x:Key="Setting.spend_ap_rest.clear_quests">Clear event quests not cleared yet</sys:String>
-    <sys:String x:Key="Setting.spend_ap_rest.quest_team">Team for quests (1-4, with bonus students)</sys:String>
+    <sys:String x:Key="Setting.shop.buy_reports">Also buy Activity Reports (row 1)</sys:String>
+    <sys:String x:Key="Setting.spend_event.clear_quests">Clear event quests not cleared yet</sys:String>
+    <sys:String x:Key="Setting.spend_event.quest_team">Team for quests (1-4, with bonus students)</sys:String>
     <sys:String x:Key="Setting.schedule.locations">Locations to use (checked ones, in list order)</sys:String>
-    <sys:String x:Key="Setting.shop.mode">Purchase mode (all: everything, selected: chosen items)</sys:String>
-    <sys:String x:Key="Setting.shop.items">Items for "selected" mode (comma-separated)</sys:String>
     <sys:String x:Key="Setting.commission.requests">Requests to sweep (checked ones, in list order)</sys:String>
     <sys:String x:Key="Setting.commission.runs">Sweeps per request (each costs AP)</sys:String>
     <sys:String x:Key="Setting.commission.stage">Sweep stage (highest = highest with 3 stars, or its number)</sys:String>
     <sys:String x:Key="Setting.bounty.location">Location (1-3 from the top of the list)</sys:String>
-    <sys:String x:Key="Setting.spend_ap.targets">AP spending order (event, mission, scrimmage)</sys:String>
-    <sys:String x:Key="Setting.spend_ap.event_banner">Event banner (1 = newest)</sys:String>
-    <sys:String x:Key="Setting.spend_ap.event_story">Play the event story (story scenes are skipped)</sys:String>
-    <sys:String x:Key="Setting.spend_ap.academy">Scrimmage school (1-3 from the top of the list)</sys:String>
-    <sys:String x:Key="Setting.spend_ap_rest.targets">AP spending order (event, mission, scrimmage)</sys:String>
-    <sys:String x:Key="Setting.spend_ap_rest.event_banner">Event banner (1 = newest)</sys:String>
-    <sys:String x:Key="Setting.spend_ap_rest.event_story">Play the event story (story scenes are skipped)</sys:String>
-    <sys:String x:Key="Setting.spend_ap_rest.academy">Scrimmage school (1-3 from the top of the list)</sys:String>
+    <sys:String x:Key="Setting.scrimmage.academy">Academy (1-3, top to bottom)</sys:String>
+    <sys:String x:Key="Setting.scrimmage.stage">Sweep stage (highest = highest with 3 stars, or its number)</sys:String>
+    <sys:String x:Key="Setting.scrimmage.sweep_runs">Sweeps per stage (0 = as many as possible)</sys:String>
+    <sys:String x:Key="Setting.spend_event.event_banner">Event banner (1 = newest)</sys:String>
+    <sys:String x:Key="Setting.spend_event.event_story">Play the event story (story scenes are skipped)</sys:String>
     <sys:String x:Key="Setting.bounty.stage">Stage to sweep (highest = highest 3-star stage, or its number)</sys:String>
-    <sys:String x:Key="Setting.spend_ap.quest_stage">Event quest to sweep (highest, or 01-12)</sys:String>
-    <sys:String x:Key="Setting.spend_ap.mission_stage">Mission stage to sweep (highest, or its number)</sys:String>
-    <sys:String x:Key="Setting.spend_ap.scrimmage_stage">Scrimmage stage to sweep (highest, or its number)</sys:String>
-    <sys:String x:Key="Setting.spend_ap_rest.quest_stage">Event quest to sweep (highest, or 01-12)</sys:String>
-    <sys:String x:Key="Setting.spend_ap_rest.mission_stage">Mission stage to sweep (highest, or its number)</sys:String>
-    <sys:String x:Key="Setting.spend_ap_rest.scrimmage_stage">Scrimmage stage to sweep (highest, or its number)</sys:String>
+    <sys:String x:Key="Setting.spend_event.quest_stage">Event quest to sweep (highest, or 01-12)</sys:String>
+    <sys:String x:Key="Setting.bounty.sweep_runs">Sweeps per stage (0 = as many as possible)</sys:String>
+    <sys:String x:Key="Setting.spend_event.sweep_runs">Sweeps per stage (0 = as many as possible)</sys:String>
+    <sys:String x:Key="Setting.spend_mission.sweep_runs">Sweeps per stage (0 = as many as possible)</sys:String>
+    <sys:String x:Key="Setting.spend_mission.stage">Sweep stage (highest or its number)</sys:String>
     <sys:String x:Key="Setting.ListExample">Names as shown in the game, e.g. Aru, Hina (Swimsuit)</sys:String>
     <sys:String x:Key="Setting.tactical_challenge.claim_rewards">Claim rewards</sys:String>
     <sys:String x:Key="Setting.tactical_challenge.matches">Matches (up to 5)</sys:String>

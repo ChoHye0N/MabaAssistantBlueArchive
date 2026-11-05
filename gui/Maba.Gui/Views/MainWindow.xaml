@@ -119,6 +119,68 @@
                 </DockPanel>
             </TabItem>
 
+            <!-- My info: one box per account record -->
+            <TabItem Header="{DynamicResource Tab.Account}">
+                <hc:ScrollViewer>
+                    <StackPanel Margin="12">
+                        <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"
+                                   Text="{DynamicResource Account.Empty}"
+                                   Visibility="{Binding HasAccounts, Converter={StaticResource Boolean2VisibilityReConverter}}" />
+                        <ItemsControl ItemsSource="{Binding Accounts}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Width="260" Margin="0,0,12,12" Padding="14" CornerRadius="6"
+                                            Background="{DynamicResource RegionBrush}"
+                                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="80" />
+                                                <ColumnDefinition />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.ColumnSpan="2" Style="{StaticResource TextBlockSubTitleBold}"
+                                                       HorizontalAlignment="Left" TextTrimming="CharacterEllipsis"
+                                                       Text="{Binding Nickname}" />
+                                            <TextBlock Grid.Row="1" Margin="0,8,0,0" Text="{DynamicResource Account.Uid}"
+                                                       Foreground="{DynamicResource SecondaryTextBrush}" />
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,8,0,0" Text="{Binding Uid}" />
+                                            <TextBlock Grid.Row="2" Margin="0,4,0,0" Text="{DynamicResource Account.Level}"
+                                                       Foreground="{DynamicResource SecondaryTextBrush}" />
+                                            <TextBlock Grid.Row="2" Grid.Column="1" Margin="0,4,0,0" Text="{Binding Level}" />
+                                            <TextBlock Grid.Row="3" Margin="0,4,0,0" Text="{DynamicResource Account.Ap}"
+                                                       Foreground="{DynamicResource SecondaryTextBrush}" />
+                                            <TextBlock Grid.Row="3" Grid.Column="1" Margin="0,4,0,0" Text="{Binding Ap}" />
+                                            <TextBlock Grid.Row="4" Margin="0,4,0,0" Text="{DynamicResource Account.Credits}"
+                                                       Foreground="{DynamicResource SecondaryTextBrush}" />
+                                            <TextBlock Grid.Row="4" Grid.Column="1" Margin="0,4,0,0" Text="{Binding Credits}" />
+                                            <TextBlock Grid.Row="5" Margin="0,4,0,0" Text="{DynamicResource Account.Pyroxene}"
+                                                       Foreground="{DynamicResource SecondaryTextBrush}" />
+                                            <TextBlock Grid.Row="5" Grid.Column="1" Margin="0,4,0,0" Text="{Binding Pyroxene}" />
+                                            <TextBlock Grid.Row="6" Grid.ColumnSpan="2" Margin="0,10,0,0" FontSize="11"
+                                                       Foreground="{DynamicResource SecondaryTextBrush}"
+                                                       Text="{Binding Updated}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </hc:ScrollViewer>
+            </TabItem>
+
             <!-- Settings -->
             <TabItem Header="{DynamicResource Tab.Settings}">
                 <hc:ScrollViewer>
