@@ -349,6 +349,52 @@ MABA_TEST(OptionalFailuresShowInTheResult) {
     CHECK(quiet.status == maba::TaskStatus::kSucceeded && quiet.message.empty());
 }
 
+MABA_TEST(ClickTextFuzzyAcceptsOneMisreadLetterOnly) {
+    const auto run = [](const char* json) {
+        NavRig rig;
+        maba_test::FakeOcr ocr;
+        ocr.results = {{"\xEC\x82\xB4\xEB\xA0\x88\xEC\x97\x85\xEB\xAC\xB4\xEA\xB4\x80", {0, 0, 100, 20}, 0.9f}};  // the misread name
+        maba::TaskRunner runner(rig.Nav(), &ocr);
+        const auto r = runner.RunTask(Task(json));
+        return std::make_pair(r.status == maba::TaskStatus::kSucceeded, rig.controller.clicks.size());
+    };
+    // Wanted: the real name with its first letter, one letter from what OCR returned.
+    const auto strict = run(R"({"id": "t", "steps": [{"action": "click_text", "texts": ["\uC0F4\uB808\uC5C5\uBB34\uAD00"],
+        "roi": {"x": 0, "y": 0, "w": 100, "h": 30}, "max_scrolls": 0, "optional": true, "quiet": true}]})");
+    CHECK(strict.second == 0);
+    const auto fuzzy = run(R"({"id": "t", "steps": [{"action": "click_text", "texts": ["\uC0F4\uB808\uC5C5\uBB34\uAD00"], "fuzzy": true,
+        "roi": {"x": 0, "y": 0, "w": 100, "h": 30}, "max_scrolls": 0}]})");
+    CHECK(fuzzy.first && fuzzy.second == 1);
+    const auto two_letters = run(R"({"id": "t", "steps": [{"action": "click_text", "texts": ["\uC0F4\uB808\uC5C5\uBB34\uC2E4"], "fuzzy": true,
+        "roi": {"x": 0, "y": 0, "w": 100, "h": 30}, "max_scrolls": 0, "optional": true, "quiet": true}]})");
+    CHECK(two_letters.second == 0);
+}
+
+MABA_TEST(ReadTextIsStoredInTheRecord) {
+    NavRig rig;
+    maba_test::FakeOcr ocr;
+    ocr.results = {{"Name", {0, 0, 10, 10}, 0.9f}};
+    maba::RunnerOptions options;
+    options.data_dir = std::filesystem::temp_directory_path() / "maba_read_text_test";
+    std::filesystem::remove_all(options.data_dir);
+    maba::TaskRunner runner(rig.Nav(), &ocr, options);
+    const auto r = runner.RunTask(Task(R"({"id": "t", "steps": [
+        {"action": "read_text", "roi": {"x": 0, "y": 0, "w": 100, "h": 30}, "store": "nickname"},
+        {"action": "save", "file": "a.json", "values": ["nickname"]}]})"));
+    CHECK(r.status == maba::TaskStatus::kSucceeded);
+    CHECK(r.texts.at("nickname") == "Name");
+    std::ifstream in(options.data_dir / "a.json");
+    const std::string saved((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    in.close();
+    CHECK(saved.find("\"nickname\": \"Name\"") != std::string::npos);
+    std::filesystem::remove_all(options.data_dir);
+
+    ocr.results.clear();
+    const auto empty = runner.RunTask(Task(R"({"id": "t", "steps": [
+        {"action": "read_text", "roi": {"x": 0, "y": 0, "w": 100, "h": 30}, "store": "nickname"}]})"));
+    CHECK(empty.status == maba::TaskStatus::kFailed);
+}
+
 MABA_TEST(ChangedShareCountsStrongChangesOnly) {
     const auto base = maba_test::BlankFrame(100, 100, 100);
     auto small = maba_test::BlankFrame(100, 100, 110);  // lighting: many pixels, a little

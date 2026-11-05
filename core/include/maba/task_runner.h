@@ -28,6 +28,7 @@ struct TaskRunResult {
     TaskStatus status = TaskStatus::kPending;
     std::string message;
     std::map<std::string, long long> values;  // read_number results
+    std::map<std::string, std::string> texts;  // read_text results
 };
 
 struct RunReport {

@@ -28,6 +28,7 @@ enum class StepAction {
     kBack,            // back key
     kSleep,           // fixed pause (capped)
     kWaitStable,      // wait until the screen stops moving (bounded, a screen that never rests is not an error)
+    kReadText,        // OCR on a region, the text is stored for `save`
     kReadNumber,      // OCR digits in `roi` (native-resolution crop) into `store`
     kClickColor,      // click colour blobs one by one (re-detected each time), up to `max`
     kClickText,       // OCR `roi`, click the first wanted text found; scroll with `point`->`to`
@@ -128,6 +129,7 @@ struct Step {
     int timeout_ms = 5000;             // waits inside the step
     bool optional = false;             // a failure is reported in the result, the task continues
     bool quiet = false;                // optional: failing here is normal, nothing to report
+    bool fuzzy = false;                // kClickText: a text of 4+ characters may differ in one
     std::optional<Condition> when;     // the step runs only when this holds (kIf: the branch test)
     std::optional<Condition> until;    // kLoop: checked before each iteration, stops when it holds
     int max = 1;                       // kLoop iterations, kClickColor clicks

@@ -28,6 +28,7 @@ const char* ToString(StepAction action) {
         case StepAction::kSleep: return "sleep";
         case StepAction::kWaitStable: return "wait_stable";
         case StepAction::kReadNumber: return "read_number";
+        case StepAction::kReadText: return "read_text";
         case StepAction::kClickColor: return "click_color";
         case StepAction::kClickText: return "click_text";
         case StepAction::kSave: return "save";
@@ -57,6 +58,7 @@ const std::map<std::string, StepAction>& Actions() {
         {"sleep", StepAction::kSleep},
         {"wait_stable", StepAction::kWaitStable},
         {"read_number", StepAction::kReadNumber},
+        {"read_text", StepAction::kReadText},
         {"click_color", StepAction::kClickColor},
         {"click_text", StepAction::kClickText},
         {"save", StepAction::kSave},
@@ -160,6 +162,7 @@ Step ParseStep(const json& obj, const std::string& where, int depth) {
     s.timeout_ms = OptInt(obj, "timeout_ms", where, 5000, 100, kMaxStepTimeoutMs);
     s.optional = OptBool(obj, "optional", where, false);
     s.quiet = OptBool(obj, "quiet", where, false);
+    s.fuzzy = OptBool(obj, "fuzzy", where, false);
     s.no_verify = OptBool(obj, "no_verify", where, false);
     s.change_roi = ParseRoi(obj, where, "change_roi");
     if (auto w = obj.find("when"); w != obj.end() && !w->is_null())
@@ -213,6 +216,7 @@ Step ParseStep(const json& obj, const std::string& where, int depth) {
                                  std::to_string(kMaxSleepMs) + "]");
             break;
         case StepAction::kReadNumber:
+        case StepAction::kReadText:
             s.roi = ParseRoi(obj, where);
             if (!s.roi) throw ParseError(where + ": read_number needs a non-empty 'roi'");
             s.store = RequireString(obj, "store", where);

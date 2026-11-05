@@ -44,6 +44,27 @@ namespace {
 
 constexpr int kNumberCropMargin = 16;
 
+// Code points of a UTF-8 text, so that a Korean letter counts as one character.
+std::vector<std::string> Characters(const std::string& text) {
+    std::vector<std::string> out;
+    for (std::size_t i = 0; i < text.size();) {
+        const auto lead = static_cast<unsigned char>(text[i]);
+        const std::size_t n = lead < 0x80 ? 1 : lead < 0xE0 ? 2 : lead < 0xF0 ? 3 : 4;
+        out.push_back(text.substr(i, n));
+        i += n;
+    }
+    return out;
+}
+
+// OCR misreads one letter of a known name (샬레 as 살레): same length, one character differs.
+bool OneCharacterApart(const std::string& a, const std::string& b) {
+    const auto x = Characters(a), y = Characters(b);
+    if (x.size() != y.size() || x.size() < 4) return false;
+    std::size_t different = 0;
+    for (std::size_t i = 0; i < x.size(); ++i) different += x[i] != y[i];
+    return different == 1;
+}
+
 WaitOptions StepWait(int timeout_ms, const std::atomic<bool>* cancel) {
     WaitOptions w;
     w.timeout = milliseconds{timeout_ms};
@@ -111,6 +132,10 @@ bool SaveRecordUnchecked(const std::filesystem::path& path, const Step& s,
     record["updated"] = now;
     json entry = {{"time", now}};
     for (const auto& name : s.values) {
+        if (const auto text = result.texts.find(name); text != result.texts.end()) {
+            record["values"][name] = text->second;  // a name, not worth a history
+            continue;
+        }
         auto it = result.values.find(name);
         if (it == result.values.end()) continue;  // not read this time: keep the old value
         record["values"][name] = it->second;
@@ -398,6 +423,29 @@ bool TaskRunner::RunStep(const Step& s, Context& ctx, std::string& error) {
             if (!nav_.WaitSettled(milliseconds{s.timeout_ms}))
                 Log(log_, LogLevel::kDebug, "the screen kept moving, going on");
             return true;
+        case StepAction::kReadText: {
+            if (!ocr_) {
+                error = "OCR is not available (start the OCR sidecar)";
+                return false;
+            }
+            if (const Observation obs = nav_.Observe(); !obs.ok) {
+                error = obs.error.empty() ? "screen capture failed" : obs.error;
+                return false;
+            }
+            const Frame crop = controller.CaptureRegion(*s.roi);
+            if (crop.empty()) {
+                error = "region capture failed";
+                return false;
+            }
+            const std::string text = JoinLeftToRight(ocr_->Recognize(crop, Rect{}, options_.language));
+            if (text.empty()) {
+                error = "no text in the region";
+                return false;
+            }
+            result.texts[s.store] = text;
+            Log(log_, LogLevel::kDebug, s.store + " was read");  // may be a personal name
+            return true;
+        }
         case StepAction::kReadNumber: {
             if (!ocr_) {
                 error = "OCR is not available (start the OCR sidecar)";
@@ -551,9 +599,18 @@ bool TaskRunner::RunStep(const Step& s, Context& ctx, std::string& error) {
                     return false;
                 }
                 const auto pieces = ocr_->Recognize(crop, Rect{}, options_.language);
+                // A misread name only counts when nothing on the screen matches exactly.
+                const auto exact_anywhere = [&](const std::string& want) {
+                    return std::any_of(pieces.begin(), pieces.end(), [&](const auto& p) {
+                        return normalize(p.text) == normalize(want);
+                    });
+                };
                 for (const auto& want : wanted) {
+                    const bool exact = exact_anywhere(want);
                     for (const auto& p : pieces) {
-                        if (normalize(p.text) != normalize(want)) continue;
+                        const bool same = normalize(p.text) == normalize(want);
+                        if (!same && (exact || !s.fuzzy || !OneCharacterApart(normalize(p.text), normalize(want))))
+                            continue;
                         const double sx = static_cast<double>(s.roi->width) / crop.width;
                         const double sy = static_cast<double>(s.roi->height) / crop.height;
                         Point at{s.roi->x + static_cast<int>((p.box.x + p.box.width / 2.0) * sx),

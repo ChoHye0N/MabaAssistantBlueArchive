@@ -351,6 +351,8 @@ void Usage() {
 }  // namespace
 
 int wmain(int argc, wchar_t** argv) {
+    // A stopped run must not lose its log: stdout is usually a pipe or a file here.
+    std::setvbuf(stdout, nullptr, _IONBF, 0);
     SetConsoleOutputCP(CP_UTF8);
     if (argc < 2) {
         Usage();
