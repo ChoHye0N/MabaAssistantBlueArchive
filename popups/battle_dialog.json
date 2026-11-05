@@ -1,0 +1,33 @@
+{
+  "id": "battle_dialog",
+  "notes": [
+    "Give-up or restart question over the pause menu. Always cancelled: a task never gives a battle up."
+  ],
+  "priority": 1,
+  "anchors": [
+    {
+      "template": "battle_dialog_cancel.png",
+      "roi": {
+        "x": 450,
+        "y": 465,
+        "w": 120,
+        "h": 75
+      },
+      "threshold": 0.9
+    },
+    {
+      "template": "battle_auto_icon.png",
+      "roi": {
+        "x": 1150,
+        "y": 645,
+        "w": 60,
+        "h": 60
+      },
+      "threshold": 0.9
+    }
+  ],
+  "dismiss": {
+    "x": 510,
+    "y": 505
+  }
+}

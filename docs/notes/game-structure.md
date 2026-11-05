@@ -31,6 +31,8 @@ Stage dialogs differ in size: the one of campaign missions has tabs and sits abo
 
 Formation titles depend on the mode (for example "commission formation"), so the sortie button identifies the screen.
 
+On a formation screen the Sortie button pulses and shows before the team has loaded; a click at that moment is ignored. A sortie with an empty team shows only a short notice and stays on the screen, with no dialog and no AP spent. Back during a battle opens the pause menu, and a defeat returns the AP.
+
 ## Resources
 
 | Resource | Rule |

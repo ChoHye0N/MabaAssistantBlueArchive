@@ -1,0 +1,23 @@
+{
+  "id": "battle_pause",
+  "notes": [
+    "Pause menu of a battle. The left button goes on; the others restart or give up."
+  ],
+  "priority": 2,
+  "anchors": [
+    {
+      "template": "battle_pause_title.png",
+      "roi": {
+        "x": 560,
+        "y": 110,
+        "w": 160,
+        "h": 70
+      },
+      "threshold": 0.9
+    }
+  ],
+  "dismiss": {
+    "x": 463,
+    "y": 540
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "ap_purchase",
+  "notes": [
+    "AP for pyroxene: opens by itself when a stage costs more AP than there is. Always cancelled; nothing here ever buys it."
+  ],
+  "priority": 0,
+  "anchors": [
+    {
+      "template": "ap_purchase_title.png",
+      "roi": {
+        "x": 560,
+        "y": 140,
+        "w": 160,
+        "h": 70
+      },
+      "threshold": 0.9
+    }
+  ],
+  "dismiss": {
+    "x": 515,
+    "y": 505
+  }
+}

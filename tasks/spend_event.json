@@ -129,7 +129,7 @@
                       "threshold": 0.9,
                       "timeout_ms": 60000
                     },
-                    { "action": "click", "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 }, "threshold": 0.9 }
+                    { "action": "click", "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 }, "threshold": 0.9, "expect_gone": { "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 }, "threshold": 0.9 }, "timeout_ms": 6000, "retries": 4 }
                   ],
                   "else": [{ "action": "back" }, { "action": "break" }]
                 }
@@ -148,6 +148,7 @@
     },
     {
       "action": "click",
+      "when": { "absent": { "template": "event_quest_tab_active.png", "roi": { "x": 840, "y": 75, "w": 220, "h": 70 }, "threshold": 0.9 } },
       "x": 943,
       "y": 110,
       "expect": { "template": "event_quest_tab_active.png", "roi": { "x": 840, "y": 75, "w": 220, "h": 70 }, "threshold": 0.9 },
@@ -238,6 +239,7 @@
               "template": "formation_sortie.png",
               "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 },
               "threshold": 0.9,
+              "expect_gone": { "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 }, "threshold": 0.9 }, "timeout_ms": 6000, "retries": 4,
               "sleep_ms": 5000
             },
             {
@@ -255,7 +257,7 @@
     {
       "action": "if",
       "when": { "value": "ap", "lt": 20 },
-      "then": [{ "action": "return_home" }, { "action": "end", "status": "skipped", "message": "nothing to sweep here" }]
+      "then": [{ "action": "return_home" }, { "action": "end", "status": "skipped", "message": "not enough AP" }]
     },
     {
       "action": "if",
@@ -342,6 +344,7 @@
           "template": "formation_sortie.png",
           "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 },
           "threshold": 0.9,
+          "expect_gone": { "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 }, "threshold": 0.9 }, "timeout_ms": 6000, "retries": 4,
           "sleep_ms": 5000
         },
         {

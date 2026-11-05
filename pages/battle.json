@@ -1,0 +1,20 @@
+{
+  "id": "battle",
+  "notes": [
+    "Battle HUD. It ends by itself; back opens the pause menu and can give the battle up."
+  ],
+  "wait_ms": 300000,
+  "anchors": [
+    {
+      "template": "battle_auto_icon.png",
+      "roi": {
+        "x": 1150,
+        "y": 645,
+        "w": 60,
+        "h": 60
+      },
+      "threshold": 0.9
+    }
+  ],
+  "transitions": []
+}

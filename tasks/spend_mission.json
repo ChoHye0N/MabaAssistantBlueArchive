@@ -32,7 +32,7 @@
     {
       "action": "if",
       "when": { "value": "ap", "lt": 20 },
-      "then": [{ "action": "return_home" }, { "action": "end", "status": "skipped", "message": "nothing to sweep here" }]
+      "then": [{ "action": "return_home" }, { "action": "end", "status": "skipped", "message": "not enough AP" }]
     },
     {
       "action": "if",
