@@ -57,16 +57,14 @@ It never accesses game files, process memory or network packets. Only screen cap
 - Shop bulk purchase
 - Bounty
 - Commission sweeps (Base Defense, Item Retrieval)
-- Spend AP
-  - Event story and quests
-  - Campaign missions
-  - Scrimmage
+- Scrimmage
+- Event story and quests
+- Campaign mission sweeps
 - Tactical challenge: claim rewards and use tickets
 
 ### 03. Complete
 
 - Claim mailbox rewards (including AP above the cap)
-- Spend the remaining AP
 - Claim daily mission rewards
 - Record resources per account
 
@@ -80,7 +78,7 @@ It never accesses game files, process memory or network packets. Only screen cap
 | Battle Automation | Keeps AUTO and 3x speed on in battles |
 | Story Skip | Stories are only skipped, never read |
 | Task Configuration | Enable each task and set its details |
-| Account Tracking | Credits, Pyroxene and AP recorded per account (stored only on your PC) |
+| Account Tracking | Nickname, level, credits, pyroxene and AP per account, shown on the My info tab (stored on this PC only) |
 | Display Language | Program UI in Korean and English (**Display language** in the settings; defaults to the Windows language) |
 | Template Override | Custom screen-recognition templates |
 

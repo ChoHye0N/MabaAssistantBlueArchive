@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
-// Written from docs/notes/emulator-adb.md. The behaviors noted there (CRLF repair, 12/16-byte
+// Written from docs/notes/controllers.md. The behaviors noted there (CRLF repair, 12/16-byte
 // raw header with an alpha check, landscape touch limits) follow the emulator controller of an
 // AGPL-3.0 project; see docs/SOURCES.md.
 #include "maba/adb.h"

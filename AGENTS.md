@@ -3,7 +3,7 @@
 Blue Archive daily-task automation for the Steam PC client (global) and emulators. C++ core + C# GUI + Python OCR. License: AGPL-3.0-only. Project name: MabaAssistantBlueArchive (MABA). C++ namespace `maba`, C ABI prefix `Maba`, env prefix `MABA_`. Scope: Windows only, Blue Archive global server only (see `docs/DECISIONS.md`).
 
 ## Read first
-- `docs/ARCHITECTURE.md`, `docs/SOURCES.md`, `docs/ROADMAP.md`
+- `docs/ARCHITECTURE.md`, `docs/SOURCES.md`, `docs/ROADMAP.md`, `docs/notes/game-structure.md`
 - Skills in `.agents/skills/`: `ba-architecture`, `ba-add-daily-task`, `ba-third-party-license`, `commit`. Load the matching one before related work.
 - Tool setup: a tool that expects skills in another directory needs a link or copy of `.agents/skills`. Such tool directories are gitignored; never commit them.
 
@@ -47,3 +47,5 @@ Windows build: `cmake --preset windows-msvc` (needs `VCPKG_ROOT`).
 ## Working mode
 - One main agent by default. Use subagents only for independent review after a milestone or independent research (license audit, OCR language coverage).
 - Verify with `ctest` before declaring work done. Mark unverified game rules as "verify" in docs instead of asserting them.
+- Facts about the game worth keeping go into `docs/notes/game-structure.md` (options into `docs/notes/game-options.md`). Decide case by case: skip one-off observations and what the code already shows.
+- Documents hold values that apply to every player. Never write personal data or one account's values (UID, nickname, friend names, level, resources).

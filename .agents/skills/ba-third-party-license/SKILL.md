@@ -28,7 +28,7 @@ Verify the exact license text of any upstream before porting; licenses can chang
 - Distinguish learning ideas from moving code. Moving or translating code makes a derivative work: honor the original license.
 - Behaviour adapted from notes, with no code copied, still gets a porting-log row. If the upstream license requires its text, add it to `THIRD_PARTY_NOTICES.md`.
 - In the file header put: original copyright, source (repo, file, commit), original license.
-- **Game resources are always separate.** Template images and game assets are Nexon's copyright regardless of any code license. Prefer resources from publicly available repositories or sites, but public is not licensed. Record each one in `assets/PROVENANCE.md` (URL, license/terms as stated, retrieval date, version). A stated license or explicit permission covering the files -> may be committed. Nothing stated, or only a fair-use claim -> keep it in gitignored `assets-local/`, never commit. Avoid repositories that redistribute files extracted from game packages.
+- **Game resources are always separate:** rules in `docs/SOURCES.md`, records in `assets/PROVENANCE.md`.
 - Release archives carry the owner's template captures in `assets/`; they are not in this repository. Going public makes them public too, so decide on that before publishing.
 
 ## Fixed README text

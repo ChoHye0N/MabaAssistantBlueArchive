@@ -43,19 +43,10 @@ For the C ABI, raise `MabaApiVersion()` and the GUI's `ExpectedApiVersion` toget
 - Use OCR only where needed (AP value, ticket counts, shop prices/items), and read digits only where possible: digits are language-independent. Icon-identifiable UI uses template matching, which is faster and more stable.
 
 ## Languages
-- Korean (`ko`) is the baseline for behavior and design; other languages come later. Keep UI text out of logic: strings live in `strings/<lang>.json` by key (`docs/PAGE_FORMAT.md`).
-- Supported languages are data (`config/languages.json`), not code. Confirmed: Korean, English, Traditional Chinese, Thai. Japanese is unverified: confirm on the Steam page before enabling.
-- Template lookup order: `assets-local/` then `assets/`, per language then common. Icon/layout anchors go to common; only UI containing text goes to per-language folders.
-- The GUI display language (`gui/Maba.Gui/Resources/Strings.<lang>.xaml`, Korean and English) is separate from the game client language (templates, OCR, `strings/`). Add every UI key to both tables; `tools/check_ui_strings.py` checks them.
-- `tools/check_templates.py` prints the task x language matrix; CI fails if a `ready` task misses a template in a confirmed language.
+See `AGENTS.md`, "Rules", and `docs/ARCHITECTURE.md`, "Languages".
 
-## License and resources
-- Every source file starts with an SPDX header: `SPDX-License-Identifier: AGPL-3.0-only` and `SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors` (collective holder, never a personal name).
-- Game images (including templates) are Nexon's copyright and are NOT covered by the AGPL; say so in the README.
-- Resources: prefer public repositories/sites and record each in `assets/PROVENANCE.md`; unlicensed ones stay in gitignored `assets-local/`. For code and resource reuse follow `ba-third-party-license`.
-
-## Git and privacy
-See `AGENTS.md`. Never commit personal data or local-only agent files; run `python tools/privacy_check.py` before pushing.
+## License, resources, Git and privacy
+See `AGENTS.md`, `docs/SOURCES.md` and `ba-third-party-license`.
 
 ## Scope
 - In scope: daily tasks (`tasks/*.json`; the list and order are in `ba-add-daily-task`).

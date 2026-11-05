@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
-// Written from docs/notes/emulator-launch.md. The start/stop sequence (start the emulator when
+// Written from docs/notes/controllers.md. The start/stop sequence (start the emulator when
 // the device is missing, `am start` with a `monkey` fallback, focus check through
 // `dumpsys window`, MuMu launcher-to-instance path rewriting, killing the started process tree)
 // follows an MIT-licensed project; see docs/SOURCES.md.

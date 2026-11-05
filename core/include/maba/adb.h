@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
 // Portable pieces of the emulator (ADB) controller: command lines, output parsing, raw
 // screencap decoding and the minitouch text protocol (spoken by MaaTouch). No OpenCV, no OS
-// calls, so all of it is unit-tested. Behavior notes: docs/notes/emulator-adb.md.
+// calls, so all of it is unit-tested. Behavior notes: docs/notes/controllers.md.
 #pragma once
 
 #include <optional>

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
-// Written from docs/notes/emulator-adb.md (fastest-screencap probe, MaaTouch launch line); the
+// Written from docs/notes/controllers.md (fastest-screencap probe, MaaTouch launch line); the
 // noted behaviors follow the emulator controller of an AGPL-3.0 project, see docs/SOURCES.md.
 #include "maba/adb_controller.h"
 

@@ -3,7 +3,7 @@
 // IController for Android emulators over ADB (MuMu, LDPlayer, BlueStacks, ...).
 // Capture: `screencap` raw or PNG ("encode"), the faster one chosen on connect.
 // Input: `input tap/swipe/keyevent`, or the MaaTouch helper (minitouch protocol) when its file
-// is provided. Needs OpenCV (PNG decoding, scaling). Notes: docs/notes/emulator-adb.md.
+// is provided. Needs OpenCV (PNG decoding, scaling). Notes: docs/notes/controllers.md.
 #pragma once
 
 #if defined(MABA_WITH_OPENCV)

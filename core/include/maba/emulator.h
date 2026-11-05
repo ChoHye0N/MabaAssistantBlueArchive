@@ -3,7 +3,7 @@
 // Starting and stopping the emulator and the game around a run: start the emulator when its
 // device is missing, wait for Android to boot, bring the game to the front, and optionally close
 // both afterwards. Portable (adb through IProcessRunner, the emulator through
-// IDetachedProcesses), unit-tested with fakes. Behavior notes: docs/notes/emulator-launch.md.
+// IDetachedProcesses), unit-tested with fakes. Behavior notes: docs/notes/controllers.md.
 #pragma once
 
 #include <atomic>

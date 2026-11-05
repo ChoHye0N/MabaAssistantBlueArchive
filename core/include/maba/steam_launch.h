@@ -3,7 +3,7 @@
 // Starting and closing the Steam PC client around a run: open the Steam game URL when the game
 // window is missing, wait for the window, and optionally close the game afterwards. Window access
 // goes through IGameWindowHost (Win32 in core/src/platform/windows/), so the logic is
-// unit-tested with fakes. Behavior notes: docs/notes/emulator-launch.md (Steam section).
+// unit-tested with fakes. Behavior notes: docs/notes/controllers.md (Steam section).
 #pragma once
 
 #include <atomic>

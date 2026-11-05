@@ -15,7 +15,7 @@ GUI (C#, WPF, HandyControls)  --P/Invoke, C ABI (functions + JSON)--  Core (C++)
 | Target | Capture | Input | Notes |
 |---|---|---|---|
 | Steam PC client (first) | Window capture: BitBlt and PrintWindow, both implemented and selectable | Real mouse movement (SendInput-style), not window messages | DPI awareness and UI scale must be handled inside the controller. |
-| Emulators over ADB (second) | `screencap` raw or PNG, the faster one picked on connect | `adb shell input`, or the MaaTouch helper (minitouch protocol) | `adb_controller.h`; notes in `docs/notes/emulator-adb.md`. |
+| Emulators over ADB (second) | `screencap` raw or PNG, the faster one picked on connect | `adb shell input`, or the MaaTouch helper (minitouch protocol) | `adb_controller.h`; notes in `docs/notes/controllers.md`. |
 
 Steam PC controller (`core/src/platform/windows/steam_controller.h`):
 - Finds the window by class and title (defaults `UnityWndClass` / `Blue Archive`, to verify). Rejects a minimized window or a client area that is not 16:9.
@@ -30,7 +30,7 @@ ADB controller (`core/include/maba/adb_controller.h`, needs OpenCV):
 - Input: `input tap/swipe/keyevent`, or MaaTouch (`d/m/u/c/w` and `k <code> d|u`) scaled to the helper's touch range. `Back` sends keycode 111 (ESCAPE) by default; 4 (BACK) is the alternative (to verify).
 - All adb calls go through `IProcessRunner` with timeouts; a timed-out call is killed with its process tree. The pieces without OpenCV (`adb.h`) are unit-tested on every platform.
 
-Emulator start and stop (`core/include/maba/emulator.h`, portable, notes in `docs/notes/emulator-launch.md`):
+Emulator start and stop (`core/include/maba/emulator.h`, portable, notes in `docs/notes/controllers.md`):
 - `EmulatorSession::EnsureDevice`: when the device is not listed and an emulator path is set, starts the emulator detached (`IDetachedProcesses`, survives the GUI), polls `adb connect`/`adb devices` (an offline network device is disconnected and reconnected), then waits for `sys.boot_completed`. Bounded by the boot timeout (180 s) and the stop flag. A MuMu launcher path (`nx_main/MuMuNxMain.exe`) is rewritten to the instance executable.
 - `EnsureGame`: reads the app in front from `dumpsys window`; if it is not the game, `am start -n` (fallback `monkey` with the launcher intent), repeated every 15 s within the game timeout (90 s). The title screen is then handled by `Navigator::EnterGame`.
 - After the run (options): `am force-stop` the game; kill the process tree of the emulator, only if this session started it. A run stopped by the user leaves both running.
@@ -56,11 +56,11 @@ Contract (`controller.h`): frames are returned scaled to **1280x720** and all co
 (Page, popup, task and string data format: see `PAGE_FORMAT.md`.)
 
 - Tasks are data in `tasks/*.json`: an `order` number (plain sequencing, never blocks), `after` dependencies (a failed one blocks) plus a list of declarative `steps` (navigation, clicks with `pick`/`offset`/`expect`, `click_color`, `swipe`, `read_number`, and flow control: `if`, `loop`, `each`, `break`, `end`, `fail`; format in `PAGE_FORMAT.md`). Conditions test settings, templates, colour blobs and numbers read by OCR. `ResolveOrder` (`task_order.h`) produces the run order and rejects duplicates, unknown dependencies and cycles.
-- Per-account records: `save` steps write JSON records under a data directory outside the repository (GUI: the profile folder next to `settings.json`; CLI: `local-data/`, gitignored). `account_info` keeps credits, pyroxene and AP per UID with a history.
+- Per-account records: `save` steps write JSON records under a data directory outside the repository (GUI: the profile folder next to `settings.json`; CLI: `local-data/`, gitignored). `account_info` keeps the nickname, level, credits, pyroxene and AP per UID with a history; the GUI shows one box per record on the My info tab.
 - Task settings (`settings` in the task file: bool, int, choice, list) have defaults; a run overrides them (`ResolveSettings`, from the GUI, `MabaStart` or `maba_cli run --settings`). Steps branch and loop on them.
 - `TaskRunner` (`task_runner.h`): enters the game from start-up screens once (`EnterGame`), returns home before each task and after a failure (recovery); runs the steps with their caps; a step marked `optional` only logs its failure. A task without steps is skipped as "not implemented" and does not block dependents. A selected dependency that failed blocks its dependents (mail after AP spending).
-- Required ordering rule: mail claim runs after AP spending (AP above the 999 cap waits in the mailbox), and a second AP pass spends it after mail.
-- Daily run order (owner): cafe, schedule, circle, daily free package, shop, bounty, commissions, AP spending, tactical challenge, mail, remaining AP spending, missions. `RepoTaskFilesLoad` in `core/tests/task_tests.cpp` checks it.
+- Required ordering rule: mail runs after AP spending, because AP above the 999 cap waits in the mailbox.
+- Daily run order (owner): cafe, schedule, circle, daily free package, shop, bounty, commissions, scrimmage, event, campaign missions, tactical challenge, mail, daily missions. `RepoTaskFilesLoad` in `core/tests/task_tests.cpp` checks it.
 - Scheduling is keyed to the server reset time (a setting), not local midnight: `schedule.h` computes the daily slot (reset + delay) in UTC; the GUI asks Core through `MabaScheduleNext`. A clock-time mode runs at a local time instead (the GUI passes the current UTC offset); a missed slot runs as soon as the GUI is open, and the GUI warns when the time is less than an hour before the reset.
 
 ## Vision and OCR

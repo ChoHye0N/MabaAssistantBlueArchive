@@ -11,7 +11,7 @@ Read `ba-architecture` first. This skill is the step-by-step for one task. The f
 
 1. **Define it** in `tasks/<id>.json`, declaratively. Do not hard-code flow in C++. Step and setting format: `docs/PAGE_FORMAT.md`. Shape:
    ```json
-   { "id": "mail_claim_all", "name": "...", "order": 90, "after": ["spend_ap"], "status": "wip", "needs_ocr": false,
+   { "id": "mail_claim_all", "name": "...", "order": 90, "after": ["spend_mission"], "status": "wip", "needs_ocr": false,
      "notes": [], "settings": [], "steps": [] }
    ```
    - `order` sets the sequence and never blocks. `after` is only for a failure that must block. Express order as data so it is easy to change.
@@ -34,7 +34,7 @@ Read `ba-architecture` first. This skill is the step-by-step for one task. The f
 8. **Update docs**: README feature list (both `README.md` and `README.en.md`), `docs/ROADMAP.md`, and `docs/PAGE_FORMAT.md` for new steps or conditions.
 
 ## Daily run order and notes
-Order (`RepoTaskFilesLoad` checks it): cafe, schedule, circle, free package, shop, bounty, commissions, AP spending, tactical challenge, mail, remaining AP spending, missions, account record. The server reset is 04:00 KST; schedule by it or by a clock time, not local midnight.
+Order (`RepoTaskFilesLoad` checks it): cafe, schedule, circle, free package, shop, bounty, commissions, scrimmage, event, campaign missions, tactical challenge, mail, daily missions, account record. The server reset is 04:00 KST; schedule by it or by a clock time, not local midnight.
 
 | Task | Notes |
 |---|---|
@@ -42,14 +42,15 @@ Order (`RepoTaskFilesLoad` checks it): cafe, schedule, circle, free package, sho
 | `schedule` | 12 locations by name, chosen with check boxes. Preferring rooms by student is still open. |
 | `circle` | Attendance gives 10 AP through the mailbox. Skip when no circle is joined. |
 | `free_package`, `shop` | Shop stock rotates, so templates need upkeep. Purchases are confirmed by the dialog's text. |
-| `commission` | No tickets and AP is the only limit, so it sweeps a set count (`runs`) instead of MAX. Runs before `spend_ap`. |
-| `spend_ap`, `spend_ap_rest` | Target priority is a setting: event Story (scenes skipped), then the highest 3-star Quest, missions, scrimmage. Scrimmage uses tickets and AP. Sweeping needs a 3-star clear. Reads AP with OCR. |
+| `commission` | No tickets and AP is the only limit, so it sweeps a set count (`runs`) instead of MAX. Runs before the AP tasks. |
+| `scrimmage` | Uses tickets and AP. Runs before the AP tasks. |
+| `spend_event`, `spend_mission` | Event: Story (scenes skipped), then the highest 3-star Quest. Missions: one stage of the shown area. Sweeping needs a 3-star clear. Reads AP with OCR. |
 | `tactical_challenge` | Claim rewards, then use every ticket. |
-| `mail_claim_all` | AP above the 999 cap waits in the mailbox, so it needs `after: ["spend_ap"]`; `spend_ap_rest` spends the rest. |
+| `mail_claim_all` | AP above the 999 cap waits in the mailbox, so it runs after both AP tasks. |
 | `mission_claim_all` | Rewards include pyroxene and AP (claimed AP can pass the regular cap), so it runs last. |
 | `account_info` | Saves credits, pyroxene and AP per UID in the data directory, never in the repository. |
 
-Items marked "verify" are unconfirmed game rules. Check them in the real client and update this table. Open items live in `docs/ROADMAP.md`.
+Items marked "verify" are unconfirmed game rules. Check them in the real client and update this table. Open items live in `docs/ROADMAP.md`; facts about the game worth keeping in `docs/notes/game-structure.md`, without personal data or one account's values.
 
 ## Deferred
 Total Assault and Limit-Release Showdown need AI or real gameplay. Do not add them with this procedure. Story is only skipped (scene -> back -> confirm skip), never read or chosen.

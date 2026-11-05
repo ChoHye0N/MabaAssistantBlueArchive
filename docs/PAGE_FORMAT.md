@@ -55,7 +55,7 @@ Rules:
   "id": "mail_claim_all",
   "name": "Mail: claim all",
   "order": 90,
-  "after": ["spend_ap"],
+  "after": ["spend_mission"],
   "status": "wip",
   "needs_ocr": false,
   "steps": [
@@ -83,8 +83,9 @@ Rules:
 | `sleep` | `sleep_ms` (1..10000) | Fixed pause. Only where time itself matters (polling a battle, a cooldown); otherwise `wait_stable` |
 | `wait_stable` | `timeout_ms` | Wait until the screen stops moving. A nearly black loading screen does not count as resting. A screen that never rests is not an error |
 | `read_number` | `roi`, `store`, `lenient` | OCR on a native-resolution crop after popups are settled; `120/240` stores `store` = 120 and `store_max` = 240. `lenient: true` reads the number at the end of the text ("tickets 5/5") |
+| `read_text` | `roi`, `store` | OCR on a native-resolution crop; stores the text for `save` (`values`). A record keeps it without a history. For names: identify items by templates where possible |
 | `click_color` | `color`, `offset`, `retry_offset`, `max` (1..50) | Click colour blobs one at a time, looking again after each click (moving targets), until none is left or `max` is reached. A blob still there after its click is clicked once more at `retry_offset` (when given) and then left alone. None found is not an error |
-| `click_text` | `roi`, `texts`, `text_setting` (list, or a choice for one text such as a stage number) or `text_key` (a key of `strings/<lang>.json`, `{value}` filled in inside `each`), `click_x`, `offset`, `max_scrolls` (0..80), `from`, `to` | OCR the region (native resolution) and click the first wanted text found (spaces ignored, whole text must match); `click_x` clicks the row's button instead of the text. Not found: swipe `from` -> `to` and read again, up to `max_scrolls` times, then fail (use `optional`) |
+| `click_text` | `roi`, `texts`, `text_setting` (list, or a choice for one text such as a stage number) or `text_key` (a key of `strings/<lang>.json`, `{value}` filled in inside `each`), `click_x`, `offset`, `max_scrolls` (0..80), `from`, `to` | OCR the region (native resolution) and click the first wanted text found (spaces ignored, whole text must match); `click_x` clicks the row's button instead of the text. `fuzzy: true` also accepts one misread character in a text of 4 or more characters when nothing matches exactly; use it for fixed lists of distinct names, not for numbers or student names. Not found: swipe `from` -> `to` and read again, up to `max_scrolls` times, then fail (use `optional`) |
 | `swipe` | `from`, `to`, `duration_ms` (50..5000) | Drag |
 | `wheel` | `x`, `y`, `notches` (-20..20, not 0) | Mouse wheel at a point; negative turns it towards the user (zooms the cafe out). Emulators over ADB have no wheel: mark the step `optional` |
 | `if` | `when`, `then`, `else` | Run `then` when the condition holds, else `else` |
