@@ -6,7 +6,7 @@
   "status": "wip",
   "needs_ocr": true,
   "notes": [
-    "Run order (owner): cafe, schedule, circle, free package, shop, bounty, AP spending, tactical challenge, mail, remaining AP spending, missions. 'order' fixes it without blocking.",
+    "Run order (owner): cafe, schedule, circle, free package, shop, bounty, commissions, scrimmage, event, missions, tactical challenge, mail, daily missions. 'order' fixes it without blocking.",
     "Cafe income includes AP (646/740 seen on 2026-11-02); one claim covers both cafes.",
     "Only owned students can be touched, and only those show the marker: three yellow strokes at the left of the head. The marker animates, so it is found by colour (click_color). The touch area is the head.",
     "The cafe is larger than the screen: the view is zoomed out first with the mouse wheel (5 notches reach the limit, the markers keep their size; emulators have no wheel and skip it), then dragged to the four corners, and each view is searched.",

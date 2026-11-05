@@ -64,6 +64,7 @@
         {
           "action": "click_text",
           "text_key": "schedule.location.{value}",
+          "fuzzy": true,
           "roi": { "x": 740, "y": 135, "w": 300, "h": 550 },
           "max_scrolls": 3,
           "duration_ms": 500,

@@ -1,0 +1,9 @@
+{
+  "id": "relationship_rank_up",
+  "notes": [
+    "'Relationship rank up!' after a schedule or a cafe touch. The back key does nothing here; a tap goes on. The banner text is the anchor because the student and the rank change."
+  ],
+  "priority": 16,
+  "anchors": [{ "template": "popup_relationship_rank_up.png", "roi": { "x": 490, "y": 570, "w": 300, "h": 100 }, "threshold": 0.9 }],
+  "dismiss": { "x": 640, "y": 120 }
+}

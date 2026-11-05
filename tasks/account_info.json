@@ -7,15 +7,18 @@
   "needs_ocr": true,
   "notes": [
     "Runs last. Several accounts are told apart by the UID on the account info page; each gets its own record (accounts/<uid>.json in the data directory: the GUI's profile folder, or local-data/ for the CLI; never in the repository).",
-    "Credits, pyroxene and AP are read from the top bar with OCR and appended to the record's history."
+    "Credits, pyroxene and AP are read from the top bar with OCR and appended to the record's history.",
+    "The nickname and level sit in the panel at the bottom left. The GUI shows one box per record on the My info tab."
   ],
   "steps": [
     { "action": "goto", "page": "account" },
     { "action": "read_number", "roi": { "x": 30, "y": 560, "w": 210, "h": 40 }, "store": "uid", "lenient": true },
+    { "action": "read_text", "roi": { "x": 115, "y": 600, "w": 260, "h": 60 }, "store": "nickname", "optional": true },
+    { "action": "read_number", "roi": { "x": 45, "y": 640, "w": 60, "h": 36 }, "store": "level", "optional": true },
     { "action": "read_number", "roi": { "x": 705, "y": 5, "w": 140, "h": 34 }, "store": "credits", "optional": true },
     { "action": "read_number", "roi": { "x": 930, "y": 5, "w": 90, "h": 34 }, "store": "pyroxene", "optional": true },
     { "action": "read_number", "roi": { "x": 495, "y": 5, "w": 110, "h": 34 }, "store": "ap", "optional": true },
-    { "action": "save", "file": "accounts/{uid}.json", "values": ["credits", "pyroxene", "ap"], "history": true },
+    { "action": "save", "file": "accounts/{uid}.json", "values": ["nickname", "level", "credits", "pyroxene", "ap", "ap_max"], "history": true },
     { "action": "return_home" }
   ]
 }

@@ -1,0 +1,141 @@
+{
+  "id": "spend_mission",
+  "name": "Spend AP: campaign missions",
+  "order": 75,
+  "after": [],
+  "status": "wip",
+  "needs_ocr": true,
+  "notes": [
+    "Sweeps a stage of the campaign area shown when the page opens. Missions that are not cleared are grid maps and are not played yet (roadmap).",
+    "Sweeps are confirmed only on the 'run the sweep?' question; any other dialog (for example an AP purchase offer) is closed with back. AP is read with OCR; below 20 AP the task is skipped."
+  ],
+  "settings": [
+    {
+      "key": "sweep_runs",
+      "type": "int",
+      "default": 0,
+      "min": 0,
+      "max": 50,
+      "description": "Sweeps per stage: 0 = as many as possible (MAX), otherwise that number."
+    },
+    {
+      "key": "stage",
+      "type": "choice",
+      "default": "highest",
+      "choices": ["highest", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"],
+      "description": "Campaign mission stage of the shown area: 'highest' or its number."
+    }
+  ],
+  "steps": [
+    { "action": "goto", "page": "mission_area" },
+    { "action": "read_number", "roi": { "x": 500, "y": 8, "w": 105, "h": 30 }, "store": "ap", "optional": true },
+    {
+      "action": "if",
+      "when": { "value": "ap", "lt": 20 },
+      "then": [{ "action": "return_home" }, { "action": "end", "status": "skipped", "message": "nothing to sweep here" }]
+    },
+    {
+      "action": "if",
+      "when": { "setting": "stage", "equals": "highest" },
+      "then": [
+        {
+          "action": "click",
+          "template": "stage_three_stars.png",
+          "roi": { "x": 680, "y": 130, "w": 560, "h": 560 },
+          "threshold": 0.9,
+          "pick": "bottom",
+          "offset": { "x": 397, "y": -16 },
+          "expect": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 110 }, "threshold": 0.9 },
+          "optional": true
+        }
+      ],
+      "else": [
+        {
+          "action": "click_text",
+          "text_setting": "stage",
+          "roi": { "x": 690, "y": 130, "w": 90, "h": 560 },
+          "click_x": 1117,
+          "offset": { "x": 0, "y": 13 },
+          "max_scrolls": 5,
+          "duration_ms": 500,
+          "optional": true,
+          "from": { "x": 940, "y": 250 },
+          "to": { "x": 940, "y": 560 }
+        }
+      ]
+    },
+    {
+      "action": "if",
+      "when": { "absent": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 110 }, "threshold": 0.9 } },
+      "then": [{ "action": "return_home" }, { "action": "end", "status": "skipped", "message": "nothing to sweep here" }]
+    },
+    {
+      "action": "click",
+      "when": { "setting": "sweep_runs", "equals": 0 },
+      "template": "stage_sweep_max.png",
+      "roi": { "x": 1030, "y": 265, "w": 120, "h": 105 },
+      "threshold": 0.9,
+      "no_verify": true
+    },
+    {
+      "action": "loop",
+      "max_setting": "sweep_runs",
+      "max_adjust": -1,
+      "steps": [
+        {
+          "action": "click",
+          "template": "stage_sweep_plus.png",
+          "roi": { "x": 975, "y": 265, "w": 90, "h": 105 },
+          "threshold": 0.9,
+          "no_verify": true,
+          "timeout_ms": 1500,
+          "optional": true,
+          "quiet": true
+        }
+      ]
+    },
+    {
+      "action": "click",
+      "template": "stage_sweep_start.png",
+      "roi": { "x": 770, "y": 370, "w": 330, "h": 100 },
+      "threshold": 0.9,
+      "expect": { "template": "stage_sweep_confirm_question.png", "roi": { "x": 400, "y": 280, "w": 480, "h": 110 }, "threshold": 0.9 },
+      "timeout_ms": 3000,
+      "retries": 0,
+      "optional": true
+    },
+    {
+      "action": "if",
+      "when": { "present": { "template": "stage_sweep_confirm_question.png", "roi": { "x": 400, "y": 280, "w": 480, "h": 110 }, "threshold": 0.9 } },
+      "then": [
+        {
+          "action": "click",
+          "template": "dialog_ok_button.png",
+          "roi": { "x": 660, "y": 440, "w": 240, "h": 120 },
+          "threshold": 0.9,
+          "sleep_ms": 4000
+        },
+        {
+          "action": "loop",
+          "max": 10,
+          "until": { "absent": { "template": "stage_sweep_confirm_question.png", "roi": { "x": 400, "y": 280, "w": 480, "h": 110 }, "threshold": 0.9 } },
+          "steps": [{ "action": "wait_stable", "timeout_ms": 4000 }]
+        },
+        {
+          "action": "wait_template",
+          "template": "popup_stage_info_title.png",
+          "roi": { "x": 540, "y": 70, "w": 200, "h": 110 },
+          "threshold": 0.9,
+          "timeout_ms": 30000
+        }
+      ],
+      "else": [{ "action": "back" }, { "action": "wait_stable", "timeout_ms": 4000 }]
+    },
+    {
+      "action": "back",
+      "when": { "present": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 110 }, "threshold": 0.9 } }
+    },
+    { "action": "wait_stable", "timeout_ms": 4000 },
+    { "action": "return_home" }
+  ]
+}

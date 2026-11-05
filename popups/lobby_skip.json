@@ -1,0 +1,11 @@
+{
+  "id": "lobby_skip",
+  "notes": [
+    "Skip question of the memorial lobby start animation, opened by back while the animation plays. The animation keeps playing behind it.",
+    "The animation plays with the option on (every time the main screen opens) and once a day. Tapping or Space does not open this question.",
+    "The question scores 0.83 on the quit dialog, whose text looks alike and whose confirm button closes the game: keep the threshold at 0.95."
+  ],
+  "priority": 21,
+  "anchors": [{ "template": "popup_lobby_skip_question.png", "roi": { "x": 500, "y": 290, "w": 280, "h": 100 }, "threshold": 0.95 }],
+  "dismiss": { "template": "dialog_ok_button.png", "roi": { "x": 640, "y": 440, "w": 260, "h": 130 }, "threshold": 0.9 }
+}

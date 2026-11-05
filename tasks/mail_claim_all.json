@@ -2,11 +2,11 @@
   "id": "mail_claim_all",
   "name": "Mail: claim all (AP above the cap, resources)",
   "order": 90,
-  "after": ["spend_ap"],
+  "after": ["spend_event", "spend_mission"],
   "status": "wip",
   "needs_ocr": false,
   "notes": [
-    "Runs after spend_ap: AP above the 999 cap waits in the mailbox; spend_ap_rest spends it afterwards.",
+    "Runs after AP spending: AP above the 999 cap waits in the mailbox.",
     "The claim-all button is yellow when something can be claimed and grey otherwise (colour check).",
     "The reward result screen is a popup (popups/), not part of this task."
   ],

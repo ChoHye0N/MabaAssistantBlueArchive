@@ -9,7 +9,7 @@
     "Route: main screen -> campaign -> commissions -> request -> stage -> sweep.",
     "Base Defense gives student EXP items, Item Retrieval gives credits. Both have the same stage list and stage dialog as bounty.",
     "There are no tickets: each sweep costs AP (40 on stage 14) until AP runs out, so MAX would spend all AP. 'runs' sets the count; the stepper starts at 1, so '+' is pressed runs - 1 times.",
-    "Runs before spend_ap so that the set count comes out of the AP before it goes to events. Verify whether the game limits commissions per day.",
+    "Runs before AP spending so that the set count comes out of the AP before it goes to events. Verify whether the game limits commissions per day.",
     "The sweep is confirmed only on the 'run the sweep?' question; any other dialog (for example an AP purchase offer) is closed with back."
   ],
   "settings": [
