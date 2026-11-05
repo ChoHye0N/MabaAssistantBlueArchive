@@ -1,0 +1,63 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
+#
+# Builds the Windows archive and attaches it to a draft release. It runs only when started by hand
+# and never publishes: the maintainer reads the draft and publishes it.
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version without the leading v, for example 0.1.0-beta.2"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: windows-2022
+    timeout-minutes: 90
+    permissions:
+      contents: write  # creates the draft release
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}\.vcpkg
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\.vcpkg-cache
+      VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}\.vcpkg-cache,readwrite
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Prepare vcpkg
+        shell: pwsh
+        run: |
+          git clone https://github.com/microsoft/vcpkg $env:VCPKG_ROOT
+          & "$env:VCPKG_ROOT\bootstrap-vcpkg.bat" -disableMetrics
+          New-Item -ItemType Directory -Force $env:VCPKG_DEFAULT_BINARY_CACHE | Out-Null
+      - uses: actions/cache@v4
+        with:
+          path: .vcpkg-cache
+          key: vcpkg-windows-${{ hashFiles('vcpkg.json') }}
+      - run: cmake --preset windows-msvc
+      - run: cmake --build --preset windows-msvc
+      - run: ctest --preset windows-msvc --output-on-failure
+      - name: OCR environment with the Korean model
+        shell: pwsh
+        run: |
+          python -m venv ocr\.venv
+          ocr\.venv\Scripts\python -m pip install -r ocr\requirements.txt
+          ocr\.venv\Scripts\python -c "import sys; sys.path.insert(0, 'ocr'); from server import RapidOcrEngine; RapidOcrEngine()._engine('korean')"
+      - name: Package
+        shell: pwsh
+        run: .\tools\build_package.ps1 -Version "${{ inputs.version }}"
+      - name: Draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: gh release create "v${{ inputs.version }}" "dist\MABA-${{ inputs.version }}-win-x64.zip" --draft --prerelease --target "${{ github.sha }}" --title "MABA v${{ inputs.version }}" --notes "Draft built from ${{ github.sha }}."

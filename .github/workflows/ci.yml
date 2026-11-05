@@ -4,10 +4,16 @@ name: ci
 
 on:
   push:
+    branches: [main]
   pull_request:
 
 permissions:
   contents: read
+
+# A newer push replaces a run that is still going.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   core-linux:
@@ -24,6 +30,34 @@ jobs:
       - run: cmake --preset ${{ matrix.preset }}
       - run: cmake --build --preset ${{ matrix.preset }} -j 4
       - run: ctest --preset ${{ matrix.preset }}
+
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 90
+    env:
+      VCPKG_ROOT: ${{ github.workspace }}\.vcpkg
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}\.vcpkg-cache
+      VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}\.vcpkg-cache,readwrite
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      # The baseline in vcpkg.json needs the history, which the runner's own copy may not have.
+      - name: Prepare vcpkg
+        shell: pwsh
+        run: |
+          git clone https://github.com/microsoft/vcpkg $env:VCPKG_ROOT
+          & "$env:VCPKG_ROOT\bootstrap-vcpkg.bat" -disableMetrics
+          New-Item -ItemType Directory -Force $env:VCPKG_DEFAULT_BINARY_CACHE | Out-Null
+      - uses: actions/cache@v4
+        with:
+          path: .vcpkg-cache
+          key: vcpkg-windows-${{ hashFiles('vcpkg.json') }}
+      - run: cmake --preset windows-msvc
+      - run: cmake --build --preset windows-msvc
+      - run: ctest --preset windows-msvc --output-on-failure
+      - run: dotnet build gui/Maba.Gui -c Release
 
   python:
     runs-on: ubuntu-24.04
