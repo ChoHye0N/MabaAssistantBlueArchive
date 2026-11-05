@@ -29,7 +29,7 @@ Verify the exact license text of any upstream before porting; licenses can chang
 - Behaviour adapted from notes, with no code copied, still gets a porting-log row. If the upstream license requires its text, add it to `THIRD_PARTY_NOTICES.md`.
 - In the file header put: original copyright, source (repo, file, commit), original license.
 - **Game resources are always separate:** rules in `docs/SOURCES.md`, records in `assets/PROVENANCE.md`.
-- Release archives carry the owner's template captures in `assets/`; they are not in this repository. Going public makes them public too, so decide on that before publishing.
+- The owner's template captures are committed in `assets/`. Read each new one for personal data first.
 
 ## Fixed README text
 - Library section: keep the table format above.

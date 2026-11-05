@@ -21,7 +21,7 @@ Windows build: `cmake --preset windows-msvc` (needs `VCPKG_ROOT`).
 - See `docs/SOURCES.md`. Default: other projects are reference only. Write behavior notes in your own words in `docs/notes/` and implement from the notes. Moving code needs the maintainer's OK, the original header, and a porting-log row.
 - Public files (README, docs, headers, commit messages) must not contain other projects' names, links, commit hashes or owner handles, except a porting-log row for code actually ported (license attribution).
 - Never commit snapshots or clones of other repositories; clone them outside this repo.
-- Game images/templates are Nexon's. Prefer resources from publicly available repositories/sites, but public is not licensed: record each in `assets/PROVENANCE.md`. Sources with no stated license/permission stay in gitignored `assets-local/` and are never committed. Avoid repos that redistribute files extracted from game packages.
+- Game images/templates are Nexon's. Templates are the maintainer's own captures in `assets/`; read each one for personal data before committing it (nickname, UID, friend names). External resources: record each in `assets/PROVENANCE.md`; sources with no stated license/permission stay in gitignored `assets-local/`. Avoid repos that redistribute files extracted from game packages.
 - README: `README.md` is Korean (default), `README.en.md` is English. Always change both together and keep them in sync.
 - New dependency: follow `ba-third-party-license` (README table + THIRD_PARTY_NOTICES.md).
 

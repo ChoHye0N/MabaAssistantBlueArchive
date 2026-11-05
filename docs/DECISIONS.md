@@ -7,7 +7,7 @@ Fixed choices. Change one only with a note here.
 | 1 | Name: MabaAssistantBlueArchive (MABA). Namespace `maba`, C ABI prefix `Maba`, env prefix `MABA_`. |
 | 2 | Commit identity: the contributor's GitHub noreply address. Real names and mailboxes are never committed. |
 | 3 | Copyright holder in headers: "MabaAssistantBlueArchive contributors". License AGPL-3.0-only. |
-| 4 | Developed in a private repository first; made public later. Before going public run the checklist below. |
+| 4 | The repository is public (kept public by the owner, 2026-11-06). It may move to an organization later, with the templates in a repository of their own. |
 | 5 | Steam PC capture: BitBlt and PrintWindow, both implemented. |
 | 6 | Steam PC input: real mouse movement. Emulator input: ADB / touch helper, designed per the source policy in `docs/SOURCES.md`. |
 | 7 | Platform order: Steam PC client first, emulators second. |
@@ -31,8 +31,10 @@ Fixed choices. Change one only with a note here.
 | 25 | Reliability comes before speed (owner, 2026-11-04). A click or back press has to change the screen, a fixed point is clicked only on its own screen, and waits follow the screen instead of the clock. Time-based waits remain only where time is what matters. |
 | 26 | Templates stay 1280x720, cut from frames that Core itself normalized from 1920x1080: the same path as run time. Matching at the window's own size was not adopted: game text drawn at that size differs from a scaled image, while scaling both sides reduces the difference. Measured 2026-11-05: these templates reach a median of 0.993 and at least 0.958 on frames of a 1493x840 window. |
 | 27 | Background in a template is made transparent from evidence: pixels that change between frames showing the same UI, after normalizing brightness. Masked matching stays `TM_CCOEFF_NORMED`. PNG alpha is used, not black paint, so black text is not lost. |
+| 28 | The `release` workflow starts by hand and creates a draft. Publishing stays the maintainer's decision. |
+| 29 | Templates (the owner's captures, no personal data) are committed in `assets/`, so a checkout and a release have everything. Game images stay NEXON's and outside the project license. |
 
-## Checklist before going public
+## Checklist for a public repository
 - [ ] `python tools/privacy_check.py` passes, and the whole history is scanned (`git log -p` for personal data, paths, keys).
 - [ ] No snapshots or clones of other repositories; `docs/SOURCES.md` porting log is complete and headers carry original notices.
 - [ ] Every external resource is recorded in `assets/PROVENANCE.md`; unlicensed ones are not in the repo.

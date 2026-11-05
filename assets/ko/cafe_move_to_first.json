@@ -1,0 +1,21 @@
+{
+  "task": "cafe",
+  "element": "move_to_first",
+  "lang": "ko",
+  "roi": {
+    "x": 76,
+    "y": 92,
+    "w": 52,
+    "h": 22
+  },
+  "masks": [],
+  "source_client": "steam-pc-global",
+  "source_size": {
+    "w": 1280,
+    "h": 720
+  },
+  "game_version": "453174",
+  "capture_date": "2026-11-02",
+  "tool": "template_capture.py 0.1.0",
+  "source": "steam client 1920x1080, core-normalized to 1280x720"
+}

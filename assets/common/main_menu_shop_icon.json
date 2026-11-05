@@ -1,0 +1,21 @@
+{
+  "task": "main_menu",
+  "element": "shop_icon",
+  "lang": "common",
+  "roi": {
+    "x": 757,
+    "y": 637,
+    "w": 26,
+    "h": 24
+  },
+  "masks": [],
+  "source_client": "steam-pc-global",
+  "source_size": {
+    "w": 1280,
+    "h": 720
+  },
+  "game_version": "453174",
+  "capture_date": "2026-11-02",
+  "tool": "template_capture.py 0.1.0",
+  "source": "steam client 1920x1080, core-normalized to 1280x720"
+}

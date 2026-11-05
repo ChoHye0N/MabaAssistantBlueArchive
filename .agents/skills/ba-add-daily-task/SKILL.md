@@ -20,7 +20,7 @@ Read `ba-architecture` first. This skill is the step-by-step for one task. The f
    - Stay `wip` until the task has run on a fresh day in the real client; only then mark it `ready` (CI then requires its templates).
 2. **Add pages and anchors** in `pages/<id>.json` (the Navigator page graph). Prefer language-neutral anchors (icons, layout positions); use per-language anchors only when text is unavoidable.
 3. **Get templates**: capture them with the project capture tool from a 1280x720 screenshot (mask nickname/UID), or reuse a public source recorded in `assets/PROVENANCE.md` (see `ba-third-party-license`; unlicensed ones stay in gitignored `assets-local/`).
-   - Language-neutral -> `common/`; contains text -> `<lang>/`, under `assets-local/` or `assets/`. Lookup is `assets-local/` then `assets/`, per language then common.
+   - Language-neutral -> `common/`; contains text -> `<lang>/`, under `assets/` (own captures, read for personal data first; try things in `assets-local/`). Lookup is `assets-local/` then `assets/`, per language then common.
    - Template matching ignores brightness, so a dimmed or greyed state still matches. Check such states with colour conditions (`color`, `no_color`, `click_color`) or a higher threshold.
    - Take the 1280x720 frame from `maba_cli grab` with the game at 1920x1080, on a screen with nothing dimming it. Cut whole words without neighbouring elements or key hints, and compare the result with the screen by eye.
    - Check look-alikes: two templates that differ by a letter or digit need a higher threshold, verified on saved frames.

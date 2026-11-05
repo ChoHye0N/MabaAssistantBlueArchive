@@ -78,7 +78,7 @@ SOFTWARE.
 ```
 
 ## Not covered by the project license
-Game-related image resources belong to NEXON Korea Corp. and NEXON GAMES Co., Ltd. Release archives include small pieces of the game's interface captured by the project owner (`assets/` in the archive) so the program works out of the box; they are not covered by the project license and are not in this repository.
+Game-related image resources belong to NEXON Korea Corp. and NEXON GAMES Co., Ltd. The `assets/` folder and release archives include small pieces of the game's interface captured by the project owner so the program works out of the box; they are not covered by the project license.
 
 ---
 

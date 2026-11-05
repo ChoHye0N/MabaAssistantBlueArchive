@@ -1,0 +1,20 @@
+{
+  "task": "popup",
+  "element": "attendance_board",
+  "lang": "ko",
+  "roi": {
+    "x": 690,
+    "y": 90,
+    "w": 320,
+    "h": 90
+  },
+  "masks": [],
+  "source_client": "steam-pc-global",
+  "source_size": {
+    "w": 1280,
+    "h": 720
+  },
+  "game_version": "453174",
+  "capture_date": "2026-11-02",
+  "tool": "template_capture.py 0.1.0"
+}

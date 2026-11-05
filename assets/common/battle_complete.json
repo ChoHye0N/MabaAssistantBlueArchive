@@ -1,0 +1,20 @@
+{
+  "task": "battle",
+  "element": "complete",
+  "lang": "common",
+  "roi": {
+    "x": 40,
+    "y": 0,
+    "w": 440,
+    "h": 88
+  },
+  "masks": [],
+  "source_client": "steam-pc-global",
+  "source_size": {
+    "w": 1280,
+    "h": 720
+  },
+  "game_version": "453174",
+  "capture_date": "2026-11-02",
+  "tool": "template_capture.py 0.1.0"
+}

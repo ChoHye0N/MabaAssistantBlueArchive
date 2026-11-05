@@ -1,0 +1,20 @@
+{
+  "task": "social",
+  "element": "menu_title",
+  "lang": "ko",
+  "roi": {
+    "x": 620,
+    "y": 180,
+    "w": 130,
+    "h": 60
+  },
+  "masks": [],
+  "source_client": "steam-pc-global",
+  "source_size": {
+    "w": 1280,
+    "h": 720
+  },
+  "game_version": "453174",
+  "capture_date": "2026-11-02",
+  "tool": "template_capture.py 0.1.0"
+}

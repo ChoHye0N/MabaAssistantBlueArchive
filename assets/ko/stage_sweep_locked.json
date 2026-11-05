@@ -1,0 +1,20 @@
+{
+  "task": "stage",
+  "element": "sweep_locked",
+  "lang": "ko",
+  "roi": {
+    "x": 858,
+    "y": 300,
+    "w": 190,
+    "h": 46
+  },
+  "masks": [],
+  "source_client": "steam-pc-global",
+  "source_size": {
+    "w": 1280,
+    "h": 720
+  },
+  "game_version": "453174",
+  "capture_date": "2026-11-02",
+  "tool": "template_capture.py 0.1.0"
+}

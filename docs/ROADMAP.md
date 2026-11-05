@@ -67,6 +67,9 @@
 - [ ] Check the English UI in the running GUI (text length in the settings layout); English game client support (templates, `strings/en.json`) is separate
 - [x] Schedule at a local clock time as an alternative to "reset + delay", with a warning close to the reset (`ClockSchedule`)
 - [x] Language matrix + CI template check (`tools/check_templates.py`, `.github/workflows/ci.yml`)
+- [x] CI: Windows build of Core and GUI; `release` workflow for a draft archive
+- [x] Templates committed in `assets/`, so releases get them from the repository
+- [ ] Automatic update: first resources, then a new-version notice
 
 ## Open questions to verify in the real game
 Game facts and their **verify** marks are in `docs/notes/game-structure.md`.

@@ -1,0 +1,20 @@
+{
+  "task": "popup",
+  "element": "battle_result",
+  "lang": "ko",
+  "roi": {
+    "x": 575,
+    "y": 190,
+    "w": 130,
+    "h": 50
+  },
+  "masks": [],
+  "source_client": "steam-pc-global",
+  "source_size": {
+    "w": 1280,
+    "h": 720
+  },
+  "game_version": "453174",
+  "capture_date": "2026-11-02",
+  "tool": "template_capture.py 0.1.0"
+}

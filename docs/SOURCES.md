@@ -15,7 +15,7 @@ Game images belong to NEXON; a repository's code license does not cover them.
 - Source states a license or explicit permission covering the files: may be committed.
 - Source states nothing, or only claims fair use: treat as unlicensed. Keep it in `assets-local/` (gitignored); do not commit it.
 - Avoid repositories that redistribute files extracted from game packages.
-- Until suitable public resources are found, templates are captured by the owner with the capture tool.
+- Templates are captured by the owner with the capture tool and committed in `assets/` (owner, 2026-11-06). They must show no personal data. Only what the data files use is committed.
 
 ## Porting log
 Add one row per ported or heavily adapted file.
