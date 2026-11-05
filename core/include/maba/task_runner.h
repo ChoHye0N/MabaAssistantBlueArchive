@@ -32,7 +32,7 @@ struct TaskRunResult {
 };
 
 struct RunReport {
-    bool ok = false;          // every selected task succeeded or was skipped as not implemented
+    bool ok = false;          // no selected task failed or was held back by a dependency
     bool cancelled = false;
     std::string error;        // set when the run could not start (bad order, unknown ids)
     std::vector<TaskRunResult> tasks;  // in execution order
@@ -86,6 +86,7 @@ private:
     bool CheckedAction(const Step& s, Context& ctx, const std::function<bool(std::string&)>& act,
                        const std::string& what, std::string& error);
     bool WaitReaction(const Frame& before, const Step& s);
+    bool WaitGone(const TemplateRef& ref, const Step& s);
     bool CheckPrecondition(const Step& s, Context& ctx, std::string& error);
     void Settle();
     bool Cancelled() const { return options_.cancel && options_.cancel->load(); }

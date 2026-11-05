@@ -43,6 +43,9 @@ void TaskRunner::Notify(const TaskRunResult& r) {
 namespace {
 
 constexpr int kNumberCropMargin = 16;
+constexpr int kGoneLooks = 4;  // a pressed button is not recognized for a moment: that is not gone
+constexpr int kReadNumberRetries = 3;
+constexpr milliseconds kReadNumberRetryWait{1500};
 
 // Code points of a UTF-8 text, so that a Korean letter counts as one character.
 std::vector<std::string> Characters(const std::string& text) {
@@ -284,6 +287,23 @@ bool TaskRunner::WaitReaction(const Frame& before, const Step& s) {
     return false;
 }
 
+bool TaskRunner::WaitGone(const TemplateRef& ref, const Step& s) {
+    int gone_looks = 0;
+    const milliseconds timeout{s.timeout_ms};
+    const milliseconds interval = options_.reaction.interval;
+    const auto start = nav_.Clock().Now();
+    const auto attempts = timeout.count() / std::max<long long>(interval.count(), 1) + 1;
+    for (long long i = 0; i < attempts && nav_.Clock().Now() - start < timeout; ++i) {
+        if (Cancelled()) return false;
+        nav_.Clock().Sleep(interval);
+        const Frame current = nav_.Controller().Screenshot();
+        if (current.empty()) continue;
+        gone_looks = nav_.Matcher().Find(current, ref).found ? 0 : gone_looks + 1;
+        if (gone_looks >= kGoneLooks) return true;
+    }
+    return false;
+}
+
 void TaskRunner::Settle() {
     if (!options_.reaction.enabled) return;
     if (!nav_.WaitSettled(nav_.Settings().settle.timeout))
@@ -293,14 +313,17 @@ void TaskRunner::Settle() {
 // Runs `act` (a click or back press) and makes sure the screen reacted: `expect` appeared and,
 // with the reaction check on, the screen changed. Retried `retries` times, because the game
 // ignores input while it animates; a step that never gets a reaction fails instead of carrying
-// on from the wrong screen.
+// on from the wrong screen. `expect_gone` is for buttons on a screen that keeps moving by itself,
+// where a change proves nothing: a formation screen fills in its team after the button shows.
 bool TaskRunner::CheckedAction(const Step& s, Context& ctx, const std::function<bool(std::string&)>& act,
                                const std::string& what, std::string& error) {
     IController& controller = nav_.Controller();
     const bool check = options_.reaction.enabled && !s.no_verify;
     std::optional<TemplateRef> expect;
     if (s.expect) expect = Substitute(*s.expect, ctx.each_value);
-    const int extra = check || expect ? s.retries : 0;
+    std::optional<TemplateRef> gone;
+    if (s.expect_gone) gone = Substitute(*s.expect_gone, ctx.each_value);
+    const int extra = check || expect || gone ? s.retries : 0;
     for (int attempt = 0; attempt <= extra; ++attempt) {
         if (attempt > 0) Log(log_, LogLevel::kInfo, "no reaction to " + what + ", trying again");
         Frame before;
@@ -311,17 +334,25 @@ bool TaskRunner::CheckedAction(const Step& s, Context& ctx, const std::function<
             if (expect && !before.empty()) expected_already = nav_.Matcher().Find(before, *expect).found;
         }
         if (!act(error)) return false;
-        if (!check && !expect) return true;
+        if (!check && !expect && !gone) return true;
         bool reacted = true;
         if (expect) reacted = nav_.WaitForTemplate(*expect, StepWait(s.timeout_ms, options_.cancel)).has_value();
-        if (reacted && check && (!expect || expected_already)) reacted = WaitReaction(before, s);
+        if (reacted && gone) {
+            reacted = WaitGone(*gone, s);
+        } else if (reacted && check && (!expect || expected_already)) {
+            reacted = WaitReaction(before, s);
+        }
         if (reacted) {
             Settle();
             return true;
         }
         if (Cancelled()) return false;
     }
-    error = expect ? expect->file + " did not appear after " + what : "no reaction to " + what;
+    if (gone) {
+        error = gone->file + " stayed after " + what;
+    } else {
+        error = expect ? expect->file + " did not appear after " + what : "no reaction to " + what;
+    }
     return false;
 }
 
@@ -451,30 +482,37 @@ bool TaskRunner::RunStep(const Step& s, Context& ctx, std::string& error) {
                 error = "OCR is not available (start the OCR sidecar)";
                 return false;
             }
-            // Settle popups first: a result screen over the number would hide it.
-            if (const Observation obs = nav_.Observe(); !obs.ok) {
-                error = obs.error.empty() ? "screen capture failed" : obs.error;
-                return false;
-            }
-            const Frame crop = controller.CaptureRegion(*s.roi);
-            if (crop.empty()) {
-                error = "region capture failed";
-                return false;
-            }
-            // Numbers only: measured on 1920x1080 crops, the margin fixes them but disturbs names.
-            const auto pieces = ocr_->Recognize(AddMargin(crop, kNumberCropMargin), Rect{}, options_.language);
-            const std::string text = s.lenient ? TrailingNumber(JoinLeftToRight(pieces))
-                                               : JoinLeftToRight(pieces);
+            // A mission banner can cover the top bar for a few seconds: look again before giving up.
             long long value = 0;
-            if (const auto frac = ParseFraction(text)) {
-                value = frac->value;
-                result.values[s.store + "_max"] = frac->max;
-            } else if (const auto n = ParseInteger(text)) {
-                value = *n;
-            } else {
-                error = "could not read a number from '" + text + "'";
-                if (!ocr_->LastError().empty()) error += ": " + ocr_->LastError();
-                return false;
+            for (int attempt = 0;; ++attempt) {
+                // Settle popups first: a result screen over the number would hide it.
+                if (const Observation obs = nav_.Observe(); !obs.ok) {
+                    error = obs.error.empty() ? "screen capture failed" : obs.error;
+                    return false;
+                }
+                const Frame crop = controller.CaptureRegion(*s.roi);
+                if (crop.empty()) {
+                    error = "region capture failed";
+                    return false;
+                }
+                // Numbers only: measured on 1920x1080 crops, the margin fixes them but disturbs names.
+                const auto pieces = ocr_->Recognize(AddMargin(crop, kNumberCropMargin), Rect{}, options_.language);
+                const std::string text = s.lenient ? TrailingNumber(JoinLeftToRight(pieces)) : JoinLeftToRight(pieces);
+                if (const auto frac = ParseFraction(text)) {
+                    value = frac->value;
+                    result.values[s.store + "_max"] = frac->max;
+                    break;
+                }
+                if (const auto n = ParseInteger(text)) {
+                    value = *n;
+                    break;
+                }
+                if (attempt >= kReadNumberRetries || Cancelled()) {
+                    error = "could not read a number from '" + text + "'";
+                    if (!ocr_->LastError().empty()) error += ": " + ocr_->LastError();
+                    return false;
+                }
+                nav_.Clock().Sleep(kReadNumberRetryWait);
             }
             result.values[s.store] = value;
             Log(log_, LogLevel::kInfo, s.store + " = " + std::to_string(value));
@@ -832,6 +870,7 @@ RunReport TaskRunner::Run(const std::vector<TaskSpec>& tasks,
         if (!wanted.count(id)) continue;
         const TaskSpec& task = *by_id.at(id);
         TaskRunResult r;
+        bool held_back = false;
         r.id = id;
 
         if (report.cancelled || Cancelled()) {
@@ -842,6 +881,7 @@ RunReport TaskRunner::Run(const std::vector<TaskSpec>& tasks,
             // A selected dependency that did not succeed blocks this task.
             for (const auto& dep : task.after) {
                 if (blocked.count(dep)) {
+                    held_back = true;
                     r.status = TaskStatus::kSkipped;
                     r.message = "dependency '" + dep + "' did not succeed";
                     break;
@@ -871,9 +911,10 @@ RunReport TaskRunner::Run(const std::vector<TaskSpec>& tasks,
         }
 
         if (r.status == TaskStatus::kCancelled) report.cancelled = true;
-        // "not implemented" skips do not fail the run; dependency skips and failures do.
+        // A task may skip itself (no AP, no tickets, not implemented) and nothing after it minds;
+        // dependency skips and failures fail the run.
         const bool passed = r.status == TaskStatus::kSucceeded ||
-                            (r.status == TaskStatus::kSkipped && task.steps.empty());
+                            (r.status == TaskStatus::kSkipped && !held_back);
         if (!passed) {
             report.ok = false;
             blocked.insert(id);

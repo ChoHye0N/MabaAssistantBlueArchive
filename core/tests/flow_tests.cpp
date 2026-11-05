@@ -229,6 +229,47 @@ MABA_TEST(ExpectVisibleBeforeTheClickNeedsAChange) {
     CHECK(rig.controller.clicks.size() == 3);
 }
 
+MABA_TEST(ExpectGoneRepeatsAClickTheScreenChangedWithout) {
+    ReactionRig rig;
+    int seen = 0;
+    rig.controller.on_click = [&](maba::Point, maba_test::FakeController& c) {
+        if (++seen == 3) c.scene = NavRig::kMailScene;
+    };
+    maba::TaskRunner runner(rig.Nav(), nullptr, rig.options);
+    const auto r = runner.RunTask(Task(R"({"id": "t", "steps": [
+        {"action": "click", "x": 5, "y": 5, "expect_gone": {"template": "main.png"}, "timeout_ms": 500}]})"));
+    CHECK(r.status == maba::TaskStatus::kSucceeded);
+    CHECK(seen == 3);
+}
+
+MABA_TEST(ExpectGoneIsNotFooledByAPressedButton) {
+    ReactionRig rig;
+    bool clicked = false;
+    int looks = 0;
+    rig.controller.on_click = [&](maba::Point, maba_test::FakeController&) {
+        clicked = true;
+        looks = 0;
+    };
+    rig.controller.before_screenshot = [&](maba_test::FakeController& c) {
+        c.scene = clicked && ++looks == 1 ? NavRig::kMailScene : NavRig::kMainScene;
+    };
+    maba::TaskRunner runner(rig.Nav(), nullptr, rig.options);
+    const auto r = runner.RunTask(Task(R"({"id": "t", "steps": [
+        {"action": "click", "x": 5, "y": 5, "expect_gone": {"template": "main.png"}, "timeout_ms": 800}]})"));
+    CHECK(r.status == maba::TaskStatus::kFailed);
+    CHECK(rig.controller.clicks.size() == 3);
+}
+
+MABA_TEST(ExpectGoneFailsWhenTheTemplateStays) {
+    ReactionRig rig;
+    maba::TaskRunner runner(rig.Nav(), nullptr, rig.options);
+    const auto r = runner.RunTask(Task(R"({"id": "t", "steps": [
+        {"action": "click", "x": 5, "y": 5, "expect_gone": {"template": "main.png"}, "timeout_ms": 500}]})"));
+    CHECK(r.status == maba::TaskStatus::kFailed);
+    CHECK(r.message.find("stayed") != std::string::npos);
+    CHECK(rig.controller.clicks.size() == 3);
+}
+
 MABA_TEST(ToggleClickIsNotChecked) {
     ReactionRig rig;
     maba::TaskRunner runner(rig.Nav(), nullptr, rig.options);

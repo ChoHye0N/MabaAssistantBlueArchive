@@ -178,6 +178,18 @@ MABA_TEST(NotImplementedDependencyDoesNotBlock) {
     CHECK(report.tasks.size() == 2 && report.tasks[1].status == maba::TaskStatus::kSucceeded);
 }
 
+MABA_TEST(ATaskSkippingItselfDoesNotBlockTheNext) {
+    NavRig rig;
+    maba::TaskRunner runner(rig.Nav(), nullptr);
+    const std::vector<maba::TaskSpec> tasks = {
+        Task(R"({"id": "spend_ap", "steps": [{"action": "end", "status": "skipped", "message": "not enough AP"}]})"),
+        Task(R"({"id": "mail", "after": ["spend_ap"], "steps": [{"action": "goto", "page": "mail"}]})"),
+    };
+    const maba::RunReport report = runner.Run(tasks, {"mail", "spend_ap"});
+    CHECK(report.ok);
+    CHECK(report.tasks.size() == 2 && report.tasks[1].status == maba::TaskStatus::kSucceeded);
+}
+
 MABA_TEST(RunRejectsUnknownTaskAndCycles) {
     NavRig rig;
     maba::TaskRunner runner(rig.Nav(), nullptr);

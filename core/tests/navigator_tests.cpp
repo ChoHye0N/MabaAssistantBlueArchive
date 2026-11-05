@@ -64,6 +64,17 @@ MABA_TEST(GoToPressesBackOnUnknownScreen) {
     CHECK(r.page == "main_menu");
 }
 
+MABA_TEST(GoToWaitsOutABattleWithoutPressingBack) {
+    NavRig rig;
+    rig.matcher.Add("hud.png", {10});
+    rig.AddPage(R"({"id": "battle", "wait_ms": 8000, "anchors": [{"template": "hud.png"}]})");
+    rig.controller.scene = NavRig::kUnknownScene;
+    const auto r = rig.Nav().GoTo("main_menu");
+    CHECK(!r.ok);
+    CHECK(r.error.find("still waiting") != std::string::npos);
+    CHECK(rig.controller.backs == 0);
+}
+
 MABA_TEST(GoToFailsOnEndlessUnknownScreenAndReportsFrame) {
     NavRig rig;
     rig.controller.scene = NavRig::kUnknownScene;  // back does nothing

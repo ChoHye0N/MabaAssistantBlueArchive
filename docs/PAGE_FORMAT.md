@@ -26,6 +26,7 @@ Pages, popups and tasks are data, not code. Values shown are placeholders, not r
 Rules:
 - **Location**: one file per page in `pages/<id>.json`. Read by Core (`page.h`): `id`, `anchors`, `transitions`, `rois`, `enter`; `roi_by_lang` and `strings` are accepted and ignored until used.
 - **Home page**: `main_menu`. The Navigator returns there before each task and after a failure; every page should have a route back to it.
+- **Waited-out pages (`wait_ms`)**: a screen that ends by itself, like a battle. Navigation waits up to this long, also through a short unknown stretch right after it (skill cut-ins), and never presses back, because back opens the pause menu.
 - **Start-up (`enter`, home page only)**: screens before the main screen (title, event splash, loading) have no stable anchors. At the start of a run, while no known page is visible, `tap` is clicked every `interval_ms` (100..10000, default 2000), at most `max_taps` times (1..100, default 30). Login popups are dismissed by `popups/` before each look. Pick a point that is harmless on the main screen.
 - **Anchors**: a page is detected when every anchor matches. `threshold` defaults to 0.9 and must be in (0, 1]. A `roi` with zero width or height means "whole frame".
 - **Transitions**: `click` is either `{ "template": ..., "roi"?, "threshold"? }` (click the center of the match) or a fixed point `{ "x": ..., "y": ... }`. Every `to` must name a defined page (`ValidatePageGraph` warns otherwise).
@@ -99,6 +100,7 @@ Rules:
 Click options (`click`, `click_if_present`): `pick` (`best`, `top`, `bottom`, `left`, `right`) chooses among several matches; `offset` `{x, y}` moves the click from the match (may be negative); `expect` (a template) is waited for after the click, and the click is repeated up to `retries` (0..5, default 2) times when it does not appear, because the game ignores input while a screen is still sliding in.
 
 Reaction check (`click`, `click_if_present`, `back`): the screen is compared before and after, and a step whose action changed nothing is repeated `retries` times (default 2), then fails. `expect` replaces the comparison, unless the template was already visible before the click: then the screen must change as well. After every reaction the runner waits for the screen to rest.
+- `expect_gone`: the click worked when this template left the screen, otherwise it is repeated. For buttons on a screen that moves by itself: a formation screen shows Sortie before its team has loaded and ignores the click, and the team appearing looks like a reaction.
 - `change_roi`: compare only this region, for changes too small to show on the whole frame (a number, a check box).
 - `no_verify: true`: no check, for clicks where no change is normal or a repeat would undo them (toggles, a tab that may already be open, MAX when one sweep is all the AP allows).
 - A fixed-point click must name the screen it belongs to: `expect`, `on_page` (a page id) or `require` (a template). With `on_page` or `require` nothing is clicked on any other screen. `ValidateTasks` rejects a fixed-point click without one of them.

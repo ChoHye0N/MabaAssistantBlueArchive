@@ -52,6 +52,10 @@ struct NavigatorOptions {
     WaitOptions detect{std::chrono::milliseconds{4000}, std::chrono::milliseconds{300}, 30};
     WaitOptions arrive{std::chrono::milliseconds{8000}, std::chrono::milliseconds{300}, 40};
     std::chrono::milliseconds after_back{800};
+    // A waited-out page (see PageDef::wait): how often to look, and how long an unknown frame right
+    // after it still counts as that page (skill cut-ins hide the battle HUD).
+    std::chrono::milliseconds wait_interval{2000};
+    std::chrono::milliseconds wait_grace{20000};
     // Pause after arriving by a click: the game ignores input while a page is still sliding in.
     std::chrono::milliseconds after_arrive{700};
     SettleOptions settle;  // also wait for the screen to rest after arriving
@@ -127,6 +131,7 @@ private:
     NavigatorOptions options_;
     LogFn log_;
     Frame last_frame_;
+    std::optional<std::chrono::milliseconds> waited_at_;  // last seen on a waited-out page
 };
 
 }  // namespace maba

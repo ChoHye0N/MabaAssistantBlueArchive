@@ -144,6 +144,7 @@ NavResult Navigator::GoTo(const std::string& target) {
     NavResult result;
     if (!pages_.count(target)) return Fail(result, "unknown page: " + target);
     int backs = 0;
+    std::chrono::milliseconds waited{0};
 
     while (true) {
         bool recognized = false;
@@ -163,6 +164,18 @@ NavResult Navigator::GoTo(const std::string& target) {
             result.ok = true;
             Log(log_, LogLevel::kDebug, "at page '" + target + "'");
             return result;
+        }
+        // Never back out of a battle; it ends by itself.
+        const bool waiting_page = recognized && pages_.at(obs.page).wait.count() > 0;
+        if (waiting_page) waited_at_ = clock_.Now();
+        const bool just_left = !recognized && waited_at_ && clock_.Now() - *waited_at_ < options_.wait_grace;
+        if (waiting_page || just_left) {
+            if (waiting_page && waited >= pages_.at(obs.page).wait)
+                return Fail(result, "still waiting for '" + obs.page + "' to end");
+            if (waited.count() == 0) Log(log_, LogLevel::kInfo, "waiting for the battle to end");
+            clock_.Sleep(options_.wait_interval);
+            waited += options_.wait_interval;
+            continue;
         }
         if (result.steps >= options_.max_steps) {
             return Fail(result, "could not reach '" + target + "' within " +

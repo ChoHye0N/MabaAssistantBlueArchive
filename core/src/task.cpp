@@ -200,6 +200,8 @@ Step ParseStep(const json& obj, const std::string& where, int depth) {
             s.pick = p->second;
             if (auto e = obj.find("expect"); e != obj.end() && !e->is_null())
                 s.expect = ParseTemplateRef(*e, where + ".expect");
+            if (auto e = obj.find("expect_gone"); e != obj.end() && !e->is_null())
+                s.expect_gone = ParseTemplateRef(*e, where + ".expect_gone");
             s.retries = OptInt(obj, "retries", where, 2, 0, kMaxClickRetries);
             s.on_page = OptString(obj, "on_page", where, "");
             if (auto r = obj.find("require"); r != obj.end() && !r->is_null())
@@ -524,7 +526,7 @@ void ValidateSteps(const TaskSpec& t, const std::vector<Step>& steps, const std:
         if (!s.on_page.empty() && !pages.count(s.on_page))
             problems.push_back(at + " uses unknown page '" + s.on_page + "'");
         // A fixed point on the wrong screen hits whatever is there.
-        if (s.action == StepAction::kClick && !s.templ && !s.expect && !s.require && s.on_page.empty())
+        if (s.action == StepAction::kClick && !s.templ && !s.expect && !s.expect_gone && !s.require && s.on_page.empty())
             problems.push_back(at + " clicks a fixed point without 'expect', 'require' or 'on_page'");
         check_condition(s.when, at);
         check_condition(s.until, at);

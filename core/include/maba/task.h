@@ -111,6 +111,7 @@ struct Step {
     int max_scrolls = 0;               // kClickText: pages to scroll through
     Pick pick = Pick::kBest;           // kClick, kClickIfPresent
     std::optional<TemplateRef> expect; // after a click: wait for it, click again if it is missing
+    std::optional<TemplateRef> expect_gone;  // after a click: wait until it left, or click again
     int retries = 2;                   // extra clicks when the screen did not react
     bool no_verify = false;            // kClick, kClickIfPresent, kBack: no reaction check
     std::optional<Rect> change_roi;    // reaction check: look only here (small changes)

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
 // Page definitions loaded from pages/*.json (format: docs/PAGE_FORMAT.md).
-// Fields read: id, anchors, transitions, rois, enter. Other fields (notes, strings, ...) are ignored.
+// Fields read: id, anchors, transitions, rois, enter, wait_ms. Other fields (notes, strings, ...) are ignored.
 #pragma once
 
 #include <chrono>
@@ -44,6 +44,9 @@ struct PageDef {
     std::vector<Transition> transitions;
     std::map<std::string, Rect> rois;  // named regions (e.g. OCR targets); unset ones are skipped
     std::optional<EnterSpec> enter;
+    // Above 0: the screen ends by itself (a battle). Navigation waits this long and never presses
+    // back here, because back opens the pause menu and can give the battle up.
+    std::chrono::milliseconds wait{0};
 
     const Transition* FindTransition(const std::string& to) const;
 };
