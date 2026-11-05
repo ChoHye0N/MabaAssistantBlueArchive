@@ -1,6 +1,6 @@
 {
   "name": "maba-assistant-blue-archive",
-  "version-string": "0.1.0",
+  "version-string": "0.1.1",
   "builtin-baseline": "4a1c77189c64dae7afd478333a64d1e604d5dc91",
   "dependencies": [
     {
