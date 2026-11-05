@@ -63,7 +63,10 @@ Later logins skip the attendance screens. An "expiring items" notice can follow 
 
 | Screen | How it ends |
 |---|---|
-| Web news board | The X at the top right. Web pages do not scale with the window, so its text differs per window size |
+| Web news board | The X at the top right, at the same place in every window size. Web text does not scale with the window, so it is recognized by its white body |
+| AP purchase for pyroxene | Opens by itself when a stage costs more AP than there is. Always cancelled |
+| Pause menu | Opens with Esc in a battle. Continue goes on; its restart and give-up questions are cancelled |
+| Defeat | Confirm, then the AP comes back and a hint follows; confirm leads to the formation |
 | Memorial lobby animation | Esc opens a skip question (`game-options.md`) |
 | Relationship rank up | A tap; Esc does nothing. Seen after a schedule. In the cafe **verify** |
 | Reward and sweep results | Popups, see `popups/` |

@@ -17,13 +17,14 @@
 - [x] Templates rebuilt from 1920x1080 frames (full screen), normalized by Core itself; pixels that change between frames made transparent on 6 templates
 - [ ] Recapture at 1920x1080 the templates still cut from the older window: battle HUD and result, story, login notices and attendance, neighbour cafe invitation
 - [x] Templates cut from 1920x1080 frames also fit frames of a 1493x840 window: 76 templates seen in both, best score median 0.993, lowest 0.958
-- [ ] Check a 1280x720 window
+- [x] Checked 1280 and 1600 wide windows, a maximized window, and the change of a window that does not fit
+- [ ] Check a 2560 wide window
 
 ## M1: navigation + simplest tasks
 - [x] Navigator: page graph, global popup handler, return-to-main, bounded GoTo (`navigator.h`, `popup.h`), unit-tested with scene fakes
 - [x] Task engine: declarative steps, dependency-aware runner with recovery and stop (`task.h`, `task_runner.h`)
 - [x] Mail claim, mission claim: steps written (`status: wip`)
-- [ ] Capture their templates (`python tools/check_templates.py` lists them) and the real popups; run `maba_cli run --tasks mail_claim_all,mission_claim_all`; then mark them `ready`
+- [x] Templates captured, popups handled, mail and missions run in the game
 
 ## M2
 - [x] Run order from data (`order`), task settings declared in `tasks/*.json`
@@ -51,7 +52,8 @@
 - [ ] On hold: record the owned students. Reading the student list with OCR gave misreads and noise; it needs a dictionary of student names per language to correct them (see `assets/PROVENANCE.md`)
 - [x] Verified in live battles: AUTO/3x popups, event quest and bounty cleared with teams 1 and 2, sortie with an empty team refused
 - [x] Verified live: defeat through hint to the lobby (AP back), pause and give-up dialogs, a run started in the middle of a battle, no tickets, not enough AP followed by mail
-- [ ] Verify a sortie and an empty team in a real task with the repeated looks for a gone button; a sweep count above the AP; a battle in a mission grid map
+- [x] Verified live: sortie and an empty team with the repeated looks for a gone button
+- [ ] Verify a sweep count above the AP, and a battle in a mission grid map
 
 ## M4
 - [x] Emulator controller over ADB: raw/PNG screencap with probe, `input` or MaaTouch, CRLF repair, reconnect (`adb_controller.h`), unit-tested with a fake adb
