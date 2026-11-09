@@ -72,7 +72,10 @@ public:
     // dependency was also selected and failed (or was skipped for that reason) is skipped, e.g.
     // mail waits for AP spending. Tasks without steps are skipped as "not implemented"; such a
     // skip does not block dependents and does not fail the run.
-    RunReport Run(const std::vector<TaskSpec>& tasks, const std::vector<std::string>& selected);
+    // `selected_order`: the selected tasks run in the order given (a player's profile) instead of
+    // their `order`; `after` still holds, so mail stays after AP spending.
+    RunReport Run(const std::vector<TaskSpec>& tasks, const std::vector<std::string>& selected,
+                  bool selected_order = false);
 
     // Runs one task's steps (no ordering, no recovery). Exposed for tests and the CLI.
     TaskRunResult RunTask(const TaskSpec& task);

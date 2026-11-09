@@ -150,6 +150,24 @@ MABA_TEST(OrderSetsRunOrderWithoutBlocking) {
     CHECK(!maba::ParseTask(R"({"id": "x", "order": -1})").ok);
 }
 
+MABA_TEST(SelectedOrderRunsInTheGivenOrderButKeepsAfter) {
+    NavRig rig;
+    std::vector<maba::TaskSpec> tasks = {
+        Task(R"({"id": "spend", "order": 10, "steps": [{"action": "goto", "page": "shop"}]})"),
+        Task(R"({"id": "mail", "order": 20, "after": ["spend"], "steps": [{"action": "goto", "page": "mail"}]})"),
+        Task(R"({"id": "cafe", "order": 30, "steps": [{"action": "goto", "page": "main_menu"}]})"),
+    };
+    maba::SortTasksByOrder(tasks);
+    maba::TaskRunner runner(rig.Nav(), nullptr);
+    const maba::RunReport report = runner.Run(tasks, {"cafe", "mail", "spend"}, true);
+    CHECK(report.ok && report.tasks.size() == 3);
+    if (report.tasks.size() == 3) {
+        CHECK(report.tasks[0].id == "cafe");   // moved to the front
+        CHECK(report.tasks[1].id == "spend");  // mail waits for it
+        CHECK(report.tasks[2].id == "mail");
+    }
+}
+
 MABA_TEST(RunEntersGameBeforeFirstTask) {
     NavRig rig;
     rig.pages["main_menu"].enter = maba::EnterSpec{{640, 100}, 5, std::chrono::milliseconds{100}};

@@ -880,13 +880,25 @@ TaskRunResult TaskRunner::RunTask(const TaskSpec& task) {
 }
 
 RunReport TaskRunner::Run(const std::vector<TaskSpec>& tasks,
-                          const std::vector<std::string>& selected) {
+                          const std::vector<std::string>& selected, bool selected_order) {
     RunReport report;
     std::vector<TaskDef> defs;
     std::map<std::string, const TaskSpec*> by_id;
     for (const auto& t : tasks) {
         defs.push_back(t.Order());
         by_id[t.id] = &t;
+    }
+    if (selected_order) {
+        // ResolveOrder keeps the input order among tasks that are ready, so the selection goes first.
+        std::vector<TaskDef> ordered;
+        for (const auto& id : selected) {
+            for (const auto& d : defs)
+                if (d.id == id) ordered.push_back(d);
+        }
+        for (const auto& d : defs) {
+            if (std::find(selected.begin(), selected.end(), d.id) == selected.end()) ordered.push_back(d);
+        }
+        defs = std::move(ordered);
     }
     const OrderResult order = ResolveOrder(defs);
     if (!order.ok) {

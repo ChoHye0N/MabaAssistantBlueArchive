@@ -90,7 +90,7 @@ bool Assistant::Load(std::string& error) {
 RunReport Assistant::Run(const std::vector<std::string>& selected, const std::atomic<bool>* cancel,
                          std::function<void(const TaskRunResult&)> on_task,
                          std::function<void(const Frame&, const std::string&)> on_failure,
-                         const std::string& settings_json) {
+                         const std::string& settings_json, bool selected_order) {
     RunReport report;
     if (!controller_) {
         report.error = "not connected";
@@ -122,7 +122,7 @@ RunReport Assistant::Run(const std::vector<std::string>& selected, const std::at
     runner_options.reaction.enabled = true;
     if (!ResolveSettings(tasks_, settings_json, runner_options.settings, report.error)) return report;
     TaskRunner runner(navigator, ocr_.get(), runner_options, log_);
-    return runner.Run(tasks_, selected);
+    return runner.Run(tasks_, selected, selected_order);
 }
 
 }  // namespace maba

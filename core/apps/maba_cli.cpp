@@ -317,7 +317,7 @@ int CmdRun(const Args& args) {
             if (frame.empty()) return;
             const fs::path out = root / "captures" / ("run_fail_" + Timestamp() + ".png");
             if (maba::SavePng(frame, out)) std::printf("saved failure frame to %s\n", maba::PathToUtf8(out).c_str());
-        }, settings_json);
+        }, settings_json, args.count("in-order") > 0);
     if (!report.error.empty()) {
         std::fprintf(stderr, "run failed: %s\n", report.error.c_str());
         return 1;
@@ -340,7 +340,7 @@ void Usage() {
                  "  maba_cli grab [--capture bitblt|printwindow] [--out FILE] [--region x,y,w,h]\n"
                  "  maba_cli smoke [--capture bitblt|printwindow] [--lang ko] [--root DIR] [--dry-run]\n"
                  "  maba_cli devices [--adb PATH]\n"
-                 "  maba_cli run [--tasks id,id] [--controller steam|adb] [--capture ...]\n"
+                 "  maba_cli run [--tasks id,id] [--in-order] [--controller steam|adb] [--capture ...]\n"
                  "               [--adb PATH] [--serial 127.0.0.1:16384] [--maatouch FILE]\n"
                  "               [--emulator EXE] [--emulator-args \"-v 0\"] [--start-game]\n"
                  "               [--close-game] [--close-emulator]  (adb: start/stop around the run;\n"

@@ -401,7 +401,8 @@ MABA_API int MABA_CALL MabaStart(MabaHandle h, const char* json_text) {
     h->running = true;
     h->last_error.clear();
     const bool prepare = !launch.is_null();
-    h->worker = std::thread([h, tasks, settings_json, connect, emulator, steam, prepare, start_game, close_game,
+    const bool ordered = args.value("ordered", false);
+    h->worker = std::thread([h, tasks, settings_json, connect, emulator, steam, prepare, start_game, close_game, ordered,
                              close_emulator] {
         h->Emit({{"type", "run"}, {"status", "started"}, {"tasks", tasks}});
         auto on_task = [h](const maba::TaskRunResult& r) {
@@ -451,7 +452,7 @@ MABA_API int MABA_CALL MabaStart(MabaHandle h, const char* json_text) {
             if (ready && h->cancel) {
                 report.cancelled = true;
             } else if (ready) {
-                report = h->assistant->Run(tasks, &h->cancel, on_task, on_failure, settings_json);
+                report = h->assistant->Run(tasks, &h->cancel, on_task, on_failure, settings_json, ordered);
             }
             report.cancelled = report.cancelled || h->cancel.load();
             // A run stopped by the user leaves the game and the emulator as they are.

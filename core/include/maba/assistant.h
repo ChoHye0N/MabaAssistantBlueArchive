@@ -61,7 +61,7 @@ public:
     RunReport Run(const std::vector<std::string>& selected, const std::atomic<bool>* cancel,
                   std::function<void(const TaskRunResult&)> on_task = {},
                   std::function<void(const Frame&, const std::string&)> on_failure = {},
-                  const std::string& settings_json = {});
+                  const std::string& settings_json = {}, bool selected_order = false);
 
 private:
     AssistantConfig config_;
