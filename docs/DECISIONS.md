@@ -36,6 +36,7 @@ Fixed choices. Change one only with a note here.
 | 30 | Updates are a notice only: at start the GUI asks GitHub for the latest full release and links to it. Automatic installation is on hold. The repository name comes from the release build, so a move needs no code change. |
 | 31 | The game window is freely resizable, so a run accepts 16:9 from 1280x720 up and changes anything else to 1280x720. Checked at 1280 and 1600 wide, full screen at 1920; 2560 is open. |
 | 32 | A release is one executable (single file, its runtime unpacks to the user's temp folder on the first start) with `bin/`, `data/`, `ocr/` and `docs/` beside it. |
+| 33 | Players keep task profiles (selection, settings, order). A profile may reorder tasks; Core keeps `after` dependencies first, so mail stays after AP spending. |
 
 ## Checklist for a public repository
 - [ ] `python tools/privacy_check.py` passes, and the whole history is scanned (`git log -p` for personal data, paths, keys).

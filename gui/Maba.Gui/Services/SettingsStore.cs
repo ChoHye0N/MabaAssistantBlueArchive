@@ -31,9 +31,9 @@ public sealed class AppSettings
     public bool SteamCloseGame { get; set; }
     public bool OcrEnabled { get; set; } = true;
     public bool CheckUpdates { get; set; } = true;
-    public List<string> SelectedTasks { get; set; } = new();
-    // Task settings by task id and key, as JSON values (see tasks/<id>.json "settings").
-    public Dictionary<string, Dictionary<string, System.Text.Json.Nodes.JsonNode?>> TaskSettings { get; set; } = new();
+    // Named sets of selected tasks, their settings and their order; one is active.
+    public List<TaskProfile> Profiles { get; set; } = new();
+    public int ActiveProfile { get; set; }
     public bool ScheduleEnabled { get; set; }
     public int ResetHourUtc { get; set; } = 19;      // 04:00 KST; verify in the game
     public int ResetMinuteUtc { get; set; }
@@ -43,6 +43,25 @@ public sealed class AppSettings
     public int ScheduleHour { get; set; } = 7;
     public int ScheduleMinute { get; set; }
     public DateTimeOffset? LastScheduledRun { get; set; }
+}
+
+// A player's set of dailies: which tasks, their settings, and the order they run in.
+public sealed partial class TaskProfile : CommunityToolkit.Mvvm.ComponentModel.ObservableObject
+{
+    [CommunityToolkit.Mvvm.ComponentModel.ObservableProperty] private string _name = "";
+    public List<string> SelectedTasks { get; set; } = new();
+    // Task settings by task id and key, as JSON values (see tasks/<id>.json "settings").
+    public Dictionary<string, Dictionary<string, System.Text.Json.Nodes.JsonNode?>> TaskSettings { get; set; } = new();
+    // Task ids in the player's order; tasks missing here follow in the data's order.
+    public List<string> Order { get; set; } = new();
+
+    public TaskProfile Copy(string name) => new()
+    {
+        Name = name,
+        SelectedTasks = new List<string>(SelectedTasks),
+        TaskSettings = TaskSettings.ToDictionary(kv => kv.Key, kv => kv.Value.ToDictionary(e => e.Key, e => e.Value?.DeepClone())),
+        Order = new List<string>(Order),
+    };
 }
 
 // Settings live in the user's profile (%APPDATA%\MabaAssistantBlueArchive\settings.json),

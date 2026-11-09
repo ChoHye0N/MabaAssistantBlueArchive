@@ -30,7 +30,17 @@
     <sys:String x:Key="Tasks.Reload">Reload data</sys:String>
     <sys:String x:Key="Tasks.After">After</sys:String>
     <sys:String x:Key="Tasks.Ocr">OCR</sys:String>
-    <sys:String x:Key="Tasks.Hint">Dailies run in list order.</sys:String>
+    <sys:String x:Key="Tasks.Hint">Dailies run in list order. A task that must follow another, like mail, still runs after it.</sys:String>
+    <sys:String x:Key="Profile.Label">Profile</sys:String>
+    <sys:String x:Key="Profile.Add">Add</sys:String>
+    <sys:String x:Key="Profile.Delete">Delete profile</sys:String>
+    <sys:String x:Key="Profile.Rename">Profile name</sys:String>
+    <sys:String x:Key="Profile.ResetOrder">Reset order</sys:String>
+    <sys:String x:Key="Profile.Default">Default</sys:String>
+    <sys:String x:Key="Profile.NewName">Profile {0}</sys:String>
+    <sys:String x:Key="Profile.DeleteQuestion">Delete the profile {0}? Its selected tasks, settings and order go with it.</sys:String>
+    <sys:String x:Key="Tasks.MoveUp">Move up</sys:String>
+    <sys:String x:Key="Tasks.MoveDown">Move down</sys:String>
     <sys:String x:Key="Tasks.Settings">Settings</sys:String>
     <sys:String x:Key="Task.NotImplemented">Not implemented yet</sys:String>
     <!-- Display names by task id (tasks/*.json); a missing id falls back to the task's own name. -->

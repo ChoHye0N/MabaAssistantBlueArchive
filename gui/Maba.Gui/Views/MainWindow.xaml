@@ -43,6 +43,18 @@
                     </StackPanel>
                     <TextBlock DockPanel.Dock="Bottom" Margin="0,8,0,0" TextWrapping="Wrap"
                                Foreground="{DynamicResource SecondaryTextBrush}" Text="{DynamicResource Tasks.Hint}" />
+                    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8"
+                               IsEnabled="{Binding IsRunning, Converter={StaticResource Boolean2BooleanReConverter}}">
+                        <TextBlock Text="{DynamicResource Profile.Label}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                        <ComboBox Width="150" ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile}"
+                                  DisplayMemberPath="Name" />
+                        <TextBox Width="150" Margin="8,0,0,0" Text="{Binding SelectedProfile.Name, UpdateSourceTrigger=PropertyChanged}"
+                                 ToolTip="{DynamicResource Profile.Rename}" />
+                        <Button Content="{DynamicResource Profile.Add}" Command="{Binding AddProfileCommand}" Margin="8,0,0,0" />
+                        <Button Content="{DynamicResource Profile.Delete}" Command="{Binding DeleteProfileCommand}" Margin="8,0,0,0" />
+                        <Button Content="{DynamicResource Profile.ResetOrder}" Command="{Binding ResetOrderCommand}" Margin="8,0,0,0"
+                                HorizontalAlignment="Left" />
+                    </DockPanel>
                     <hc:ScrollViewer>
                         <ItemsControl ItemsSource="{Binding Tasks}">
                             <ItemsControl.ItemTemplate>
@@ -52,6 +64,19 @@
                                             BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                                         <StackPanel>
                                         <DockPanel>
+                                            <StackPanel DockPanel.Dock="Left" Margin="0,0,6,0" VerticalAlignment="Center"
+                                                        IsEnabled="{Binding DataContext.IsRunning, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource Boolean2BooleanReConverter}}">
+                                                <Button Style="{StaticResource ButtonIcon}" Width="22" Height="16" Padding="2"
+                                                        hc:IconElement.Geometry="M7 14L12 9L17 14Z" ToolTip="{DynamicResource Tasks.MoveUp}"
+                                                        AutomationProperties.Name="{DynamicResource Tasks.MoveUp}"
+                                                        Command="{Binding DataContext.MoveTaskUpCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}" />
+                                                <Button Style="{StaticResource ButtonIcon}" Width="22" Height="16" Padding="2"
+                                                        hc:IconElement.Geometry="M7 10L12 15L17 10Z" ToolTip="{DynamicResource Tasks.MoveDown}"
+                                                        AutomationProperties.Name="{DynamicResource Tasks.MoveDown}"
+                                                        Command="{Binding DataContext.MoveTaskDownCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}" />
+                                            </StackPanel>
                                             <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center"
                                                        MaxWidth="320" TextTrimming="CharacterEllipsis"
                                                        Foreground="{DynamicResource SecondaryTextBrush}"

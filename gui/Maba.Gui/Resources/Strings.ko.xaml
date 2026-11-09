@@ -30,7 +30,17 @@
     <sys:String x:Key="Tasks.Reload">데이터 다시 읽기</sys:String>
     <sys:String x:Key="Tasks.After">선행</sys:String>
     <sys:String x:Key="Tasks.Ocr">OCR</sys:String>
-    <sys:String x:Key="Tasks.Hint">숙제는 목록 순서대로 실행됩니다.</sys:String>
+    <sys:String x:Key="Tasks.Hint">숙제는 목록 순서대로 실행됩니다. 우편처럼 다른 숙제 뒤에 해야 하는 숙제는 순서를 바꿔도 그 뒤에 실행됩니다.</sys:String>
+    <sys:String x:Key="Profile.Label">프로필</sys:String>
+    <sys:String x:Key="Profile.Add">추가</sys:String>
+    <sys:String x:Key="Profile.Delete">프로필 삭제</sys:String>
+    <sys:String x:Key="Profile.Rename">프로필 이름</sys:String>
+    <sys:String x:Key="Profile.ResetOrder">순서 초기화</sys:String>
+    <sys:String x:Key="Profile.Default">기본</sys:String>
+    <sys:String x:Key="Profile.NewName">프로필 {0}</sys:String>
+    <sys:String x:Key="Profile.DeleteQuestion">{0} 프로필을 삭제할까요? 이 프로필의 숙제 선택, 설정, 순서가 함께 지워집니다.</sys:String>
+    <sys:String x:Key="Tasks.MoveUp">위로</sys:String>
+    <sys:String x:Key="Tasks.MoveDown">아래로</sys:String>
     <sys:String x:Key="Tasks.Settings">설정</sys:String>
     <sys:String x:Key="Task.NotImplemented">아직 구현되지 않음</sys:String>
     <!-- Display names by task id (tasks/*.json); a missing id falls back to the task's own name. -->

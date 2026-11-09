@@ -68,6 +68,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _scheduleMinute = settings.ScheduleMinute;
         _dataRoot = SettingsStore.ResolveDataRoot(settings.DataRoot);
         _uiLanguage = App.UiLanguages.Contains(settings.UiLanguage) ? settings.UiLanguage : "";
+        if (settings.Profiles.Count == 0) settings.Profiles.Add(new TaskProfile { Name = Strings.Get("Profile.Default") });
+        foreach (var p in settings.Profiles) AddProfileItem(p);
+        _selectedProfile = settings.Profiles[Math.Clamp(settings.ActiveProfile, 0, settings.Profiles.Count - 1)];
 
         _scheduleTimer = new DispatcherTimer(TimeSpan.FromSeconds(30), DispatcherPriority.Background,
                                              (_, _) => CheckSchedule(), dispatcher);
@@ -75,6 +78,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     public ObservableCollection<TaskItemViewModel> Tasks { get; } = new();
+    public ObservableCollection<TaskProfile> Profiles { get; } = new();
+    [ObservableProperty] private TaskProfile _selectedProfile;
+    private IReadOnlyList<CoreTask> _coreTasks = Array.Empty<CoreTask>();
+    private bool _loadingTasks;
     public ObservableCollection<LogEntry> Log { get; } = new();
     public ObservableCollection<string> AdbDevices { get; } = new();
 
@@ -213,26 +220,101 @@ public partial class MainViewModel : ObservableObject, IDisposable
             StatusText = Strings.Get("Status.DataError");
             AddLog("error", error);
         }
-        foreach (var t in _core.GetTasks())
-            Tasks.Add(new TaskItemViewModel(t, _settings.SelectedTasks.Contains(t.Id),
-                                            _settings.TaskSettings.GetValueOrDefault(t.Id), OnTaskSettingsChanged));
-        foreach (var t in Tasks) t.PropertyChanged += OnTaskSelectionChanged;
+        _coreTasks = _core.GetTasks();
+        LoadTasks();
         if (string.IsNullOrEmpty(error)) StatusText = Strings.Get("Status.Ready");
+    }
+
+    // The task list of the active profile, in its order.
+    private void LoadTasks()
+    {
+        _loadingTasks = true;
+        Tasks.Clear();
+        var profile = SelectedProfile;
+        var byId = _coreTasks.ToDictionary(t => t.Id);
+        var ordered = profile.Order.Where(byId.ContainsKey).Select(id => byId[id])
+                             .Concat(_coreTasks.Where(t => !profile.Order.Contains(t.Id)));
+        foreach (var t in ordered)
+            Tasks.Add(new TaskItemViewModel(t, profile.SelectedTasks.Contains(t.Id),
+                                            profile.TaskSettings.GetValueOrDefault(t.Id), OnTaskSettingsChanged));
+        foreach (var t in Tasks) t.PropertyChanged += OnTaskSelectionChanged;
+        _loadingTasks = false;
         StartCommand.NotifyCanExecuteChanged();
+    }
+
+    private void AddProfileItem(TaskProfile profile)
+    {
+        Profiles.Add(profile);
+        profile.PropertyChanged += (_, _) => { if (!_initializing) Save(); };
+    }
+
+    partial void OnSelectedProfileChanged(TaskProfile value)
+    {
+        if (_initializing) return;
+        _settings.ActiveProfile = Profiles.IndexOf(value);
+        Save();
+        LoadTasks();
+    }
+
+    [RelayCommand]
+    private void AddProfile()
+    {
+        if (IsRunning) return;
+        var copy = SelectedProfile.Copy(Strings.Format("Profile.NewName", Profiles.Count + 1));
+        _settings.Profiles.Add(copy);
+        AddProfileItem(copy);
+        SelectedProfile = copy;
+    }
+
+    [RelayCommand]
+    private void DeleteProfile()
+    {
+        if (IsRunning || Profiles.Count <= 1) return;
+        var profile = SelectedProfile;
+        if (!Views.ConfirmDialog.Ask(Strings.Get("Profile.Delete"), Strings.Format("Profile.DeleteQuestion", profile.Name),
+                                     Strings.Get("Account.DeleteConfirm"), Strings.Get("Account.DeleteCancel"))) return;
+        _settings.Profiles.Remove(profile);
+        Profiles.Remove(profile);
+        SelectedProfile = Profiles[0];
+    }
+
+    [RelayCommand]
+    private void ResetOrder()
+    {
+        if (IsRunning) return;
+        SelectedProfile.Order.Clear();
+        Save();
+        LoadTasks();
+    }
+
+    [RelayCommand]
+    private void MoveTaskUp(TaskItemViewModel task) => MoveTask(task, -1);
+
+    [RelayCommand]
+    private void MoveTaskDown(TaskItemViewModel task) => MoveTask(task, 1);
+
+    private void MoveTask(TaskItemViewModel task, int by)
+    {
+        var from = Tasks.IndexOf(task);
+        var to = from + by;
+        if (IsRunning || from < 0 || to < 0 || to >= Tasks.Count) return;
+        Tasks.Move(from, to);
+        SelectedProfile.Order = Tasks.Select(t => t.Id).ToList();
+        Save();
     }
 
     private void OnTaskSettingsChanged()
     {
-        if (_initializing) return;
-        _settings.TaskSettings = Tasks.Where(t => t.HasSettings).ToDictionary(
+        if (_initializing || _loadingTasks) return;
+        SelectedProfile.TaskSettings = Tasks.Where(t => t.HasSettings).ToDictionary(
             t => t.Id, t => t.SettingsJson().ToDictionary(kv => kv.Key, kv => kv.Value?.DeepClone()));
         Save();
     }
 
     private void OnTaskSelectionChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName != nameof(TaskItemViewModel.IsSelected)) return;
-        _settings.SelectedTasks = Tasks.Where(t => t.IsSelected).Select(t => t.Id).ToList();
+        if (e.PropertyName != nameof(TaskItemViewModel.IsSelected) || _loadingTasks) return;
+        SelectedProfile.SelectedTasks = Tasks.Where(t => t.IsSelected).Select(t => t.Id).ToList();
         Save();
         StartCommand.NotifyCanExecuteChanged();
     }

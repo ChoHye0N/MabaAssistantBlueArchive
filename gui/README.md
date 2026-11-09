@@ -12,6 +12,7 @@
 - `ViewModels/MainViewModel.cs`: task selection, connect/start/stop, Core events, the daily scheduler.
 - `Services/SettingsStore.cs`: settings in `%APPDATA%\MabaAssistantBlueArchive\settings.json` (user profile, never the repository).
 - `ViewModels/AccountCard.cs`: one box per `accounts/<uid>.json`.
+- Task profiles (`TaskProfile` in `Services/SettingsStore.cs`): selected tasks, their settings and their order; the run passes the order to Core (`"ordered": true`), which still runs `after` dependencies first.
 - `Views/ConfirmDialog.xaml`: questions in the window's own style, without the system sound of the library's message box.
 - `Services/UpdateChecker.cs`: the new-version notice; only in builds that got a repository name (`MabaRepository`).
 - `Resources/Strings.<lang>.xaml`: UI text; task display names use `Task.<task id>`.

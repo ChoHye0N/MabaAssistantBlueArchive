@@ -90,12 +90,14 @@ public sealed class CoreClient : IDisposable
     // `settings`: {"<task id>": {"<key>": value}}; Core rejects unknown keys and wrong types.
     // `prepare` (optional) adds "connect", "launch" and "finish": Core connects on its worker,
     // after starting the emulator and the game.
+    // The tasks run in the given order (dependencies still first).
     public bool Start(IEnumerable<string> taskIds, JsonObject settings, JsonObject? prepare = null)
     {
         var args = new JsonObject
         {
             ["tasks"] = new JsonArray(taskIds.Select(t => (JsonNode?)t).ToArray()),
             ["settings"] = settings,
+            ["ordered"] = true,
         };
         if (prepare is not null)
         {
