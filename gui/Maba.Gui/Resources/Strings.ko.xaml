@@ -54,6 +54,8 @@
     <sys:String x:Key="Task.scrimmage">학원교류회: 티켓 소비</sys:String>
     <sys:String x:Key="Task.spend_event">이벤트: 활동력 소비</sys:String>
     <sys:String x:Key="Task.spend_mission">임무: 활동력 소비</sys:String>
+    <sys:String x:Key="Setting.shop.contest_shop">전술대회 상점 (off 꺼짐 / ap AP 음료만 / all 전부)</sys:String>
+    <sys:String x:Key="Setting.schedule.prefer_full_rooms">학생 3명인 방 먼저</sys:String>
     <sys:String x:Key="Task.craft">제조: 완료 수령, 빠른 제조</sys:String>
     <sys:String x:Key="Setting.craft.quick_crafts">빠른 제조 횟수 (재료와 크레딧 사용, 0 = 사용 안 함)</sys:String>
     <sys:String x:Key="Setting.craft.quick_preset">빠른 제조 프리셋 (1~3, 왼쪽부터)</sys:String>

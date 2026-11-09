@@ -9,7 +9,8 @@
     "Route: main screen bottom bar -> shop (general tab). Prices are credits.",
     "'Select all' then 'buy selected'. The list is longer than the screen; 'select all' covers it without scrolling.",
     "Activity reports (first row) are poor value for credits: with 'buy_reports' off they are unticked after 'select all' (a ticked box shows a green check).",
-    "'Refresh now' (bottom right) renews the purchase counts, not the items, for pyroxene (40 at first, 3 a day, seen 2026-11-09). It is used only with 'refreshes' above 0; its price and the refreshes left are read first, and a price above 'max_refresh_price', none left, or an unreadable number stops without refreshing."
+    "'Refresh now' (bottom right) renews the purchase counts, not the items, for pyroxene (40 at first, 3 a day, seen 2026-11-09). It is used only with 'refreshes' above 0; its price and the refreshes left are read first, and a price above 'max_refresh_price', none left, or an unreadable number stops without refreshing.",
+    "The tactical challenge tab is further down the tab list (scrolled first); it has 'select all' like the general list. Its first row starts with two AP drinks (30 and 60 AP)."
   ],
   "settings": [
     { "key": "buy_reports", "type": "bool", "default": false, "description": "Also buy the activity reports (first row)." },
@@ -21,7 +22,14 @@
       "max": 3,
       "description": "Refreshes of the purchase counts after buying, each followed by buying again (costs pyroxene); 0 = none."
     },
-    { "key": "max_refresh_price", "type": "int", "default": 40, "min": 0, "max": 500, "description": "Highest price in pyroxene for one refresh." }
+    { "key": "max_refresh_price", "type": "int", "default": 40, "min": 0, "max": 500, "description": "Highest price in pyroxene for one refresh." },
+    {
+      "key": "contest_shop",
+      "type": "choice",
+      "default": "off",
+      "choices": ["off", "ap", "all"],
+      "description": "Tactical challenge shop (coins): off, the two AP drinks of the first row, or everything ('select all')."
+    }
   ],
   "steps": [
     { "action": "goto", "page": "shop" },
@@ -146,6 +154,85 @@
               "template": "shop_buy_selected.png",
               "roi": { "x": 1070, "y": 620, "w": 200, "h": 90 },
               "threshold": 0.9,
+              "expect": { "template": "shop_confirm_question.png", "roi": { "x": 440, "y": 130, "w": 400, "h": 80 }, "threshold": 0.9 }
+            },
+            {
+              "action": "click",
+              "template": "dialog_ok_yellow.png",
+              "roi": { "x": 640, "y": 530, "w": 260, "h": 110 },
+              "threshold": 0.9,
+              "require": { "template": "shop_confirm_question.png", "roi": { "x": 440, "y": 130, "w": 400, "h": 80 }, "threshold": 0.9 }
+            },
+            { "action": "wait_stable", "timeout_ms": 4000 }
+          ]
+        }
+      ]
+    },
+    {
+      "action": "if",
+      "when": { "setting": "contest_shop", "not_equals": "off" },
+      "then": [
+        { "action": "goto", "page": "shop" },
+        { "action": "swipe", "from": { "x": 110, "y": 520 }, "to": { "x": 110, "y": 140 }, "duration_ms": 600 },
+        { "action": "wait_stable", "timeout_ms": 3000 },
+        {
+          "action": "click",
+          "template": "shop_tab_contest.png",
+          "roi": { "x": 0, "y": 90, "w": 230, "h": 480 },
+          "threshold": 0.9,
+          "on_page": "shop",
+          "no_verify": true
+        },
+        { "action": "wait_stable", "timeout_ms": 4000 },
+        {
+          "action": "if",
+          "when": { "setting": "contest_shop", "equals": "all" },
+          "then": [
+            {
+              "template": "shop_select_all.png",
+              "roi": { "x": 1080, "y": 55, "w": 190, "h": 70 },
+              "threshold": 0.9,
+              "action": "click",
+              "expect": { "template": "shop_buy_selected.png", "roi": { "x": 1070, "y": 620, "w": 200, "h": 90 }, "threshold": 0.9 },
+              "optional": true
+            }
+          ]
+        },
+        {
+          "action": "if",
+          "when": { "setting": "contest_shop", "equals": "ap" },
+          "then": [
+            {
+              "action": "click",
+              "x": 647,
+              "y": 197,
+              "on_page": "shop",
+              "no_verify": true,
+              "when": {
+                "no_color": { "hsv_min": [30, 120, 150], "hsv_max": [50, 255, 255], "area": [60, 500], "roi": { "x": 633, "y": 183, "w": 28, "h": 28 } }
+              }
+            },
+            {
+              "action": "click",
+              "x": 798,
+              "y": 197,
+              "on_page": "shop",
+              "no_verify": true,
+              "when": {
+                "no_color": { "hsv_min": [30, 120, 150], "hsv_max": [50, 255, 255], "area": [60, 500], "roi": { "x": 784, "y": 183, "w": 28, "h": 28 } }
+              }
+            }
+          ]
+        },
+        {
+          "action": "if",
+          "when": { "present": { "template": "shop_buy_selected.png", "roi": { "x": 1070, "y": 620, "w": 200, "h": 90 }, "threshold": 0.9 } },
+          "then": [
+            {
+              "template": "shop_buy_selected.png",
+              "roi": { "x": 1070, "y": 620, "w": 200, "h": 90 },
+              "threshold": 0.9,
+              "action": "click",
               "expect": { "template": "shop_confirm_question.png", "roi": { "x": 440, "y": 130, "w": 400, "h": 80 }, "threshold": 0.9 }
             },
             {

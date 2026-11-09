@@ -54,6 +54,8 @@
     <sys:String x:Key="Task.bounty">Bounty: use tickets</sys:String>
     <sys:String x:Key="Task.spend_event">Event: spend AP</sys:String>
     <sys:String x:Key="Task.spend_mission">Missions: spend AP</sys:String>
+    <sys:String x:Key="Setting.shop.contest_shop">Tactical challenge shop (off / ap: AP drinks / all)</sys:String>
+    <sys:String x:Key="Setting.schedule.prefer_full_rooms">Rooms with three students first</sys:String>
     <sys:String x:Key="Task.craft">Craft: claim, quick craft</sys:String>
     <sys:String x:Key="Setting.craft.quick_crafts">Quick crafts (uses materials and credits, 0 = none)</sys:String>
     <sys:String x:Key="Setting.craft.quick_preset">Quick craft preset (1-3 from the left)</sys:String>
