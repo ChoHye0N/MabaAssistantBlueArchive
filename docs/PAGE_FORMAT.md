@@ -109,7 +109,7 @@ Reaction check (`click`, `click_if_present`, `back`): the screen is compared bef
 Conditions (`when`, `until`):
 - `{"setting": key, "equals" | "not_equals": value}`, `{"setting": key, "contains": item}` (list).
 - `{"present": template}`, `{"absent": template}`: one look, or up to `timeout_ms` for `present`.
-- `{"color": colour}`: a colour blob is visible; `{"no_color": colour}`: none is. `roi_by_value` (a list of areas) takes the area by the value of the innermost `each` (`"1"` = first).
+- `{"color": colour}`: a colour blob is visible; `{"no_color": colour}`: none is. `roi_by_value` (a list of areas) takes the area by the value of the innermost `each` (`"1"` = first); `roi_by_loop` by the round of the innermost `loop` (cycled), to look at the item a `points` click of that round picks.
 - `{"value": name, "equals" | "not_equals" | "lt" | "le" | "gt" | "ge": n}`: a number stored by `read_number` (a missing value is false). `n` can be `{"setting": key}`, an int setting (a price limit).
 - `{"first_iteration": true | false}`: whether the innermost `loop` is in its first round (outside a loop: first).
 

@@ -209,8 +209,9 @@ long long TaskRunner::GameDay() const {
     return (since - 19 * 3600) / 86400;  // a game day starts at the 19:00 UTC reset
 }
 
-static ColorSpec ColorFor(const Condition& c, const std::string& each_value) {
+static ColorSpec ColorFor(const Condition& c, const std::string& each_value, int loop_round) {
     ColorSpec spec = *c.color;
+    if (!c.rois_by_loop.empty()) spec.roi = c.rois_by_loop[static_cast<std::size_t>(loop_round) % c.rois_by_loop.size()];
     const int n = PositionOf(each_value);
     if (n >= 1 && n <= static_cast<int>(c.rois_by_value.size())) spec.roi = c.rois_by_value[static_cast<std::size_t>(n - 1)];
     return spec;
@@ -244,11 +245,11 @@ bool TaskRunner::Holds(const Condition& c, Context& ctx) {
         }
         case ConditionKind::kNoColor: {
             const Observation obs = nav_.Observe();
-            return obs.ok && FindColorBlobs(obs.frame, ColorFor(c, ctx.each_value), 1).empty();
+            return obs.ok && FindColorBlobs(obs.frame, ColorFor(c, ctx.each_value, ctx.loop_index.empty() ? 0 : ctx.loop_index.back()), 1).empty();
         }
         case ConditionKind::kColor: {
             bool seen = false;
-            const ColorSpec spec = ColorFor(c, ctx.each_value);
+            const ColorSpec spec = ColorFor(c, ctx.each_value, ctx.loop_index.empty() ? 0 : ctx.loop_index.back());
             WaitUntil(
                 [&] {
                     const Observation obs = nav_.Observe();

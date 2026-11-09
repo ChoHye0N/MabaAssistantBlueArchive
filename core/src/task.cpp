@@ -123,6 +123,13 @@ Condition ParseCondition(const json& obj, const std::string& where) {
         const bool seen = obj.contains("color");
         c.kind = seen ? ConditionKind::kColor : ConditionKind::kNoColor;
         c.color = ParseColor(obj.at(seen ? "color" : "no_color"), where + (seen ? ".color" : ".no_color"));
+        if (auto it = obj.find("roi_by_loop"); it != obj.end()) {
+            if (!it->is_array() || it->empty()) throw ParseError(where + ": 'roi_by_loop' must be a non-empty array");
+            for (std::size_t i = 0; i < it->size(); ++i) {
+                const json wrapper = {{"roi", (*it)[i]}};
+                if (auto r = ParseRoi(wrapper, where + ".roi_by_loop[" + std::to_string(i) + "]")) c.rois_by_loop.push_back(*r);
+            }
+        }
         if (auto it = obj.find("roi_by_value"); it != obj.end()) {
             if (!it->is_array() || it->empty()) throw ParseError(where + ": 'roi_by_value' must be a non-empty array");
             for (std::size_t i = 0; i < it->size(); ++i) {

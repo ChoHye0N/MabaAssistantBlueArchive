@@ -258,6 +258,20 @@ MABA_TEST(KeptPopupIsNotDismissedDuringItsTask) {
     CHECK(normal.status == maba::TaskStatus::kSucceeded);  // the next task dismisses it again
 }
 
+MABA_TEST(ColourAreaChosenByLoopRound) {
+    NavRig rig;
+    // A grey scene: the first round's area is inside the frame (seen), the second is a 1x1 corner
+    // (seen as well, grey), the third is outside nothing; so clicks happen in rounds 1 and 2 only.
+    const auto task = Task(R"({"id": "t", "steps": [{"action": "loop", "max": 3, "steps": [
+        {"action": "click", "points": [{"x": 10, "y": 5}, {"x": 20, "y": 5}, {"x": 30, "y": 5}], "no_verify": true,
+         "when": {"color": {"hsv_min": [0, 0, 0], "hsv_max": [180, 255, 255], "area": [2, 100000]},
+                  "roi_by_loop": [{"x": 0, "y": 0, "w": 50, "h": 50}, {"x": 0, "y": 0, "w": 50, "h": 50}, {"x": 1279, "y": 719, "w": 1, "h": 1}]}}]}]})");
+    maba::TaskRunner runner(rig.Nav(), nullptr);
+    CHECK(runner.RunTask(task).status == maba::TaskStatus::kSucceeded);
+    const auto& c = rig.controller.clicks;
+    CHECK(c.size() == 2 && c[0].x == 10 && c[1].x == 20);
+}
+
 MABA_TEST(LoopCountAdjustedBySetting) {
     const auto clicks = [](const char* settings) {
         NavRig rig;
