@@ -75,7 +75,7 @@ struct SettingDef {
 
 using TaskSettings = std::map<std::string, SettingValue>;
 
-enum class ConditionKind { kSetting, kPresent, kAbsent, kColor, kNoColor, kValue };
+enum class ConditionKind { kSetting, kPresent, kAbsent, kColor, kNoColor, kValue, kFirstIteration };
 enum class CompareOp { kEquals, kNotEquals, kContains, kLess, kLessEqual, kGreater, kGreaterEqual };
 
 struct Condition {
@@ -84,6 +84,8 @@ struct Condition {
     CompareOp op = CompareOp::kEquals;
     std::string text;                  // kSetting: compared value as text
     long long number = 0;              // kValue: compared number
+    std::string number_setting;        // kValue: compare with this int setting instead
+    bool first = true;                 // kFirstIteration: holds in the innermost loop's first round
     std::optional<TemplateRef> templ;  // kPresent, kAbsent
     std::optional<ColorSpec> color;    // kColor, kNoColor
     std::vector<Rect> rois_by_value;   // kColor, kNoColor: the area for the each value (1 = first)
@@ -157,6 +159,7 @@ struct TaskSpec {
     int order = kDefaultTaskOrder;   // run order among tasks that do not depend on each other
     std::string status;   // todo | wip | ready (informational)
     bool needs_ocr = false;
+    std::vector<std::string> keep_popups;  // popups this task works in itself (not dismissed)
     std::vector<SettingDef> settings;
     std::vector<Step> steps;  // empty = not implemented yet (the runner skips it)
 

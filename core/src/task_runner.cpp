@@ -262,16 +262,28 @@ bool TaskRunner::Holds(const Condition& c, Context& ctx) {
             auto it = ctx.result.values.find(c.key);
             if (it == ctx.result.values.end()) return false;
             const long long v = it->second;
+            long long n = c.number;
+            if (!c.number_setting.empty()) {
+                auto s = ctx.settings.find(c.number_setting);
+                if (s == ctx.settings.end()) return false;
+                try {
+                    n = std::stoll(s->second.scalar);
+                } catch (const std::exception&) {
+                    return false;
+                }
+            }
             switch (c.op) {
-                case CompareOp::kEquals: return v == c.number;
-                case CompareOp::kNotEquals: return v != c.number;
-                case CompareOp::kLess: return v < c.number;
-                case CompareOp::kLessEqual: return v <= c.number;
-                case CompareOp::kGreater: return v > c.number;
-                case CompareOp::kGreaterEqual: return v >= c.number;
+                case CompareOp::kEquals: return v == n;
+                case CompareOp::kNotEquals: return v != n;
+                case CompareOp::kLess: return v < n;
+                case CompareOp::kLessEqual: return v <= n;
+                case CompareOp::kGreater: return v > n;
+                case CompareOp::kGreaterEqual: return v >= n;
                 default: return false;
             }
         }
+        case ConditionKind::kFirstIteration:
+            return (ctx.loop_index.empty() || ctx.loop_index.back() == 0) == c.first;
     }
     return false;
 }
@@ -845,6 +857,12 @@ TaskRunner::Flow TaskRunner::RunSteps(const std::vector<Step>& steps, Context& c
 TaskRunResult TaskRunner::RunTask(const TaskSpec& task) {
     TaskRunResult result;
     result.id = task.id;
+    // The popups the task works in are left alone only while it runs.
+    struct KeepPopups {
+        PopupHandler& popups;
+        ~KeepPopups() { popups.SetIgnored({}); }
+    } keep{nav_.Popups()};
+    nav_.Popups().SetIgnored({task.keep_popups.begin(), task.keep_popups.end()});
     if (task.steps.empty()) {
         result.status = TaskStatus::kSkipped;
         result.message = "not implemented yet";

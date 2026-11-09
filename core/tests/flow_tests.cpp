@@ -228,6 +228,36 @@ MABA_TEST(EachTakesOneValuePerDayWhenRotating) {
     CHECK((clicks(true, 9) == std::vector<int>{10}));
 }
 
+MABA_TEST(ValueComparedWithSettingAndFirstIteration) {
+    NavRig rig;
+    maba::RunnerOptions options;
+    const auto task = Task(R"({"id": "t", "settings": [{"key": "limit", "type": "int", "default": 2, "min": 0, "max": 9}],
+        "steps": [{"action": "loop", "max": 3, "steps": [
+            {"action": "click", "x": 1, "y": 1, "no_verify": true, "when": {"first_iteration": true}},
+            {"action": "click", "x": 2, "y": 2, "no_verify": true, "when": {"first_iteration": false}}]},
+            {"action": "click", "x": 3, "y": 3, "no_verify": true, "when": {"value": "missing", "gt": {"setting": "limit"}}}]})");
+    std::string error;
+    CHECK(maba::ResolveSettings({task}, "{}", options.settings, error));
+    maba::TaskRunner runner(rig.Nav(), nullptr, options);
+    CHECK(runner.RunTask(task).status == maba::TaskStatus::kSucceeded);
+    const auto& c = rig.controller.clicks;
+    CHECK(c.size() == 3 && c[0].x == 1 && c[1].x == 2 && c[2].x == 2);  // a missing value never holds
+    CHECK(maba::ParseTask(R"({"id": "x", "steps": [{"action": "click", "x": 1, "y": 1, "no_verify": true,
+        "when": {"value": "p", "le": {"setting": "limit"}}}]})").ok);
+}
+
+MABA_TEST(KeptPopupIsNotDismissedDuringItsTask) {
+    NavRig rig;
+    rig.controller.scene = NavRig::kPopupScene;  // the notice popup over the main menu
+    maba::TaskRunner runner(rig.Nav(), nullptr);
+    const auto kept = runner.RunTask(Task(R"({"id": "t", "keep_popups": ["notice"], "steps": [
+        {"action": "wait_page", "page": "main_menu", "timeout_ms": 500}]})"));
+    CHECK(kept.status == maba::TaskStatus::kFailed);  // left open, so the main menu never shows
+    const auto normal = runner.RunTask(Task(R"({"id": "u", "steps": [
+        {"action": "wait_page", "page": "main_menu", "timeout_ms": 2000}]})"));
+    CHECK(normal.status == maba::TaskStatus::kSucceeded);  // the next task dismisses it again
+}
+
 MABA_TEST(LoopCountAdjustedBySetting) {
     const auto clicks = [](const char* settings) {
         NavRig rig;

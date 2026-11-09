@@ -141,16 +141,25 @@ Condition ParseCondition(const json& obj, const std::string& where) {
             {"gt", CompareOp::kGreater},    {"ge", CompareOp::kGreaterEqual}};
         for (const auto& [name, op] : ops) {
             if (auto it = obj.find(name); it != obj.end()) {
-                if (!it->is_number_integer())
-                    throw ParseError(where + ": '" + name + "' must be an integer");
                 c.op = op;
+                if (it->is_object() && it->contains("setting")) {
+                    c.number_setting = RequireString(*it, "setting", where + "." + name);
+                    return c;
+                }
+                if (!it->is_number_integer())
+                    throw ParseError(where + ": '" + name + "' must be an integer or {\"setting\": key}");
                 c.number = it->get<long long>();
                 return c;
             }
         }
         throw ParseError(where + ": value condition needs equals/not_equals/lt/le/gt/ge");
     }
-    throw ParseError(where + ": condition needs 'setting', 'present', 'absent', 'color', 'no_color' or 'value'");
+    if (obj.contains("first_iteration")) {
+        c.kind = ConditionKind::kFirstIteration;
+        c.first = OptBool(obj, "first_iteration", where, true);
+        return c;
+    }
+    throw ParseError(where + ": condition needs 'setting', 'present', 'absent', 'color', 'no_color', 'value' or 'first_iteration'");
 }
 
 std::vector<Step> ParseSteps(const json& arr, const std::string& where, int depth);
@@ -417,6 +426,13 @@ TaskSpec ParseTaskJson(const json& root) {
     t.order = OptInt(root, "order", where, kDefaultTaskOrder, 0, 100000);
     t.status = OptString(root, "status", where, "todo");
     t.needs_ocr = OptBool(root, "needs_ocr", where, false);
+    if (auto it = root.find("keep_popups"); it != root.end() && !it->is_null()) {
+        if (!it->is_array()) throw ParseError(where + ": 'keep_popups' must be a list of popup ids");
+        for (const auto& id : *it) {
+            if (!id.is_string()) throw ParseError(where + ": 'keep_popups' must be a list of popup ids");
+            t.keep_popups.push_back(id.get<std::string>());
+        }
+    }
     if (auto it = root.find("settings"); it != root.end() && !it->is_null()) {
         if (!it->is_array()) throw ParseError(where + ": 'settings' must be an array");
         std::set<std::string> keys;

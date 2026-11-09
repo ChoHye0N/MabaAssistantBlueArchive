@@ -119,6 +119,7 @@ PopupHandler::PopupHandler(IMatcher& matcher, std::vector<PopupDef> popups, Popu
 const PopupDef* PopupHandler::Detect(const Frame& frame) {
     if (frame.empty()) return nullptr;
     for (const auto& p : popups_) {
+        if (ignored_.count(p.id)) continue;
         if (!CheckAnchors(matcher_, frame, p.anchors).detected) continue;
         const auto seen = [&](const ColorSpec& c) { return !FindColorBlobs(frame, c, 1).empty(); };
         if (!std::all_of(p.colors.begin(), p.colors.end(), seen)) continue;

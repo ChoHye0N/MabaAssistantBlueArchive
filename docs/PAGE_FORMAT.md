@@ -68,6 +68,7 @@ Rules:
 ```
 - `order` (0..100000, default 1000): run order among tasks that do not depend on each other; tasks are sorted by it when loaded. It never blocks: a failed task does not stop the ones after it.
 - `after`: ids that run first when selected together, and a failed one blocks this task. Use it only where a failure must stop the task (mail after AP spending); use `order` for plain sequencing.
+- `keep_popups`: popup ids the task works in itself; they are not dismissed while it runs (buying AP opens the AP purchase window that every other task closes).
 - `settings`: user options of the task. Each entry has `key`, `type` (`bool`, `int`, `choice`, `list`), `default`, `min`/`max` (int), `choices` (choice; allowed items of a list), and `description`. Optional `label_key` shows choices by their text in `strings/<lang>.json` (`<label_key><choice>`), and `ui: "checklist"` shows a list as check boxes in the GUI. A run overrides them with `{"<task id>": {"<key>": value}}` (C ABI `MabaStart` `"settings"`, CLI `--settings FILE`, GUI task settings); unknown keys and wrong types are rejected.
 - `status`: `todo` (no steps), `wip` (steps written, templates or checks missing), `ready` (verified in the game; CI then requires its templates in every confirmed language).
 - No `steps` = not implemented: the runner skips it and it does not block dependents.
@@ -109,7 +110,8 @@ Conditions (`when`, `until`):
 - `{"setting": key, "equals" | "not_equals": value}`, `{"setting": key, "contains": item}` (list).
 - `{"present": template}`, `{"absent": template}`: one look, or up to `timeout_ms` for `present`.
 - `{"color": colour}`: a colour blob is visible; `{"no_color": colour}`: none is. `roi_by_value` (a list of areas) takes the area by the value of the innermost `each` (`"1"` = first).
-- `{"value": name, "equals" | "not_equals" | "lt" | "le" | "gt" | "ge": n}`: a number stored by `read_number` (a missing value is false).
+- `{"value": name, "equals" | "not_equals" | "lt" | "le" | "gt" | "ge": n}`: a number stored by `read_number` (a missing value is false). `n` can be `{"setting": key}`, an int setting (a price limit).
+- `{"first_iteration": true | false}`: whether the innermost `loop` is in its first round (outside a loop: first).
 
 Colours (`click_color`, `{"color": ...}`): `hsv_min`, `hsv_max` (`[h, s, v]` on OpenCV's scale: h 0..180, s and v 0..255), optional `width`, `height`, `area` as `[min, max]` (pixels of the 1280x720 frame) and `roi`. Use them for markers whose shape animates (cafe students) or for states a template cannot see (a dimmed card: template matching ignores brightness).
 

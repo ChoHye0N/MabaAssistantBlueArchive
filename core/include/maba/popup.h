@@ -7,6 +7,7 @@
 #include <chrono>
 #include <filesystem>
 #include <optional>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -76,6 +77,8 @@ public:
 
     const std::vector<PopupDef>& Popups() const { return popups_; }
     void SetCancel(const std::atomic<bool>* cancel) { options_.cancel = cancel; }
+    // Popups left alone (a task that works in them, like buying AP); empty = none.
+    void SetIgnored(std::set<std::string> ids) { ignored_ = std::move(ids); }
 
 private:
     bool Dismiss(IController& controller, const Frame& frame, const PopupDef& popup,
@@ -85,6 +88,7 @@ private:
     std::vector<PopupDef> popups_;
     PopupOptions options_;
     LogFn log_;
+    std::set<std::string> ignored_;
 };
 
 }  // namespace maba

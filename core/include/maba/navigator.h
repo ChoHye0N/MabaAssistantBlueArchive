@@ -127,6 +127,11 @@ private:
     IMatcher& matcher_;
     const std::map<std::string, PageDef>& pages_;
     PopupHandler& popups_;
+
+public:
+    PopupHandler& Popups() { return popups_; }
+
+private:
     IClock& clock_;
     NavigatorOptions options_;
     LogFn log_;
