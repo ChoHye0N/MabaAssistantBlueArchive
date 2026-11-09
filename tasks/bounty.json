@@ -11,6 +11,12 @@
     "The sweep is confirmed only on the 'run the sweep?' question; any other dialog (for example a purchase offer) is closed with back."
   ],
   "settings": [
+    {
+      "key": "only_campaign",
+      "type": "bool",
+      "default": false,
+      "description": "Run only while the campaign hub shows a campaign bonus on this task's tile."
+    },
     { "key": "sweep_runs", "type": "int", "default": 0, "min": 0, "max": 50, "description": "Sweeps per stage: 0 = as many as possible (MAX), otherwise that number." },
     { "key": "location", "type": "int", "default": 1, "min": 1, "max": 3, "description": "Location in the list, top to bottom (1-3)." },
     {
@@ -22,6 +28,19 @@
     }
   ],
   "steps": [
+    {
+      "action": "if",
+      "when": { "setting": "only_campaign", "equals": true },
+      "then": [
+        { "action": "goto", "page": "campaign" },
+        { "action": "wait_stable", "timeout_ms": 3000 },
+        {
+          "action": "if",
+          "when": { "absent": { "template": "campaign_bonus_tag.png", "roi": { "x": 650, "y": 305, "w": 200, "h": 70 }, "threshold": 0.9 } },
+          "then": [{ "action": "return_home" }, { "action": "end", "status": "skipped", "message": "no campaign bonus now" }]
+        }
+      ]
+    },
     { "action": "goto", "page": "bounty" },
     {
       "action": "click",

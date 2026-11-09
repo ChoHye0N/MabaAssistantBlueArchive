@@ -12,6 +12,12 @@
   ],
   "settings": [
     {
+      "key": "only_campaign",
+      "type": "bool",
+      "default": false,
+      "description": "Run only while the campaign hub shows a campaign bonus on this task's tile."
+    },
+    {
       "key": "batch_presets",
       "type": "list",
       "default": [],
@@ -52,6 +58,19 @@
     }
   ],
   "steps": [
+    {
+      "action": "if",
+      "when": { "setting": "only_campaign", "equals": true },
+      "then": [
+        { "action": "goto", "page": "campaign" },
+        { "action": "wait_stable", "timeout_ms": 3000 },
+        {
+          "action": "if",
+          "when": { "absent": { "template": "campaign_bonus_tag.png", "roi": { "x": 860, "y": 108, "w": 160, "h": 55 }, "threshold": 0.9 } },
+          "then": [{ "action": "return_home" }, { "action": "end", "status": "skipped", "message": "no campaign bonus now" }]
+        }
+      ]
+    },
     { "action": "goto", "page": "mission_area" },
     { "action": "read_number", "roi": { "x": 500, "y": 8, "w": 105, "h": 30 }, "store": "ap", "optional": true },
     {
