@@ -71,6 +71,9 @@
     <sys:String x:Key="Setting.spend_event.quest_stage">Event quest to sweep (highest, or 01-12)</sys:String>
     <sys:String x:Key="Setting.bounty.sweep_runs">Sweeps per stage (0 = as many as possible)</sys:String>
     <sys:String x:Key="Setting.spend_event.sweep_runs">Sweeps per stage (0 = as many as possible)</sys:String>
+    <sys:String x:Key="Setting.spend_mission.batch_presets">Batch sweep presets (from the left, in order)</sys:String>
+    <sys:String x:Key="Setting.spend_mission.batch_runs">Batch sweep runs per stage (0 = MAX, 1-3)</sys:String>
+    <sys:String x:Key="Setting.spend_mission.batch_only_campaign">Batch sweep only during a campaign bonus</sys:String>
     <sys:String x:Key="Setting.spend_mission.sweep_runs">Sweeps per stage (0 = as many as possible)</sys:String>
     <sys:String x:Key="Setting.spend_mission.stage">Sweep stage (highest or its number)</sys:String>
     <sys:String x:Key="Setting.ListExample">Names as shown in the game, e.g. Aru, Hina (Swimsuit)</sys:String>

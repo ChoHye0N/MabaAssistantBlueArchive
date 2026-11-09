@@ -96,3 +96,5 @@ A campaign raises the rewards of one kind of content for a limited time, usually
 Past notices left out relationship points, area EXP, bounty coins and first clear rewards. Fan calendars are predictions and differ from what happens.
 
 In the game a "campaign running" bubble shows on the main screen and a badge on the card in the campaign hub (seen on the missions card). Badges on other cards and how a multiplier is shown: **verify**. Reading the badge is more reliable than a calendar.
+
+**Batch sweep** (mission page, bottom left): 7 preset tabs that players rename, so they are told apart by position. A preset lists checked Normal and Hard stages (only 3-star stages can be checked); one count applies to every checked stage. Hard stages allow 3 runs a day each, so MAX stops at the runs left; an empty preset or no runs left shows 0 and a grey button. The sweep asks "sweep details" with the total AP, then shows a "sweep done" result.

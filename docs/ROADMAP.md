@@ -53,6 +53,7 @@
 - [x] Verified in live battles: AUTO/3x popups, event quest and bounty cleared with teams 1 and 2, sortie with an empty team refused
 - [x] Verified live: defeat through hint to the lobby (AP back), pause and give-up dialogs, a run started in the middle of a battle, no tickets, not enough AP followed by mail
 - [x] Verified live: sortie and an empty team with the repeated looks for a gone button
+- [x] Batch sweep with a preset in the mission task: one real run (Hard, 2 stages) and an empty preset checked in the game
 - [ ] Verify a sweep count above the AP, and a battle in a mission grid map
 
 ## M4

@@ -3,6 +3,13 @@
   "strings": {
     "commission.request.exp": "거점 방어",
     "commission.request.credit": "물건 회수",
+    "mission.batch_preset.1": "1번 (맨 왼쪽)",
+    "mission.batch_preset.2": "2번",
+    "mission.batch_preset.3": "3번",
+    "mission.batch_preset.4": "4번",
+    "mission.batch_preset.5": "5번",
+    "mission.batch_preset.6": "6번",
+    "mission.batch_preset.7": "7번",
     "schedule.location.schale_office": "샬레 업무관",
     "schedule.location.schale_residence": "샬레 생활관",
     "schedule.location.gehenna_central": "게헨나 중앙구",

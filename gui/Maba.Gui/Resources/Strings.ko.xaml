@@ -71,6 +71,9 @@
     <sys:String x:Key="Setting.spend_event.quest_stage">이벤트 소탕 퀘스트 (highest 또는 번호 01~12)</sys:String>
     <sys:String x:Key="Setting.bounty.sweep_runs">소탕 횟수 (0 = 가능한 만큼)</sys:String>
     <sys:String x:Key="Setting.spend_event.sweep_runs">소탕 횟수 (0 = 가능한 만큼)</sys:String>
+    <sys:String x:Key="Setting.spend_mission.batch_presets">일괄 소탕 프리셋 (왼쪽부터, 고른 순서대로)</sys:String>
+    <sys:String x:Key="Setting.spend_mission.batch_runs">일괄 소탕 스테이지별 횟수 (0 = MAX, 1~3)</sys:String>
+    <sys:String x:Key="Setting.spend_mission.batch_only_campaign">캠페인 진행 중일 때만 일괄 소탕</sys:String>
     <sys:String x:Key="Setting.spend_mission.sweep_runs">소탕 횟수 (0 = 가능한 만큼)</sys:String>
     <sys:String x:Key="Setting.spend_mission.stage">임무 소탕 단계 (highest 또는 번호)</sys:String>
     <sys:String x:Key="Setting.ListExample">예: 아루, 히나(수영복)</sys:String>
