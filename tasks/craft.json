@@ -1,0 +1,320 @@
+{
+  "id": "craft",
+  "name": "Craft: claim, quick craft",
+  "order": 45,
+  "after": [],
+  "status": "wip",
+  "needs_ocr": false,
+  "notes": [
+    "Claims finished crafts with 'claim all' (grey when there is nothing; a click on it then does nothing).",
+    "Quick craft uses a quick craft preset (1-3, from the left) with its materials and credits; it starts only while 'start crafting' is blue (grey when materials are missing). Off unless 'quick_crafts' is above 0."
+  ],
+  "settings": [
+    {
+      "key": "quick_crafts",
+      "type": "int",
+      "default": 0,
+      "min": 0,
+      "max": 3,
+      "description": "Crafts to start with quick craft (uses materials and credits); 0 = none."
+    },
+    {
+      "key": "quick_preset",
+      "type": "int",
+      "default": 1,
+      "min": 1,
+      "max": 3,
+      "description": "Quick craft preset, counted from the left."
+    }
+  ],
+  "steps": [
+    {
+      "action": "goto",
+      "page": "craft"
+    },
+    {
+      "action": "wait_stable",
+      "timeout_ms": 4000
+    },
+    {
+      "action": "click",
+      "x": 1124,
+      "y": 618,
+      "on_page": "craft",
+      "no_verify": true
+    },
+    {
+      "action": "wait_stable",
+      "timeout_ms": 4000
+    },
+    {
+      "action": "if",
+      "when": {
+        "setting": "quick_crafts",
+        "not_equals": 0
+      },
+      "then": [
+        {
+          "action": "click",
+          "x": 890,
+          "y": 618,
+          "on_page": "craft",
+          "expect": {
+            "template": "craft_quick_title.png",
+            "roi": {
+              "x": 560,
+              "y": 75,
+              "w": 160,
+              "h": 65
+            },
+            "threshold": 0.9
+          },
+          "timeout_ms": 5000
+        },
+        {
+          "action": "wait_stable",
+          "timeout_ms": 3000
+        },
+        {
+          "action": "if",
+          "when": {
+            "setting": "quick_preset",
+            "equals": 2
+          },
+          "then": [
+            {
+              "action": "click",
+              "x": 345,
+              "y": 170,
+              "require": {
+                "template": "craft_quick_title.png",
+                "roi": {
+                  "x": 560,
+                  "y": 75,
+                  "w": 160,
+                  "h": 65
+                },
+                "threshold": 0.9
+              },
+              "no_verify": true
+            }
+          ]
+        },
+        {
+          "action": "if",
+          "when": {
+            "setting": "quick_preset",
+            "equals": 3
+          },
+          "then": [
+            {
+              "action": "click",
+              "x": 535,
+              "y": 170,
+              "require": {
+                "template": "craft_quick_title.png",
+                "roi": {
+                  "x": 560,
+                  "y": 75,
+                  "w": 160,
+                  "h": 65
+                },
+                "threshold": 0.9
+              },
+              "no_verify": true
+            }
+          ]
+        },
+        {
+          "action": "if",
+          "when": {
+            "setting": "quick_preset",
+            "equals": 1
+          },
+          "then": [
+            {
+              "action": "click",
+              "x": 155,
+              "y": 170,
+              "require": {
+                "template": "craft_quick_title.png",
+                "roi": {
+                  "x": 560,
+                  "y": 75,
+                  "w": 160,
+                  "h": 65
+                },
+                "threshold": 0.9
+              },
+              "no_verify": true
+            }
+          ]
+        },
+        {
+          "action": "wait_stable",
+          "timeout_ms": 3000
+        },
+        {
+          "action": "click",
+          "x": 837,
+          "y": 514,
+          "require": {
+            "template": "craft_quick_title.png",
+            "roi": {
+              "x": 560,
+              "y": 75,
+              "w": 160,
+              "h": 65
+            },
+            "threshold": 0.9
+          },
+          "no_verify": true
+        },
+        {
+          "action": "if",
+          "when": {
+            "setting": "quick_crafts",
+            "equals": 2
+          },
+          "then": [
+            {
+              "action": "click",
+              "x": 1115,
+              "y": 514,
+              "require": {
+                "template": "craft_quick_title.png",
+                "roi": {
+                  "x": 560,
+                  "y": 75,
+                  "w": 160,
+                  "h": 65
+                },
+                "threshold": 0.9
+              },
+              "no_verify": true
+            }
+          ]
+        },
+        {
+          "action": "if",
+          "when": {
+            "setting": "quick_crafts",
+            "equals": 3
+          },
+          "then": [
+            {
+              "action": "click",
+              "x": 1115,
+              "y": 514,
+              "require": {
+                "template": "craft_quick_title.png",
+                "roi": {
+                  "x": 560,
+                  "y": 75,
+                  "w": 160,
+                  "h": 65
+                },
+                "threshold": 0.9
+              },
+              "no_verify": true
+            },
+            {
+              "action": "sleep",
+              "sleep_ms": 400
+            },
+            {
+              "action": "click",
+              "x": 1115,
+              "y": 514,
+              "require": {
+                "template": "craft_quick_title.png",
+                "roi": {
+                  "x": 560,
+                  "y": 75,
+                  "w": 160,
+                  "h": 65
+                },
+                "threshold": 0.9
+              },
+              "no_verify": true
+            }
+          ]
+        },
+        {
+          "action": "sleep",
+          "sleep_ms": 800
+        },
+        {
+          "action": "if",
+          "when": {
+            "color": {
+              "hsv_min": [
+                90,
+                100,
+                200
+              ],
+              "hsv_max": [
+                110,
+                255,
+                255
+              ],
+              "area": [
+                3000,
+                20000
+              ],
+              "roi": {
+                "x": 1000,
+                "y": 558,
+                "w": 225,
+                "h": 66
+              }
+            }
+          },
+          "then": [
+            {
+              "action": "click",
+              "x": 1112,
+              "y": 590,
+              "require": {
+                "template": "craft_quick_title.png",
+                "roi": {
+                  "x": 560,
+                  "y": 75,
+                  "w": 160,
+                  "h": 65
+                },
+                "threshold": 0.9
+              },
+              "no_verify": true
+            },
+            {
+              "action": "wait_stable",
+              "timeout_ms": 5000
+            }
+          ]
+        },
+        {
+          "action": "click",
+          "x": 1206,
+          "y": 105,
+          "require": {
+            "template": "craft_quick_title.png",
+            "roi": {
+              "x": 560,
+              "y": 75,
+              "w": 160,
+              "h": 65
+            },
+            "threshold": 0.9
+          },
+          "no_verify": true,
+          "optional": true,
+          "quiet": true
+        }
+      ]
+    },
+    {
+      "action": "return_home"
+    }
+  ]
+}

@@ -20,6 +20,7 @@
     { "to": "schedule", "click": { "x": 210, "y": 650 } },
     { "to": "social_menu", "click": { "x": 541, "y": 650 } },
     { "to": "shop", "click": { "x": 765, "y": 650 } },
+    { "to": "craft", "click": { "x": 655, "y": 650 } },
     { "to": "campaign", "click": { "x": 1200, "y": 670 } },
     { "to": "account", "click": { "x": 150, "y": 45 } }
   ]
