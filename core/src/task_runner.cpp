@@ -202,6 +202,13 @@ struct TaskRunner::Context {
 };
 
 // The colour of a condition, with its area taken from roi_by_value when it has one.
+long long TaskRunner::GameDay() const {
+    if (options_.game_day) return options_.game_day();
+    using namespace std::chrono;
+    const auto since = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
+    return (since - 19 * 3600) / 86400;  // a game day starts at the 19:00 UTC reset
+}
+
 static ColorSpec ColorFor(const Condition& c, const std::string& each_value) {
     ColorSpec spec = *c.color;
     const int n = PositionOf(each_value);
@@ -757,8 +764,16 @@ TaskRunner::Flow TaskRunner::RunAction(const Step& s, Context& ctx, std::string&
         }
         case StepAction::kEach: {
             auto it = ctx.settings.find(s.setting);
-            const std::vector<std::string> values =
+            std::vector<std::string> values =
                 it == ctx.settings.end() ? std::vector<std::string>{} : it->second.list;
+            // One value a day, in turn: a plan per day (for example one sweep preset each day).
+            if (auto r = ctx.settings.find(s.rotate_setting); !s.rotate_setting.empty() && r != ctx.settings.end() &&
+                                                                r->second.scalar == "true" && !values.empty()) {
+                const long long day = GameDay();
+                const auto n = static_cast<long long>(values.size());
+                values = {values[static_cast<std::size_t>(((day % n) + n) % n)]};
+                Log(log_, LogLevel::kInfo, "today's value of '" + s.setting + "': " + values.front());
+            }
             const std::string saved = ctx.each_value;
             Flow flow = Flow::kNext;
             for (const auto& value : values) {

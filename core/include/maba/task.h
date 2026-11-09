@@ -101,6 +101,7 @@ struct Step {
     std::optional<Point> point;        // kClick (fixed point), kSwipe (start)
     std::vector<Point> points;         // kClick: chosen by the innermost loop iteration (cycled)
     bool points_by_value = false;      // kClick: chosen by the innermost each value instead (1 = first)
+    std::string rotate_setting;        // kEach: when this bool setting is on, one value per game day
     Point offset;                      // kClick, kClickColor, kClickText: added to the target
     std::optional<Point> retry_offset; // kClickColor: second try on a blob that stayed
     std::vector<std::string> texts;    // kClickText: wanted texts, first found wins

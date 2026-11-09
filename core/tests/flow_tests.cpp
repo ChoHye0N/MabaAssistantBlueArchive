@@ -204,6 +204,30 @@ MABA_TEST(ColourAreaChosenByEachValue) {
     CHECK(rig.controller.clicks.size() >= 1);
 }
 
+MABA_TEST(EachTakesOneValuePerDayWhenRotating) {
+    const auto clicks = [](bool rotate, long long day) {
+        NavRig rig;
+        maba::RunnerOptions options;
+        options.game_day = [day] { return day; };
+        const auto task = Task(R"({"id": "t", "settings": [
+                {"key": "tabs", "type": "list", "default": ["1", "2", "3"], "choices": ["1", "2", "3"]},
+                {"key": "rotate", "type": "bool", "default": false}],
+            "steps": [{"action": "each", "setting": "tabs", "rotate_setting": "rotate", "steps": [
+                {"action": "click", "points": [{"x": 10, "y": 5}, {"x": 20, "y": 5}, {"x": 30, "y": 5}], "point_by": "value", "no_verify": true}]}]})");
+        std::string error;
+        CHECK(maba::ResolveSettings({task}, rotate ? R"({"t": {"rotate": true}})" : "{}", options.settings, error));
+        maba::TaskRunner runner(rig.Nav(), nullptr, options);
+        CHECK(runner.RunTask(task).status == maba::TaskStatus::kSucceeded);
+        std::vector<int> xs;
+        for (const auto& c : rig.controller.clicks) xs.push_back(c.x);
+        return xs;
+    };
+    CHECK((clicks(false, 7) == std::vector<int>{10, 20, 30}));
+    CHECK((clicks(true, 7) == std::vector<int>{20}));   // day 7 of 3 values: the second
+    CHECK((clicks(true, 8) == std::vector<int>{30}));
+    CHECK((clicks(true, 9) == std::vector<int>{10}));
+}
+
 MABA_TEST(LoopCountAdjustedBySetting) {
     const auto clicks = [](const char* settings) {
         NavRig rig;

@@ -299,6 +299,7 @@ Step ParseStep(const json& obj, const std::string& where, int depth) {
         }
         case StepAction::kEach: {
             s.setting = RequireString(obj, "setting", where);
+            s.rotate_setting = OptString(obj, "rotate_setting", where, "");
             if (auto c = obj.find("cases"); c != obj.end() && !c->is_null()) {
                 if (!c->is_object()) throw ParseError(where + ": 'cases' must be an object");
                 for (const auto& [value, body] : c->items())

@@ -91,7 +91,7 @@ Rules:
 | `wheel` | `x`, `y`, `notches` (-20..20, not 0) | Mouse wheel at a point; negative turns it towards the user (zooms the cafe out). Emulators over ADB have no wheel: mark the step `optional` |
 | `if` | `when`, `then`, `else` | Run `then` when the condition holds, else `else` |
 | `loop` | `max` (1..50) or `max_setting` (int setting) or `max_value` (stored number), `max_adjust`, `until`, `steps` | Run `steps` up to that many times; `max_adjust` is added to the count (-1 for a quantity stepper that starts at 1); `until` is checked before each iteration |
-| `each` | `setting` (list), `cases`, `steps` | For every value of the list, in order: its `cases` entry, then `steps` (`{value}` in a template name is replaced by the value) |
+| `each` | `setting` (list), `cases`, `steps`, `rotate_setting` | For every value of the list, in order: its `cases` entry, then `steps` (`{value}` in a template name is replaced by the value). While the bool setting `rotate_setting` is on, only one value runs, in turn per game day (from the 04:00 KST reset) |
 | `save` | `file`, `values`, `history` | Write the stored numbers into a JSON record `file` under the data directory (`{name}` = a stored number, e.g. `accounts/{uid}.json`); `history` also appends them with a UTC timestamp (newest 1000 kept). The data directory is outside the repository (records hold personal data) |
 | `break` | | Leave the innermost `loop`, or the current value of `each` |
 | `end` | `status` (`succeeded`/`skipped`), `message` | Finish the task now |

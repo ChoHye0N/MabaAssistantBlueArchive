@@ -58,6 +58,9 @@ struct RunnerOptions {
     StringTable strings;               // compared UI text of the language (click_text text_key)
     std::filesystem::path data_dir;    // where save steps write records; empty = saving fails
     ReactionOptions reaction;
+    // Game day number for `each` with `rotate_setting`; the default counts days from the server
+    // reset at 19:00 UTC (04:00 KST).
+    std::function<long long()> game_day;
 };
 
 class TaskRunner {
@@ -87,6 +90,7 @@ private:
                        const std::string& what, std::string& error);
     bool WaitReaction(const Frame& before, const Step& s);
     bool WaitGone(const TemplateRef& ref, const Step& s);
+    long long GameDay() const;
     bool CheckPrecondition(const Step& s, Context& ctx, std::string& error);
     void Settle();
     bool Cancelled() const { return options_.cancel && options_.cancel->load(); }
