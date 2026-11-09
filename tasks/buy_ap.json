@@ -10,7 +10,7 @@
     "Spends pyroxene, so it runs only when selected. Opened from the + beside AP on the main screen; every other task closes this window.",
     "Each round reads the unit price and the purchases left; a price above 'max_price', none left, or an unreadable number ends the task without buying.",
     "One purchase gives 120 AP and AP stops at 999, so nothing is bought above 879 AP.",
-    "The price rises after some purchases a day (30 pyroxene at first, seen 2026-11-09; verify later steps)."
+    "The price rises after some purchases a day (30 pyroxene at first, seen 2026-11-09; verify later steps). A purchase ends with a reward result, closed as a popup (checked 2026-11-09: 120 AP for 30 pyroxene)."
   ],
   "settings": [
     { "key": "purchases", "type": "int", "default": 1, "min": 1, "max": 20, "description": "Purchases per run (120 AP each)." },
@@ -33,7 +33,7 @@
           "timeout_ms": 5000
         },
         { "action": "wait_stable", "timeout_ms": 3000 },
-        { "action": "read_number", "roi": { "x": 556, "y": 266, "w": 72, "h": 28 }, "store": "left" },
+        { "action": "read_number", "roi": { "x": 562, "y": 266, "w": 56, "h": 28 }, "store": "left" },
         { "action": "read_number", "roi": { "x": 500, "y": 398, "w": 70, "h": 30 }, "store": "price" },
         {
           "action": "if",
