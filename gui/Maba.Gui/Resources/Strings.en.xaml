@@ -54,6 +54,11 @@
     <sys:String x:Key="Task.bounty">Bounty: use tickets</sys:String>
     <sys:String x:Key="Task.spend_event">Event: spend AP</sys:String>
     <sys:String x:Key="Task.spend_mission">Missions: spend AP</sys:String>
+    <sys:String x:Key="Task.buy_ap">Buy AP: AP for pyroxene (off by default)</sys:String>
+    <sys:String x:Key="Setting.buy_ap.purchases">Purchases (120 AP each)</sys:String>
+    <sys:String x:Key="Setting.buy_ap.max_price">Highest price per purchase (pyroxene)</sys:String>
+    <sys:String x:Key="Setting.shop.refreshes">Refreshes (pyroxene, 0 = none)</sys:String>
+    <sys:String x:Key="Setting.shop.max_refresh_price">Highest price per refresh (pyroxene)</sys:String>
     <sys:String x:Key="Task.tactical_challenge">Tactical Challenge: claim rewards, use tickets</sys:String>
     <sys:String x:Key="Task.mail_claim_all">Mailbox: claim all</sys:String>
     <sys:String x:Key="Task.mission_claim_all">Tasks: claim all</sys:String>

@@ -54,6 +54,11 @@
     <sys:String x:Key="Task.scrimmage">학원교류회: 티켓 소비</sys:String>
     <sys:String x:Key="Task.spend_event">이벤트: 활동력 소비</sys:String>
     <sys:String x:Key="Task.spend_mission">임무: 활동력 소비</sys:String>
+    <sys:String x:Key="Task.buy_ap">AP 구매: 청휘석으로 활동력 구매 (기본 꺼짐)</sys:String>
+    <sys:String x:Key="Setting.buy_ap.purchases">구매 횟수 (1회 120 AP)</sys:String>
+    <sys:String x:Key="Setting.buy_ap.max_price">1회 최대 가격 (청휘석)</sys:String>
+    <sys:String x:Key="Setting.shop.refreshes">즉시 갱신 횟수 (청휘석 사용, 0 = 사용 안 함)</sys:String>
+    <sys:String x:Key="Setting.shop.max_refresh_price">갱신 1회 최대 가격 (청휘석)</sys:String>
     <sys:String x:Key="Task.tactical_challenge">전술 대회: 보상 수령, 티켓 소비</sys:String>
     <sys:String x:Key="Task.mail_claim_all">우편함: 모두 받기</sys:String>
     <sys:String x:Key="Task.mission_claim_all">미션: 모두 받기</sys:String>

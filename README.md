@@ -82,6 +82,7 @@ MABA는 블루 아카이브의 반복적인 일일 숙제를 자동으로 처리
 | Task Configuration | 작업별 활성화 및 세부 설정 |
 | Account Tracking | 계정별 닉네임, 레벨, 크레딧, 청휘석, 활동력 기록, GUI의 내 정보 탭에서 확인 (PC에만 저장) |
 | Task Profiles | 숙제 선택, 설정, 실행 순서를 프로필로 저장하고 전환 |
+| AP Purchase | 청휘석으로 AP 구매, 1회 가격 상한과 횟수 지정 (선택했을 때만 실행) |
 | Display Language | 프로그램 화면 한국어, 영어 지원 (설정의 **화면 언어**, 기본값은 Windows 언어) |
 | Template Override | 사용자 정의 화면 인식 템플릿 지원 |
 

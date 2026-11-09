@@ -1,0 +1,79 @@
+{
+  "id": "buy_ap",
+  "name": "Buy AP with pyroxene",
+  "order": 62,
+  "after": [],
+  "status": "wip",
+  "needs_ocr": true,
+  "keep_popups": ["ap_purchase"],
+  "notes": [
+    "Spends pyroxene, so it runs only when selected. Opened from the + beside AP on the main screen; every other task closes this window.",
+    "Each round reads the unit price and the purchases left; a price above 'max_price', none left, or an unreadable number ends the task without buying.",
+    "One purchase gives 120 AP and AP stops at 999, so nothing is bought above 879 AP.",
+    "The price rises after some purchases a day (30 pyroxene at first, seen 2026-11-09; verify later steps)."
+  ],
+  "settings": [
+    { "key": "purchases", "type": "int", "default": 1, "min": 1, "max": 20, "description": "Purchases per run (120 AP each)." },
+    { "key": "max_price", "type": "int", "default": 30, "min": 0, "max": 500, "description": "Highest price in pyroxene for one purchase." }
+  ],
+  "steps": [
+    { "action": "goto", "page": "main_menu" },
+    {
+      "action": "loop",
+      "max_setting": "purchases",
+      "steps": [
+        { "action": "read_number", "roi": { "x": 500, "y": 8, "w": 105, "h": 30 }, "store": "ap" },
+        { "action": "if", "when": { "value": "ap", "gt": 879 }, "then": [{ "action": "end", "status": "succeeded", "message": "AP would pass 999" }] },
+        {
+          "action": "click",
+          "x": 630,
+          "y": 36,
+          "on_page": "main_menu",
+          "expect": { "template": "ap_purchase_title.png", "roi": { "x": 560, "y": 140, "w": 160, "h": 70 }, "threshold": 0.9 },
+          "timeout_ms": 5000
+        },
+        { "action": "wait_stable", "timeout_ms": 3000 },
+        { "action": "read_number", "roi": { "x": 556, "y": 266, "w": 72, "h": 28 }, "store": "left" },
+        { "action": "read_number", "roi": { "x": 500, "y": 398, "w": 70, "h": 30 }, "store": "price" },
+        {
+          "action": "if",
+          "when": { "value": "left", "equals": 0 },
+          "then": [
+            {
+              "action": "click",
+              "x": 515,
+              "y": 505,
+              "require": { "template": "ap_purchase_title.png", "roi": { "x": 560, "y": 140, "w": 160, "h": 70 }, "threshold": 0.9 },
+              "no_verify": true
+            },
+            { "action": "end", "status": "skipped", "message": "no purchases left today" }
+          ]
+        },
+        {
+          "action": "if",
+          "when": { "value": "price", "gt": { "setting": "max_price" } },
+          "then": [
+            {
+              "action": "click",
+              "x": 515,
+              "y": 505,
+              "require": { "template": "ap_purchase_title.png", "roi": { "x": 560, "y": 140, "w": 160, "h": 70 }, "threshold": 0.9 },
+              "no_verify": true
+            },
+            { "action": "end", "status": "succeeded", "message": "price above the limit" }
+          ]
+        },
+        {
+          "action": "click",
+          "x": 767,
+          "y": 505,
+          "require": { "template": "ap_purchase_title.png", "roi": { "x": 560, "y": 140, "w": 160, "h": 70 }, "threshold": 0.9 },
+          "no_verify": true
+        },
+        { "action": "wait_stable", "timeout_ms": 4000 },
+        { "action": "wait_page", "page": "main_menu", "timeout_ms": 10000 }
+      ]
+    },
+    { "action": "return_home" }
+  ]
+}

@@ -37,6 +37,7 @@ Fixed choices. Change one only with a note here.
 | 31 | The game window is freely resizable, so a run accepts 16:9 from 1280x720 up and changes anything else to 1280x720. Checked at 1280 and 1600 wide, full screen at 1920; 2560 is open. |
 | 32 | A release is one executable (single file, its runtime unpacks to the user's temp folder on the first start) with `bin/`, `data/`, `ocr/` and `docs/` beside it. |
 | 33 | Players keep task profiles (selection, settings, order). A profile may reorder tasks; Core keeps `after` dependencies first, so mail stays after AP spending. |
+| 34 | Pyroxene is spent only by features the player turns on (AP purchase, shop refreshes), each with a price limit and a count; an unreadable price stops them, and every other task still cancels the AP purchase window. |
 
 ## Checklist for a public repository
 - [ ] `python tools/privacy_check.py` passes, and the whole history is scanned (`git log -p` for personal data, paths, keys).

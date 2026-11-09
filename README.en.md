@@ -82,6 +82,7 @@ Release builds ask GitHub at start whether a new version exists and show a notic
 | Task Configuration | Enable each task and set its details |
 | Account Tracking | Nickname, level, credits, pyroxene and AP per account, shown on the My info tab (stored on this PC only) |
 | Task Profiles | Save and switch sets of selected tasks, their settings and run order |
+| AP Purchase | Buy AP with pyroxene within a price limit and a count (runs only when selected) |
 | Display Language | Program UI in Korean and English (**Display language** in the settings; defaults to the Windows language) |
 | Template Override | Custom screen-recognition templates |
 
