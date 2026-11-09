@@ -89,7 +89,7 @@
           "threshold": 0.9,
           "expect": { "template": "schedule_all_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 80 }, "threshold": 0.9 }
         },
-        { "action": "read_number", "roi": { "x": 630, "y": 130, "w": 110, "h": 42 }, "store": "tickets", "lenient": true, "optional": true },
+        { "action": "read_number", "roi": { "x": 665, "y": 138, "w": 48, "h": 28 }, "store": "tickets", "lenient": true, "optional": true },
         {
           "action": "if",
           "when": { "setting": "prefer_full_rooms", "equals": true },
@@ -149,7 +149,7 @@
                         },
                         {
                           "action": "read_number",
-                          "roi": { "x": 630, "y": 130, "w": 110, "h": 42 },
+                          "roi": { "x": 665, "y": 138, "w": 48, "h": 28 },
                           "store": "tickets",
                           "lenient": true,
                           "optional": true
@@ -200,7 +200,7 @@
                   "until": { "absent": { "template": "schedule_info_title.png", "roi": { "x": 540, "y": 90, "w": 200, "h": 70 }, "threshold": 0.9 } },
                   "steps": [{ "action": "wait_stable", "timeout_ms": 4000 }]
                 },
-                { "action": "read_number", "roi": { "x": 630, "y": 130, "w": 110, "h": 42 }, "store": "tickets", "lenient": true, "optional": true }
+                { "action": "read_number", "roi": { "x": 665, "y": 138, "w": 48, "h": 28 }, "store": "tickets", "lenient": true, "optional": true }
               ]
             }
           ]
