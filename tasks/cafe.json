@@ -8,6 +8,8 @@
   "notes": [
     "Run order (owner): cafe, schedule, circle, free package, shop, bounty, commissions, scrimmage, event, missions, tactical challenge, mail, daily missions. 'order' fixes it without blocking.",
     "Cafe income includes AP (646/740 seen on 2026-11-02); one claim covers both cafes.",
+    "Income: with nothing to claim the button is grey, which a template still matches, so it is clicked only while yellow (about 13900 yellow pixels when it can be claimed, none when grey). A failed claim does not stop the task.",
+    "Student marks are looked for away from the buttons (top bar, the move and next-visit labels, the expand button at the top right, the bottom bar): a click lands right of a mark, so a mark near an edge could hit a button.",
     "Only owned students can be touched, and only those show the marker: three yellow strokes at the left of the head. The marker animates, so it is found by colour (click_color). The touch area is the head.",
     "The cafe is larger than the screen: the view is zoomed out first with the mouse wheel (5 notches reach the limit, the markers keep their size; emulators have no wheel and skip it), then dragged to the four corners, and each view is searched.",
     "Invitation: the ticket opens a list of owned students (MomoTalk). The configured names are searched with OCR while scrolling; the first one found is invited. A student that is not owned is not listed and is skipped. A student visiting the other cafe (marked with that cafe in the list) asks twice to be brought over, and another version of a visiting student asks to replace it: all are confirmed, so the configured student is invited.",
@@ -41,7 +43,7 @@
       "action": "if",
       "when": { "present": { "template": "cafe_income_title.png", "roi": { "x": 540, "y": 110, "w": 200, "h": 80 }, "threshold": 0.9 } },
       "then": [
-        { "action": "click_if_present", "template": "cafe_income_claim.png", "roi": { "x": 500, "y": 480, "w": 280, "h": 100 }, "threshold": 0.9 },
+        { "action": "click_if_present", "template": "cafe_income_claim.png", "roi": { "x": 500, "y": 480, "w": 280, "h": 100 }, "threshold": 0.9, "when": { "color": { "hsv_min": [18, 120, 180], "hsv_max": [35, 255, 255], "area": [5000, 28000], "roi": { "x": 500, "y": 480, "w": 280, "h": 100 } } }, "optional": true },
         {
           "action": "back",
           "when": { "present": { "template": "cafe_income_title.png", "roi": { "x": 540, "y": 110, "w": 200, "h": 80 }, "threshold": 0.9 } }
@@ -121,7 +123,7 @@
             "width": [30, 40],
             "height": [9, 15],
             "area": [240, 330],
-            "roi": { "x": 115, "y": 60, "w": 1165, "h": 540 }
+            "roi": { "x": 130, "y": 140, "w": 1000, "h": 420 }
           },
           "offset": { "x": 55, "y": 0 },
           "retry_offset": { "x": 45, "y": 25 },
@@ -145,7 +147,7 @@
             "width": [30, 40],
             "height": [9, 15],
             "area": [240, 330],
-            "roi": { "x": 115, "y": 60, "w": 1165, "h": 540 }
+            "roi": { "x": 130, "y": 140, "w": 1000, "h": 420 }
           },
           "offset": { "x": 55, "y": 0 },
           "retry_offset": { "x": 45, "y": 25 },
@@ -169,7 +171,7 @@
             "width": [30, 40],
             "height": [9, 15],
             "area": [240, 330],
-            "roi": { "x": 115, "y": 60, "w": 1165, "h": 540 }
+            "roi": { "x": 130, "y": 140, "w": 1000, "h": 420 }
           },
           "offset": { "x": 55, "y": 0 },
           "retry_offset": { "x": 45, "y": 25 },
@@ -193,7 +195,7 @@
             "width": [30, 40],
             "height": [9, 15],
             "area": [240, 330],
-            "roi": { "x": 115, "y": 60, "w": 1165, "h": 540 }
+            "roi": { "x": 130, "y": 140, "w": 1000, "h": 420 }
           },
           "offset": { "x": 55, "y": 0 },
           "retry_offset": { "x": 45, "y": 25 },
@@ -217,7 +219,7 @@
             "width": [30, 40],
             "height": [9, 15],
             "area": [240, 330],
-            "roi": { "x": 115, "y": 60, "w": 1165, "h": 540 }
+            "roi": { "x": 130, "y": 140, "w": 1000, "h": 420 }
           },
           "offset": { "x": 55, "y": 0 },
           "retry_offset": { "x": 45, "y": 25 },
@@ -318,7 +320,7 @@
                 "width": [30, 40],
                 "height": [9, 15],
                 "area": [240, 330],
-                "roi": { "x": 115, "y": 60, "w": 1165, "h": 540 }
+                "roi": { "x": 130, "y": 140, "w": 1000, "h": 420 }
               },
               "offset": { "x": 55, "y": 0 },
               "retry_offset": { "x": 45, "y": 25 },
@@ -342,7 +344,7 @@
                 "width": [30, 40],
                 "height": [9, 15],
                 "area": [240, 330],
-                "roi": { "x": 115, "y": 60, "w": 1165, "h": 540 }
+                "roi": { "x": 130, "y": 140, "w": 1000, "h": 420 }
               },
               "offset": { "x": 55, "y": 0 },
               "retry_offset": { "x": 45, "y": 25 },
@@ -366,7 +368,7 @@
                 "width": [30, 40],
                 "height": [9, 15],
                 "area": [240, 330],
-                "roi": { "x": 115, "y": 60, "w": 1165, "h": 540 }
+                "roi": { "x": 130, "y": 140, "w": 1000, "h": 420 }
               },
               "offset": { "x": 55, "y": 0 },
               "retry_offset": { "x": 45, "y": 25 },
@@ -390,7 +392,7 @@
                 "width": [30, 40],
                 "height": [9, 15],
                 "area": [240, 330],
-                "roi": { "x": 115, "y": 60, "w": 1165, "h": 540 }
+                "roi": { "x": 130, "y": 140, "w": 1000, "h": 420 }
               },
               "offset": { "x": 55, "y": 0 },
               "retry_offset": { "x": 45, "y": 25 },
@@ -414,7 +416,7 @@
                 "width": [30, 40],
                 "height": [9, 15],
                 "area": [240, 330],
-                "roi": { "x": 115, "y": 60, "w": 1165, "h": 540 }
+                "roi": { "x": 130, "y": 140, "w": 1000, "h": 420 }
               },
               "offset": { "x": 55, "y": 0 },
               "retry_offset": { "x": 45, "y": 25 },
