@@ -166,6 +166,44 @@ MABA_TEST(SettingsSelectBranchesAndLoopCounts) {
     }
 }
 
+MABA_TEST(PointsChosenByEachValue) {
+    NavRig rig;
+    maba::RunnerOptions options;
+    const auto task = Task(R"({"id": "t", "settings": [
+            {"key": "tabs", "type": "list", "default": ["3", "1"], "choices": ["1", "2", "3"]}],
+        "steps": [
+            {"action": "each", "setting": "tabs", "steps": [
+                {"action": "click", "points": [{"x": 10, "y": 5}, {"x": 20, "y": 5}, {"x": 30, "y": 5}], "point_by": "value"}]},
+            {"action": "click", "points": [{"x": 10, "y": 5}], "point_by": "value"}]})");
+    std::string error;
+    CHECK(maba::ResolveSettings({task}, "{}", options.settings, error));
+    maba::TaskRunner runner(rig.Nav(), nullptr, options);
+    const auto r = runner.RunTask(task);
+    const auto& c = rig.controller.clicks;
+    CHECK(c.size() == 2 && c[0].x == 30 && c[1].x == 10);
+    CHECK(r.status == maba::TaskStatus::kFailed);  // outside each there is no value
+    CHECK(r.message.find("no point") != std::string::npos);
+}
+
+MABA_TEST(ColourAreaChosenByEachValue) {
+    NavRig rig;
+    maba::RunnerOptions options;
+    // Scene frames are uniform grey, so a grey colour is seen in any area; a missing area is the
+    // whole frame. The second value picks an area outside the frame, where nothing can be seen.
+    const auto task = Task(R"({"id": "t", "settings": [
+            {"key": "tabs", "type": "list", "default": ["1", "2"], "choices": ["1", "2"]}],
+        "steps": [{"action": "each", "setting": "tabs", "steps": [
+            {"action": "click", "x": 7, "y": 7, "no_verify": true,
+             "when": {"color": {"hsv_min": [0, 0, 0], "hsv_max": [180, 255, 255]},
+                      "roi_by_value": [{"x": 0, "y": 0, "w": 50, "h": 50}, {"x": 1279, "y": 719, "w": 1, "h": 1}]}}]}]})");
+    std::string error;
+    CHECK(maba::ResolveSettings({task}, "{}", options.settings, error));
+    maba::TaskRunner runner(rig.Nav(), nullptr, options);
+    const auto r = runner.RunTask(task);
+    CHECK(r.status == maba::TaskStatus::kSucceeded);
+    CHECK(rig.controller.clicks.size() >= 1);
+}
+
 MABA_TEST(LoopCountAdjustedBySetting) {
     const auto clicks = [](const char* settings) {
         NavRig rig;

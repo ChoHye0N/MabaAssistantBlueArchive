@@ -77,7 +77,7 @@ Rules:
 | `goto` | `page` | Navigate (popups settled, bounded steps) |
 | `return_home` | | Navigate to `main_menu` |
 | `wait_page` | `page` | Wait until it is the current page |
-| `click` | `template` (+`roi`, `threshold`), `x`/`y`, or `points` | Wait until the template is visible and click it; fail if it never appears. `points` picks a point by the innermost loop iteration (cycled) |
+| `click` | `template` (+`roi`, `threshold`), `x`/`y`, or `points` | Wait until the template is visible and click it; fail if it never appears. `points` picks a point by the innermost loop iteration (cycled), or with `"point_by": "value"` by the value of the innermost `each` (`"1"` = first point), for list settings that name positions |
 | `click_if_present` | `template` (+`roi`, `threshold`) | Same, but a missing template is not an error |
 | `wait_template` | `template` (+`roi`, `threshold`) | Wait until visible |
 | `back` | | Back key |
@@ -108,7 +108,7 @@ Reaction check (`click`, `click_if_present`, `back`): the screen is compared bef
 Conditions (`when`, `until`):
 - `{"setting": key, "equals" | "not_equals": value}`, `{"setting": key, "contains": item}` (list).
 - `{"present": template}`, `{"absent": template}`: one look, or up to `timeout_ms` for `present`.
-- `{"color": colour}`: a colour blob is visible; `{"no_color": colour}`: none is.
+- `{"color": colour}`: a colour blob is visible; `{"no_color": colour}`: none is. `roi_by_value` (a list of areas) takes the area by the value of the innermost `each` (`"1"` = first).
 - `{"value": name, "equals" | "not_equals" | "lt" | "le" | "gt" | "ge": n}`: a number stored by `read_number` (a missing value is false).
 
 Colours (`click_color`, `{"color": ...}`): `hsv_min`, `hsv_max` (`[h, s, v]` on OpenCV's scale: h 0..180, s and v 0..255), optional `width`, `height`, `area` as `[min, max]` (pixels of the 1280x720 frame) and `roi`. Use them for markers whose shape animates (cafe students) or for states a template cannot see (a dimmed card: template matching ignores brightness).

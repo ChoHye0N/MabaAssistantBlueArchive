@@ -76,303 +76,64 @@
         {
           "action": "each",
           "setting": "batch_presets",
-          "cases": {
-            "1": [
-              {
-                "action": "if",
-                "when": { "absent": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 } },
-                "then": [
-                  {
-                    "action": "click",
-                    "x": 535,
-                    "y": 588,
-                    "on_page": "mission_area",
-                    "expect": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                    "timeout_ms": 5000
-                  },
-                  { "action": "wait_stable", "timeout_ms": 3000 }
-                ]
-              },
-              {
-                "action": "click",
-                "x": 123,
-                "y": 163,
-                "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                "no_verify": true
-              },
-              { "action": "wait_stable", "timeout_ms": 3000 },
-              {
-                "action": "if",
-                "when": {
-                  "no_color": { "hsv_min": [100, 80, 40], "hsv_max": [125, 255, 120], "area": [600, 3000], "roi": { "x": 93, "y": 150, "w": 60, "h": 26 } }
-                },
-                "then": [
-                  {
-                    "action": "click",
-                    "x": 1221,
-                    "y": 99,
-                    "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                    "expect": { "template": "mission_area_title.png", "roi": { "x": 80, "y": 0, "w": 110, "h": 55 }, "threshold": 0.95 },
-                    "timeout_ms": 5000
-                  },
-                  { "action": "fail", "message": "batch sweep preset 1 could not be selected" }
-                ]
-              }
-            ],
-            "2": [
-              {
-                "action": "if",
-                "when": { "absent": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 } },
-                "then": [
-                  {
-                    "action": "click",
-                    "x": 535,
-                    "y": 588,
-                    "on_page": "mission_area",
-                    "expect": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                    "timeout_ms": 5000
-                  },
-                  { "action": "wait_stable", "timeout_ms": 3000 }
-                ]
-              },
-              {
-                "action": "click",
-                "x": 282,
-                "y": 163,
-                "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                "no_verify": true
-              },
-              { "action": "wait_stable", "timeout_ms": 3000 },
-              {
-                "action": "if",
-                "when": {
-                  "no_color": { "hsv_min": [100, 80, 40], "hsv_max": [125, 255, 120], "area": [600, 3000], "roi": { "x": 252, "y": 150, "w": 60, "h": 26 } }
-                },
-                "then": [
-                  {
-                    "action": "click",
-                    "x": 1221,
-                    "y": 99,
-                    "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                    "expect": { "template": "mission_area_title.png", "roi": { "x": 80, "y": 0, "w": 110, "h": 55 }, "threshold": 0.95 },
-                    "timeout_ms": 5000
-                  },
-                  { "action": "fail", "message": "batch sweep preset 2 could not be selected" }
-                ]
-              }
-            ],
-            "3": [
-              {
-                "action": "if",
-                "when": { "absent": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 } },
-                "then": [
-                  {
-                    "action": "click",
-                    "x": 535,
-                    "y": 588,
-                    "on_page": "mission_area",
-                    "expect": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                    "timeout_ms": 5000
-                  },
-                  { "action": "wait_stable", "timeout_ms": 3000 }
-                ]
-              },
-              {
-                "action": "click",
-                "x": 441,
-                "y": 163,
-                "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                "no_verify": true
-              },
-              { "action": "wait_stable", "timeout_ms": 3000 },
-              {
-                "action": "if",
-                "when": {
-                  "no_color": { "hsv_min": [100, 80, 40], "hsv_max": [125, 255, 120], "area": [600, 3000], "roi": { "x": 411, "y": 150, "w": 60, "h": 26 } }
-                },
-                "then": [
-                  {
-                    "action": "click",
-                    "x": 1221,
-                    "y": 99,
-                    "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                    "expect": { "template": "mission_area_title.png", "roi": { "x": 80, "y": 0, "w": 110, "h": 55 }, "threshold": 0.95 },
-                    "timeout_ms": 5000
-                  },
-                  { "action": "fail", "message": "batch sweep preset 3 could not be selected" }
-                ]
-              }
-            ],
-            "4": [
-              {
-                "action": "if",
-                "when": { "absent": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 } },
-                "then": [
-                  {
-                    "action": "click",
-                    "x": 535,
-                    "y": 588,
-                    "on_page": "mission_area",
-                    "expect": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                    "timeout_ms": 5000
-                  },
-                  { "action": "wait_stable", "timeout_ms": 3000 }
-                ]
-              },
-              {
-                "action": "click",
-                "x": 600,
-                "y": 163,
-                "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                "no_verify": true
-              },
-              { "action": "wait_stable", "timeout_ms": 3000 },
-              {
-                "action": "if",
-                "when": {
-                  "no_color": { "hsv_min": [100, 80, 40], "hsv_max": [125, 255, 120], "area": [600, 3000], "roi": { "x": 570, "y": 150, "w": 60, "h": 26 } }
-                },
-                "then": [
-                  {
-                    "action": "click",
-                    "x": 1221,
-                    "y": 99,
-                    "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                    "expect": { "template": "mission_area_title.png", "roi": { "x": 80, "y": 0, "w": 110, "h": 55 }, "threshold": 0.95 },
-                    "timeout_ms": 5000
-                  },
-                  { "action": "fail", "message": "batch sweep preset 4 could not be selected" }
-                ]
-              }
-            ],
-            "5": [
-              {
-                "action": "if",
-                "when": { "absent": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 } },
-                "then": [
-                  {
-                    "action": "click",
-                    "x": 535,
-                    "y": 588,
-                    "on_page": "mission_area",
-                    "expect": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                    "timeout_ms": 5000
-                  },
-                  { "action": "wait_stable", "timeout_ms": 3000 }
-                ]
-              },
-              {
-                "action": "click",
-                "x": 759,
-                "y": 163,
-                "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                "no_verify": true
-              },
-              { "action": "wait_stable", "timeout_ms": 3000 },
-              {
-                "action": "if",
-                "when": {
-                  "no_color": { "hsv_min": [100, 80, 40], "hsv_max": [125, 255, 120], "area": [600, 3000], "roi": { "x": 729, "y": 150, "w": 60, "h": 26 } }
-                },
-                "then": [
-                  {
-                    "action": "click",
-                    "x": 1221,
-                    "y": 99,
-                    "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                    "expect": { "template": "mission_area_title.png", "roi": { "x": 80, "y": 0, "w": 110, "h": 55 }, "threshold": 0.95 },
-                    "timeout_ms": 5000
-                  },
-                  { "action": "fail", "message": "batch sweep preset 5 could not be selected" }
-                ]
-              }
-            ],
-            "6": [
-              {
-                "action": "if",
-                "when": { "absent": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 } },
-                "then": [
-                  {
-                    "action": "click",
-                    "x": 535,
-                    "y": 588,
-                    "on_page": "mission_area",
-                    "expect": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                    "timeout_ms": 5000
-                  },
-                  { "action": "wait_stable", "timeout_ms": 3000 }
-                ]
-              },
-              {
-                "action": "click",
-                "x": 918,
-                "y": 163,
-                "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                "no_verify": true
-              },
-              { "action": "wait_stable", "timeout_ms": 3000 },
-              {
-                "action": "if",
-                "when": {
-                  "no_color": { "hsv_min": [100, 80, 40], "hsv_max": [125, 255, 120], "area": [600, 3000], "roi": { "x": 888, "y": 150, "w": 60, "h": 26 } }
-                },
-                "then": [
-                  {
-                    "action": "click",
-                    "x": 1221,
-                    "y": 99,
-                    "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                    "expect": { "template": "mission_area_title.png", "roi": { "x": 80, "y": 0, "w": 110, "h": 55 }, "threshold": 0.95 },
-                    "timeout_ms": 5000
-                  },
-                  { "action": "fail", "message": "batch sweep preset 6 could not be selected" }
-                ]
-              }
-            ],
-            "7": [
-              {
-                "action": "if",
-                "when": { "absent": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 } },
-                "then": [
-                  {
-                    "action": "click",
-                    "x": 535,
-                    "y": 588,
-                    "on_page": "mission_area",
-                    "expect": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                    "timeout_ms": 5000
-                  },
-                  { "action": "wait_stable", "timeout_ms": 3000 }
-                ]
-              },
-              {
-                "action": "click",
-                "x": 1077,
-                "y": 163,
-                "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                "no_verify": true
-              },
-              { "action": "wait_stable", "timeout_ms": 3000 },
-              {
-                "action": "if",
-                "when": {
-                  "no_color": { "hsv_min": [100, 80, 40], "hsv_max": [125, 255, 120], "area": [600, 3000], "roi": { "x": 1047, "y": 150, "w": 60, "h": 26 } }
-                },
-                "then": [
-                  {
-                    "action": "click",
-                    "x": 1221,
-                    "y": 99,
-                    "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
-                    "expect": { "template": "mission_area_title.png", "roi": { "x": 80, "y": 0, "w": 110, "h": 55 }, "threshold": 0.95 },
-                    "timeout_ms": 5000
-                  },
-                  { "action": "fail", "message": "batch sweep preset 7 could not be selected" }
-                ]
-              }
-            ]
-          },
           "steps": [
+            {
+              "action": "if",
+              "when": { "absent": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 } },
+              "then": [
+                {
+                  "action": "click",
+                  "x": 535,
+                  "y": 588,
+                  "on_page": "mission_area",
+                  "expect": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
+                  "timeout_ms": 5000
+                },
+                { "action": "wait_stable", "timeout_ms": 3000 }
+              ]
+            },
+            {
+              "action": "click",
+              "points": [
+                { "x": 123, "y": 163 },
+                { "x": 282, "y": 163 },
+                { "x": 441, "y": 163 },
+                { "x": 600, "y": 163 },
+                { "x": 759, "y": 163 },
+                { "x": 918, "y": 163 },
+                { "x": 1077, "y": 163 }
+              ],
+              "point_by": "value",
+              "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
+              "no_verify": true
+            },
+            { "action": "wait_stable", "timeout_ms": 3000 },
+            {
+              "action": "if",
+              "when": {
+                "no_color": { "hsv_min": [100, 80, 40], "hsv_max": [125, 255, 120], "area": [600, 3000] },
+                "roi_by_value": [
+                  { "x": 93, "y": 150, "w": 60, "h": 26 },
+                  { "x": 252, "y": 150, "w": 60, "h": 26 },
+                  { "x": 411, "y": 150, "w": 60, "h": 26 },
+                  { "x": 570, "y": 150, "w": 60, "h": 26 },
+                  { "x": 729, "y": 150, "w": 60, "h": 26 },
+                  { "x": 888, "y": 150, "w": 60, "h": 26 },
+                  { "x": 1047, "y": 150, "w": 60, "h": 26 }
+                ]
+              },
+              "then": [
+                {
+                  "action": "click",
+                  "x": 1221,
+                  "y": 99,
+                  "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
+                  "expect": { "template": "mission_area_title.png", "roi": { "x": 80, "y": 0, "w": 110, "h": 55 }, "threshold": 0.95 },
+                  "timeout_ms": 5000
+                },
+                { "action": "fail", "message": "the batch sweep preset could not be selected" }
+              ]
+            },
             {
               "action": "if",
               "when": { "setting": "batch_runs", "equals": 0 },

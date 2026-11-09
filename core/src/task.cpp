@@ -123,6 +123,13 @@ Condition ParseCondition(const json& obj, const std::string& where) {
         const bool seen = obj.contains("color");
         c.kind = seen ? ConditionKind::kColor : ConditionKind::kNoColor;
         c.color = ParseColor(obj.at(seen ? "color" : "no_color"), where + (seen ? ".color" : ".no_color"));
+        if (auto it = obj.find("roi_by_value"); it != obj.end()) {
+            if (!it->is_array() || it->empty()) throw ParseError(where + ": 'roi_by_value' must be a non-empty array");
+            for (std::size_t i = 0; i < it->size(); ++i) {
+                const json wrapper = {{"roi", (*it)[i]}};
+                if (auto r = ParseRoi(wrapper, where + ".roi_by_value[" + std::to_string(i) + "]")) c.rois_by_value.push_back(*r);
+            }
+        }
         return c;
     }
     if (obj.contains("value")) {
@@ -183,6 +190,9 @@ Step ParseStep(const json& obj, const std::string& where, int depth) {
                     throw ParseError(where + ": 'points' must be a non-empty array");
                 for (std::size_t i = 0; i < pts.size(); ++i)
                     s.points.push_back(ParsePoint(pts[i], where + ".points[" + std::to_string(i) + "]"));
+                const std::string by = OptString(obj, "point_by", where, "loop");
+                if (by != "loop" && by != "value") throw ParseError(where + ": 'point_by' must be 'loop' or 'value'");
+                s.points_by_value = by == "value";
             } else if (s.action == StepAction::kClick && (obj.contains("x") || obj.contains("y"))) {
                 s.point = ParsePoint(obj, where);
             } else {

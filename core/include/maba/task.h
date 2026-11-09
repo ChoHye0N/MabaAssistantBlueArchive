@@ -86,6 +86,7 @@ struct Condition {
     long long number = 0;              // kValue: compared number
     std::optional<TemplateRef> templ;  // kPresent, kAbsent
     std::optional<ColorSpec> color;    // kColor, kNoColor
+    std::vector<Rect> rois_by_value;   // kColor, kNoColor: the area for the each value (1 = first)
     int timeout_ms = 0;                // kPresent/kColor: keep looking this long (0 = one look)
 };
 
@@ -99,6 +100,7 @@ struct Step {
                                        // file name is replaced inside kEach
     std::optional<Point> point;        // kClick (fixed point), kSwipe (start)
     std::vector<Point> points;         // kClick: chosen by the innermost loop iteration (cycled)
+    bool points_by_value = false;      // kClick: chosen by the innermost each value instead (1 = first)
     Point offset;                      // kClick, kClickColor, kClickText: added to the target
     std::optional<Point> retry_offset; // kClickColor: second try on a blob that stayed
     std::vector<std::string> texts;    // kClickText: wanted texts, first found wins

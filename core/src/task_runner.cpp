@@ -5,6 +5,7 @@
 #include "maba/screen_change.h"
 
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
@@ -46,6 +47,14 @@ constexpr int kNumberCropMargin = 16;
 constexpr int kGoneLooks = 4;  // a pressed button is not recognized for a moment: that is not gone
 constexpr int kReadNumberRetries = 3;
 constexpr milliseconds kReadNumberRetryWait{1500};
+
+// 1-based position named by a list value ("1".."99"); 0 when the value is not such a number.
+int PositionOf(const std::string& value) {
+    if (value.empty() || value.size() > 2 ||
+        !std::all_of(value.begin(), value.end(), [](unsigned char ch) { return std::isdigit(ch) != 0; }))
+        return 0;
+    return std::stoi(value);
+}
 
 // Code points of a UTF-8 text, so that a Korean letter counts as one character.
 std::vector<std::string> Characters(const std::string& text) {
@@ -192,6 +201,14 @@ struct TaskRunner::Context {
     int depth = 0;
 };
 
+// The colour of a condition, with its area taken from roi_by_value when it has one.
+static ColorSpec ColorFor(const Condition& c, const std::string& each_value) {
+    ColorSpec spec = *c.color;
+    const int n = PositionOf(each_value);
+    if (n >= 1 && n <= static_cast<int>(c.rois_by_value.size())) spec.roi = c.rois_by_value[static_cast<std::size_t>(n - 1)];
+    return spec;
+}
+
 bool TaskRunner::Holds(const Condition& c, Context& ctx) {
     switch (c.kind) {
         case ConditionKind::kSetting: {
@@ -220,14 +237,15 @@ bool TaskRunner::Holds(const Condition& c, Context& ctx) {
         }
         case ConditionKind::kNoColor: {
             const Observation obs = nav_.Observe();
-            return obs.ok && FindColorBlobs(obs.frame, *c.color, 1).empty();
+            return obs.ok && FindColorBlobs(obs.frame, ColorFor(c, ctx.each_value), 1).empty();
         }
         case ConditionKind::kColor: {
             bool seen = false;
+            const ColorSpec spec = ColorFor(c, ctx.each_value);
             WaitUntil(
                 [&] {
                     const Observation obs = nav_.Observe();
-                    seen = obs.ok && !FindColorBlobs(obs.frame, *c.color, 1).empty();
+                    seen = obs.ok && !FindColorBlobs(obs.frame, spec, 1).empty();
                     return seen;
                 },
                 StepWait(std::max(c.timeout_ms, 100), options_.cancel), nav_.Clock());
@@ -419,9 +437,22 @@ bool TaskRunner::RunStep(const Step& s, Context& ctx, std::string& error) {
         case StepAction::kClickIfPresent: {
             if (!CheckPrecondition(s, ctx, error)) return false;
             if (s.templ) return ClickTemplate(s, ctx, error);
-            Point target = s.point ? *s.point
-                                   : s.points[static_cast<std::size_t>(ctx.loop_index.empty() ? 0 : ctx.loop_index.back()) %
-                                              s.points.size()];
+            Point target;
+            if (s.point) {
+                target = *s.point;
+            } else if (s.points_by_value) {
+                // A list setting of positions ("1".."7"): the value says which point, so players can
+                // pick and order them freely.
+                const int n = PositionOf(ctx.each_value);
+                if (n < 1 || n > static_cast<int>(s.points.size())) {
+                    error = "no point for the value '" + ctx.each_value + "'";
+                    return false;
+                }
+                target = s.points[static_cast<std::size_t>(n - 1)];
+            } else {
+                target = s.points[static_cast<std::size_t>(ctx.loop_index.empty() ? 0 : ctx.loop_index.back()) %
+                                  s.points.size()];
+            }
             target = Offset(target, s.offset);
             return CheckedAction(
                 s, ctx,
