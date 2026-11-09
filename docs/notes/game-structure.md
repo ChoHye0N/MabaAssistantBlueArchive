@@ -80,6 +80,8 @@ Banners at the top left of the campaign hub, newest first. There are two kinds:
 
 An event whose play period ended still opens and says so.
 
+**Pyroxene purchases.** AP: the + beside AP on the main screen sells 120 AP (30 pyroxene at first, 20 a day); AP stops at 999. Shop "refresh now" (bottom right of the shop) renews the purchase counts, not the items (40 pyroxene at first, 3 a day). Both ask before spending.
+
 ## Campaigns
 A campaign raises the rewards of one kind of content for a limited time, usually for about a week. Public sources and past announcements; no official schedule for 2026 was found.
 
