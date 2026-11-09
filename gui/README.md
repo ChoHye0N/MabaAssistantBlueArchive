@@ -8,7 +8,7 @@
 3. Run `gui/Maba.Gui/bin/Release/net10.0-windows/MabaAssistantBlueArchive.exe`. It finds the data folder (`pages/`, `tasks/`, `config/`) by searching upward from the executable; the Settings tab can point it elsewhere.
 
 ## Layout
-- `Views/MainWindow.xaml`: tabs for tasks, my info, settings and log.
+- `Views/MainWindow.xaml`: tabs for tasks, my info, settings and log. The tasks tab lists the tasks on the left (drag the grip to reorder) and shows the chosen task (description, settings, last result) or a summary of the day on the right.
 - `ViewModels/MainViewModel.cs`: task selection, connect/start/stop, Core events, the daily scheduler.
 - `Services/SettingsStore.cs`: settings in `%APPDATA%\MabaAssistantBlueArchive\settings.json` (user profile, never the repository).
 - `ViewModels/AccountCard.cs`: one box per `accounts/<uid>.json`.

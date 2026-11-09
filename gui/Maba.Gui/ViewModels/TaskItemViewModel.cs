@@ -23,7 +23,11 @@ public partial class TaskItemViewModel : ObservableObject
         After = task.After.Count == 0 ? "" : string.Join(", ", task.After);
         _isSelected = selected;
         _statusText = Implemented ? "" : Strings.Get("Task.NotImplemented");
+        Description = Optional("TaskInfo." + task.Id);
+        Warning = Optional("TaskWarn." + task.Id);
     }
+
+    private static string Optional(string key) => Strings.Get(key) is var s && s != key ? s : "";
 
     public string Id { get; }
     public string Name { get; }
@@ -32,6 +36,20 @@ public partial class TaskItemViewModel : ObservableObject
     public string After { get; }
     public ObservableCollection<SettingItemViewModel> Settings { get; } = new();
     public bool HasSettings => Settings.Count > 0;
+    public string Description { get; }
+    public string Warning { get; }
+
+    [ObservableProperty]
+    private string _shortStatus = "";
+
+    [ObservableProperty]
+    private string _lastResult = "";
+
+    public void ShowLastResult(Services.TaskResult? r)
+    {
+        LastResult = r is null ? "" : $"{r.Time.ToLocalTime():MM-dd HH:mm} · {Strings.Get("Status." + r.Status)}"
+                                       + (string.IsNullOrEmpty(r.Message) ? "" : $": {r.Message}");
+    }
 
     public JsonObject SettingsJson()
     {
@@ -55,9 +73,11 @@ public partial class TaskItemViewModel : ObservableObject
         if (string.IsNullOrEmpty(status))
         {
             StatusText = Implemented ? "" : Strings.Get("Task.NotImplemented");
+            ShortStatus = "";
             return;
         }
         var label = Strings.Get("Status." + status);
+        ShortStatus = label;
         StatusText = string.IsNullOrEmpty(message) ? label : $"{label}: {message}";
     }
 }

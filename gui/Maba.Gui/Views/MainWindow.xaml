@@ -55,59 +55,86 @@
                         <Button Content="{DynamicResource Profile.ResetOrder}" Command="{Binding ResetOrderCommand}" Margin="8,0,0,0"
                                 HorizontalAlignment="Left" />
                     </DockPanel>
-                    <hc:ScrollViewer>
-                        <ItemsControl ItemsSource="{Binding Tasks}">
-                            <ItemsControl.ItemTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="320" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <ListBox x:Name="TaskList" ItemsSource="{Binding Tasks}" SelectedItem="{Binding SelectedTask}"
+                                 PreviewDragOver="OnTaskListDragOver" BorderThickness="1"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem" BasedOn="{StaticResource ListBoxItemBaseStyle}">
+                                    <Setter Property="Padding" Value="0" />
+                                    <Setter Property="Margin" Value="0" />
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
                                 <DataTemplate DataType="{x:Type vm:TaskItemViewModel}">
-                                    <Border Margin="0,0,0,6" Padding="10,8" CornerRadius="4"
-                                            Background="{DynamicResource RegionBrush}"
-                                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
-                                        <StackPanel>
+                                    <Border Padding="6,6" Background="Transparent" BorderBrush="Transparent" BorderThickness="1"
+                                            AllowDrop="True" DragOver="OnTaskDragOver" DragLeave="OnTaskDragLeave" Drop="OnTaskDrop">
                                         <DockPanel>
-                                            <StackPanel DockPanel.Dock="Left" Margin="0,0,6,0" VerticalAlignment="Center"
-                                                        IsEnabled="{Binding DataContext.IsRunning, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource Boolean2BooleanReConverter}}">
-                                                <Button Style="{StaticResource ButtonIcon}" Width="22" Height="16" Padding="2"
-                                                        hc:IconElement.Geometry="M7 14L12 9L17 14Z" ToolTip="{DynamicResource Tasks.MoveUp}"
-                                                        AutomationProperties.Name="{DynamicResource Tasks.MoveUp}"
-                                                        Command="{Binding DataContext.MoveTaskUpCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                        CommandParameter="{Binding}" />
-                                                <Button Style="{StaticResource ButtonIcon}" Width="22" Height="16" Padding="2"
-                                                        hc:IconElement.Geometry="M7 10L12 15L17 10Z" ToolTip="{DynamicResource Tasks.MoveDown}"
-                                                        AutomationProperties.Name="{DynamicResource Tasks.MoveDown}"
-                                                        Command="{Binding DataContext.MoveTaskDownCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                        CommandParameter="{Binding}" />
-                                            </StackPanel>
-                                            <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center"
-                                                       MaxWidth="320" TextTrimming="CharacterEllipsis"
-                                                       Foreground="{DynamicResource SecondaryTextBrush}"
-                                                       Text="{Binding StatusText}" ToolTip="{Binding StatusText}" />
+                                            <Border DockPanel.Dock="Left" Margin="-4,0,6,0" Padding="2,4" Background="Transparent"
+                                                    Cursor="SizeAll" ToolTip="{DynamicResource Tasks.Drag}"
+                                                    AutomationProperties.Name="{DynamicResource Tasks.Drag}"
+                                                    PreviewMouseLeftButtonDown="OnGripDown" PreviewMouseMove="OnGripMove"
+                                                    IsEnabled="{Binding DataContext.IsRunning, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={StaticResource Boolean2BooleanReConverter}}">
+                                                <Path Width="12" Height="18" Stretch="Uniform" Fill="{DynamicResource SecondaryTextBrush}" Data="M9 5A1.5 1.5 0 1 1 9 8A1.5 1.5 0 1 1 9 5ZM15 5A1.5 1.5 0 1 1 15 8A1.5 1.5 0 1 1 15 5ZM9 10.5A1.5 1.5 0 1 1 9 13.5A1.5 1.5 0 1 1 9 10.5ZM15 10.5A1.5 1.5 0 1 1 15 13.5A1.5 1.5 0 1 1 15 10.5ZM9 16A1.5 1.5 0 1 1 9 19A1.5 1.5 0 1 1 9 16ZM15 16A1.5 1.5 0 1 1 15 19A1.5 1.5 0 1 1 15 16Z" />
+                                            </Border>
+                                            <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center" Margin="6,0,0,0"
+                                                       Foreground="{DynamicResource SecondaryTextBrush}" Text="{Binding ShortStatus}" />
                                             <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center"
-                                                      IsEnabled="{Binding DataContext.IsRunning, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource Boolean2BooleanReConverter}}">
-                                                <StackPanel>
-                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}" Text="{Binding Id}" />
-                                                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}" Margin="8,0,0,0"
-                                                                   Visibility="{Binding After, Converter={StaticResource String2VisibilityConverter}}">
-                                                            <Run Text="{DynamicResource Tasks.After}" />: <Run Text="{Binding After, Mode=OneWay}" />
-                                                        </TextBlock>
-                                                        <Border Margin="8,0,0,0" Padding="4,0" CornerRadius="2"
-                                                                Background="{DynamicResource SecondaryRegionBrush}"
-                                                                Visibility="{Binding NeedsOcr, Converter={StaticResource Boolean2VisibilityConverter}}">
-                                                            <TextBlock Text="{DynamicResource Tasks.Ocr}" FontSize="11" />
-                                                        </Border>
-                                                    </StackPanel>
-                                                </StackPanel>
-                                            </CheckBox>
+                                                      IsEnabled="{Binding DataContext.IsRunning, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={StaticResource Boolean2BooleanReConverter}}" />
+                                            <TextBlock Margin="6,0,0,0" VerticalAlignment="Center" Text="{Binding Name}"
+                                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}" />
                                         </DockPanel>
-                                        <Expander Header="{DynamicResource Tasks.Settings}" Margin="22,6,0,0"
-                                                  Visibility="{Binding HasSettings, Converter={StaticResource Boolean2VisibilityConverter}}"
-                                                  IsEnabled="{Binding DataContext.IsRunning, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource Boolean2BooleanReConverter}}">
-                                            <ItemsControl ItemsSource="{Binding Settings}" Margin="0,6,0,0">
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <!-- Right: the chosen task, or today's summary -->
+                        <Border Grid.Column="2" Padding="16" CornerRadius="4" Background="{DynamicResource RegionBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                            <Grid>
+                                <hc:ScrollViewer Visibility="{Binding DataContext.HasSelectedTask, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                                 DataContext="{Binding SelectedTask}">
+                                    <StackPanel>
+                                        <DockPanel>
+                                            <Button DockPanel.Dock="Right" Content="{DynamicResource Summary.Back}" VerticalAlignment="Top"
+                                                    Command="{Binding DataContext.ClearSelectedTaskCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                            <TextBlock Style="{StaticResource TextBlockSubTitleBold}" HorizontalAlignment="Left"
+                                                       TextWrapping="Wrap" Text="{Binding Name}" />
+                                        </DockPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <TextBlock Foreground="{DynamicResource SecondaryTextBrush}" Text="{Binding Id}" />
+                                            <TextBlock Foreground="{DynamicResource SecondaryTextBrush}" Margin="8,0,0,0"
+                                                       Visibility="{Binding After, Converter={StaticResource String2VisibilityConverter}}">
+                                                <Run Text="{DynamicResource Tasks.After}" />: <Run Text="{Binding After, Mode=OneWay}" />
+                                            </TextBlock>
+                                            <Border Margin="8,0,0,0" Padding="4,0" CornerRadius="2" Background="{DynamicResource SecondaryRegionBrush}"
+                                                    Visibility="{Binding NeedsOcr, Converter={StaticResource Boolean2VisibilityConverter}}">
+                                                <TextBlock Text="{DynamicResource Tasks.Ocr}" FontSize="11" />
+                                            </Border>
+                                        </StackPanel>
+                                        <Border Margin="0,10,0,0" Padding="10,6" CornerRadius="4" Background="{DynamicResource DangerBrush}"
+                                                Visibility="{Binding Warning, Converter={StaticResource String2VisibilityConverter}}">
+                                            <TextBlock Foreground="White" TextWrapping="Wrap" Text="{Binding Warning}" />
+                                        </Border>
+                                        <TextBlock Margin="0,10,0,0" TextWrapping="Wrap" Text="{Binding Description}"
+                                                   Visibility="{Binding Description, Converter={StaticResource String2VisibilityConverter}}" />
+
+                                        <TextBlock Margin="0,16,0,4" FontWeight="SemiBold" Text="{DynamicResource Tasks.Settings}" />
+                                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}" Text="{DynamicResource Tasks.NoSettings}"
+                                                   Visibility="{Binding HasSettings, Converter={StaticResource Boolean2VisibilityReConverter}}" />
+                                        <ItemsControl ItemsSource="{Binding Settings}" Margin="0,4,0,0"
+              IsEnabled="{Binding DataContext.IsRunning, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource Boolean2BooleanReConverter}}">
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate DataType="{x:Type vm:SettingItemViewModel}">
                                                         <DockPanel Margin="0,0,0,6">
-                                                            <TextBlock DockPanel.Dock="Left" Width="300" VerticalAlignment="Center"
+                                                            <TextBlock DockPanel.Dock="Left" Width="240" VerticalAlignment="Center"
                                                                        TextWrapping="Wrap" Text="{Binding Label}" ToolTip="{Binding Key}" />
                                                             <Grid>
                                                                 <CheckBox IsChecked="{Binding BoolValue}"
@@ -137,13 +164,30 @@
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
-                                        </Expander>
-                                        </StackPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </hc:ScrollViewer>
+
+                                        <TextBlock Margin="0,16,0,4" FontWeight="SemiBold" Text="{DynamicResource Tasks.LastResult}" />
+                                        <TextBlock TextWrapping="Wrap" Text="{Binding StatusText}"
+                                                   Visibility="{Binding StatusText, Converter={StaticResource String2VisibilityConverter}}" />
+                                        <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}" Text="{Binding LastResult}"
+                                                   Visibility="{Binding LastResult, Converter={StaticResource String2VisibilityConverter}}" />
+                                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}" Text="{DynamicResource Tasks.NoResult}"
+                                                   Visibility="{Binding LastResult, Converter={StaticResource String2VisibilityReConverter}}" />
+                                    </StackPanel>
+                                </hc:ScrollViewer>
+                                <StackPanel Visibility="{Binding HasSelectedTask, Converter={StaticResource Boolean2VisibilityReConverter}}">
+                                    <TextBlock Style="{StaticResource TextBlockSubTitleBold}" HorizontalAlignment="Left" Text="{DynamicResource Summary.Title}" />
+                                    <TextBlock Margin="0,16,0,4" FontWeight="SemiBold" Text="{DynamicResource Summary.NextRun}" />
+                                    <TextBlock TextWrapping="Wrap" Text="{Binding NextRunText}" />
+                                    <TextBlock Margin="0,12,0,4" FontWeight="SemiBold" Text="{DynamicResource Summary.Account}" />
+                                    <TextBlock TextWrapping="Wrap" Text="{Binding SummaryAccount}" />
+                                    <TextBlock Margin="0,12,0,4" FontWeight="SemiBold" Text="{DynamicResource Summary.LastRun}" />
+                                    <TextBlock TextWrapping="Wrap" Text="{Binding SummaryLastRun}" />
+                                    <TextBlock Margin="0,20,0,0" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"
+                                               Text="{DynamicResource Summary.Pick}" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
                 </DockPanel>
             </TabItem>
 

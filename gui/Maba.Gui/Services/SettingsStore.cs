@@ -43,7 +43,14 @@ public sealed class AppSettings
     public int ScheduleHour { get; set; } = 7;
     public int ScheduleMinute { get; set; }
     public DateTimeOffset? LastScheduledRun { get; set; }
+    // Last outcome per task id and of the last run, shown in the tasks tab (no account data).
+    public Dictionary<string, TaskResult> LastResults { get; set; } = new();
+    public RunSummary? LastRun { get; set; }
 }
+
+public sealed record TaskResult(DateTimeOffset Time, string Status, string Message);
+
+public sealed record RunSummary(DateTimeOffset Time, int Succeeded, int Failed, int Skipped, bool Cancelled);
 
 // A player's set of dailies: which tasks, their settings, and the order they run in.
 public sealed partial class TaskProfile : CommunityToolkit.Mvvm.ComponentModel.ObservableObject

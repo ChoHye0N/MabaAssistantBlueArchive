@@ -80,6 +80,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public ObservableCollection<TaskItemViewModel> Tasks { get; } = new();
     public ObservableCollection<TaskProfile> Profiles { get; } = new();
     [ObservableProperty] private TaskProfile _selectedProfile;
+    [ObservableProperty] private TaskItemViewModel? _selectedTask;
+    public bool HasSelectedTask => SelectedTask is not null;
+
+    partial void OnSelectedTaskChanged(TaskItemViewModel? value) => OnPropertyChanged(nameof(HasSelectedTask));
+    [ObservableProperty] private string _summaryAccount = "";
+    [ObservableProperty] private string _summaryLastRun = "";
     private IReadOnlyList<CoreTask> _coreTasks = Array.Empty<CoreTask>();
     private bool _loadingTasks;
     public ObservableCollection<LogEntry> Log { get; } = new();
@@ -237,7 +243,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
         foreach (var t in ordered)
             Tasks.Add(new TaskItemViewModel(t, profile.SelectedTasks.Contains(t.Id),
                                             profile.TaskSettings.GetValueOrDefault(t.Id), OnTaskSettingsChanged));
-        foreach (var t in Tasks) t.PropertyChanged += OnTaskSelectionChanged;
+        foreach (var t in Tasks)
+        {
+            t.PropertyChanged += OnTaskSelectionChanged;
+            t.ShowLastResult(_settings.LastResults.GetValueOrDefault(t.Id));
+        }
+        SelectedTask = Tasks.FirstOrDefault(t => t.Id == SelectedTask?.Id);
         _loadingTasks = false;
         StartCommand.NotifyCanExecuteChanged();
     }
@@ -287,17 +298,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
         LoadTasks();
     }
 
-    [RelayCommand]
-    private void MoveTaskUp(TaskItemViewModel task) => MoveTask(task, -1);
-
-    [RelayCommand]
-    private void MoveTaskDown(TaskItemViewModel task) => MoveTask(task, 1);
-
-    private void MoveTask(TaskItemViewModel task, int by)
+    // Drag and drop in the task list: the task takes the place of the one it was dropped on.
+    public void MoveTaskTo(TaskItemViewModel task, int to)
     {
         var from = Tasks.IndexOf(task);
-        var to = from + by;
-        if (IsRunning || from < 0 || to < 0 || to >= Tasks.Count) return;
+        if (IsRunning || from < 0 || to < 0 || to >= Tasks.Count || from == to) return;
         Tasks.Move(from, to);
         SelectedProfile.Order = Tasks.Select(t => t.Id).ToList();
         Save();
@@ -524,7 +529,25 @@ public partial class MainViewModel : ObservableObject, IDisposable
         Accounts.Clear();
         foreach (var card in AccountCard.LoadAll(AccountsFolder)) Accounts.Add(card);
         OnPropertyChanged(nameof(HasAccounts));
+        UpdateSummary();
     }
+
+    // The right side of the tasks tab when no task is chosen.
+    private void UpdateSummary()
+    {
+        var card = Accounts.FirstOrDefault();
+        SummaryAccount = card is null
+            ? Strings.Get("Summary.NoAccount")
+            : Strings.Format("Summary.AccountFormat", card.Ap, card.Pyroxene, card.Updated);
+        var run = _settings.LastRun;
+        SummaryLastRun = run is null
+            ? Strings.Get("Summary.NoRun")
+            : Strings.Format(run.Cancelled ? "Summary.RunCancelledFormat" : "Summary.RunFormat",
+                             run.Time.ToLocalTime().ToString("MM-dd HH:mm"), run.Succeeded, run.Failed, run.Skipped);
+    }
+
+    [RelayCommand]
+    private void ClearSelectedTask() => SelectedTask = null;
 
     // The history lives in the same file, so this cannot be undone; the next account record starts over.
     [RelayCommand]
@@ -555,7 +578,15 @@ public partial class MainViewModel : ObservableObject, IDisposable
             {
                 var id = e["id"]?.GetValue<string>();
                 var task = Tasks.FirstOrDefault(t => t.Id == id);
-                task?.SetStatus(e["status"]?.GetValue<string>() ?? "", e["message"]?.GetValue<string>() ?? "");
+                var status = e["status"]?.GetValue<string>() ?? "";
+                var message = e["message"]?.GetValue<string>() ?? "";
+                task?.SetStatus(status, message);
+                if (id is not null && status is "succeeded" or "failed" or "skipped" or "cancelled")
+                {
+                    var result = new TaskResult(DateTimeOffset.UtcNow, status, message);
+                    _settings.LastResults[id] = result;
+                    task?.ShowLastResult(result);
+                }
                 break;
             }
             case "failure_frame":
@@ -570,6 +601,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 var error = e["error"]?.GetValue<string>() ?? "";
                 if (!string.IsNullOrEmpty(error)) AddLog("error", error);
                 StatusText = Strings.Get(cancelled ? "Status.Cancelled" : ok ? "Status.Finished" : "Status.FinishedWithErrors");
+                _settings.LastRun = new RunSummary(DateTimeOffset.UtcNow,
+                    Tasks.Count(t => t.Status == "succeeded"), Tasks.Count(t => t.Status == "failed"),
+                    Tasks.Count(t => t.Status == "skipped"), cancelled);
+                Save();
+                UpdateSummary();
                 if (_runIsScheduled)
                 {
                     // A scheduled day counts as done even after failures: retrying in a loop
