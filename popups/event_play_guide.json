@@ -1,0 +1,23 @@
+{
+  "id": "event_play_guide",
+  "notes": [
+    "Play guide ('play guide (1/8)') shown the first time an event page opens; closed with the X. The 'play guide' button on the event page itself sits elsewhere (top left), outside the anchor area."
+  ],
+  "priority": 5,
+  "anchors": [
+    {
+      "template": "popup_event_play_guide.png",
+      "roi": {
+        "x": 520,
+        "y": 125,
+        "w": 270,
+        "h": 60
+      },
+      "threshold": 0.9
+    }
+  ],
+  "dismiss": {
+    "x": 1184,
+    "y": 155
+  }
+}

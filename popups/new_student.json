@@ -1,0 +1,20 @@
+{
+  "id": "new_student",
+  "notes": [
+    "New student introduction (name card and 'S.C.H.A.L.E Admission application' sheet), shown when a story stage gives a student, e.g. the first story stage of an event. Back closes it; a reward result follows."
+  ],
+  "priority": 5,
+  "anchors": [
+    {
+      "template": "popup_new_student.png",
+      "roi": {
+        "x": 785,
+        "y": 165,
+        "w": 310,
+        "h": 70
+      },
+      "threshold": 0.85
+    }
+  ],
+  "dismiss": "back"
+}

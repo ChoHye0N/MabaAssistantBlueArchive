@@ -7,12 +7,12 @@ Window class `UnityWndClass`, title `Blue Archive`, 16:9 client area. BitBlt, Pr
 
 ## Screens
 
-**Main screen.** Top bar: level and nickname, AP, credits, pyroxene, friends, mail, menu collection. Left: notice, MomoTalk, missions, pyroxene purchase. Bottom bar: cafe, schedule, students, formation, social, crafting, shop, recruitment. Bottom right: campaign hub.
+**Main screen.** Top bar: level and nickname, AP, credits, pyroxene, friends, mail, menu collection. Left: notice, MomoTalk, attendance, missions, cash shop (labelled "pyroxene purchase" before the 2026-11-10 update). Bottom bar: cafe, schedule, students, formation, social, crafting, shop, recruitment. Bottom right: campaign hub.
 
 - The menu collection holds options, account, equipment, items, attendance, sticker book and title. The title button may allow a new login without closing the game (**verify**).
 - After some idle time the interface hides on the lobby; a tap brings it back.
 
-**Campaign hub.** Missions, story, bounty, commissions, scrimmage, total assault, joint firing drill, grand assault, tactical challenge, limit-release showdown. Event banners sit at the top left and rotate when there are several.
+**Campaign hub.** Top row: missions, virtual aptitude test (beta, locked; added 2026-11-10, which made the missions card narrower), story. Then bounty, commissions, scrimmage, total assault, joint firing drill, grand assault, tactical challenge, limit-release showdown. Event banners sit at the top left and rotate when there are several.
 
 **Sub pages.** The top bar shows AP, credits, pyroxene, the options gear and the home button.
 
@@ -25,7 +25,7 @@ Window class `UnityWndClass`, title `Blue Archive`, 16:9 client area. BitBlt, Pr
 | Scrimmage | 3 academies, then a stage list |
 | Tactical challenge | Claim rewards, opponent list, formation, sortie |
 | Shop | Tabs: general, pyroxene, Eligma I and II, total assault, grand assault. "Refresh now" costs pyroxene. The general list is longer than the screen |
-| Pyroxene purchase | Real-money items with tabs for special sale, pyroxene and packages. The daily free package sits under packages |
+| Cash shop | Full screen since the 2026-11-10 update. Categories on the left: recommended, special, subscriptions, general, pyroxene, special support; mostly real-money items. The daily free package is under general, daily: its band turns red ("0 purchases left") once claimed |
 
 Stage dialogs differ in size: the one of campaign missions has tabs and sits about 30 px away from the one of bounty and commissions.
 
@@ -75,7 +75,7 @@ Later logins skip the attendance screens. An "expiring items" notice can follow 
 ## Events
 Banners at the top left of the campaign hub, newest first. There are two kinds:
 
-- Story events have Story, Quest and Challenge tabs.
+- Story events have Story and Quest tabs; some also have a Challenge tab, which moves the Quest tab (2026-11-10 event: two tabs). First visit: a play guide opens, and a story stage that gives a student shows its introduction screen.
 - Other events (seen: a settlement event) have a shop and links to missions and commissions, with no stages of their own. AP spending skips them.
 
 An event whose play period ended still opens and says so.
@@ -97,6 +97,6 @@ A campaign raises the rewards of one kind of content for a limited time, usually
 
 Past notices left out relationship points, area EXP, bounty coins and first clear rewards. Fan calendars are predictions and differ from what happens.
 
-In the game a "campaign running" bubble shows on the main screen and a badge on the card in the campaign hub (seen on the missions card). Badges on other cards and how a multiplier is shown: **verify**. Reading the badge is more reliable than a calendar.
+In the game a "campaign running" bubble shows on the main screen and a badge on the card in the campaign hub (seen on the missions, bounty and scrimmage cards; the scrimmage badge is drawn slightly smaller). Inside bounty and scrimmage a "campaign running" box states the multiplier, e.g. 3x (+200%) rewards, and the days left. Reading the badge is more reliable than a calendar.
 
 **Batch sweep** (mission page, bottom left): 7 preset tabs that players rename, so they are told apart by position. A preset lists checked Normal and Hard stages (only 3-star stages can be checked); one count applies to every checked stage. Hard stages allow 3 runs a day each, so MAX stops at the runs left; an empty preset or no runs left shows 0 and a grey button. The sweep asks "sweep details" with the total AP, then shows a "sweep done" result.

@@ -1,46 +1,74 @@
 {
   "id": "free_package",
-  "name": "Pyroxene purchase: daily free package",
+  "name": "Pyroxene shop: daily free package",
   "order": 40,
   "after": [],
   "status": "wip",
   "needs_ocr": false,
   "notes": [
-    "Route: main screen -> pyroxene purchase (loads for a few seconds) -> packages tab -> 'daily free package'.",
-    "Safety: the dialog sells real-money items. A buy button is pressed only where the 'free' price label matches, and the purchase is confirmed only when the confirmation shows the price 'free'.",
-    "Contents seen on 2026-11-02: 10,000 credits and 10 AP."
+    "Route since the 2026-11-10 update: main screen -> 'cash shop' (left) opens the full screen cash shop -> 'general' (left, 4th) -> 'daily' -> 'daily free package'.",
+    "Safety: the shop sells real-money items. The button is pressed only while the card's title and its 'free' label are both seen, and the purchase is confirmed only when the question's price row says 'free'.",
+    "Contents seen on 2026-11-10: 10 AP and 10,000 credits.",
+    "Once claimed the card turns dark and its band red ('0 purchases left'); a template still matches a dark card, so the red band decides."
   ],
+  "settings": [],
   "steps": [
     { "action": "goto", "page": "gem_shop" },
+    { "action": "wait_stable", "timeout_ms": 5000 },
     {
       "action": "click",
-      "x": 897,
-      "y": 182,
-      "expect": { "template": "gem_shop_package_tab_active.png", "roi": { "x": 750, "y": 150, "w": 300, "h": 70 }, "threshold": 0.9 },
+      "x": 130,
+      "y": 317,
+      "require": { "template": "cash_shop_title.png", "roi": { "x": 90, "y": 0, "w": 110, "h": 50 }, "threshold": 0.9 },
+      "no_verify": true
+    },
+    { "action": "wait_stable", "timeout_ms": 4000 },
+    {
+      "action": "click",
+      "x": 888,
+      "y": 99,
+      "require": { "template": "cash_shop_title.png", "roi": { "x": 90, "y": 0, "w": 110, "h": 50 }, "threshold": 0.9 },
+      "no_verify": true
+    },
+    { "action": "wait_stable", "timeout_ms": 4000 },
+    {
+      "action": "if",
+      "when": { "absent": { "template": "cash_shop_free_package.png", "roi": { "x": 260, "y": 330, "w": 800, "h": 80 }, "threshold": 0.9 } },
+      "then": [{ "action": "return_home" }, { "action": "end", "status": "skipped", "message": "no free package offered" }]
+    },
+    {
+      "action": "if",
+      "when": { "color": { "hsv_min": [170, 120, 120], "hsv_max": [180, 255, 255], "area": [2500, 8000], "roi": { "x": 262, "y": 306, "w": 246, "h": 34 } } },
+      "then": [{ "action": "return_home" }, { "action": "end", "message": "already claimed today" }]
+    },
+    {
+      "action": "if",
+      "when": { "absent": { "template": "cash_shop_free_price.png", "roi": { "x": 260, "y": 395, "w": 800, "h": 60 }, "threshold": 0.9 } },
+      "then": [{ "action": "return_home" }, { "action": "end", "message": "already claimed today" }]
+    },
+    {
+      "action": "click",
+      "template": "cash_shop_free_price.png",
+      "roi": { "x": 260, "y": 395, "w": 800, "h": 60 },
+      "threshold": 0.9,
+      "require": { "template": "cash_shop_free_package.png", "roi": { "x": 260, "y": 330, "w": 800, "h": 80 }, "threshold": 0.9 },
+      "expect": { "template": "cash_shop_confirm_question.png", "roi": { "x": 460, "y": 115, "w": 370, "h": 70 }, "threshold": 0.9 },
       "timeout_ms": 6000
     },
     {
       "action": "if",
-      "when": { "color": { "hsv_min": [170, 120, 110], "hsv_max": [180, 255, 200], "area": [1000, 8000], "roi": { "x": 258, "y": 416, "w": 250, "h": 30 } } },
-      "then": [{"action": "return_home"}, {"action": "end", "message": "already claimed today"}]
-    },
-    {
-      "action": "if",
-      "when": { "absent": { "template": "gem_shop_free_price.png", "roi": { "x": 250, "y": 430, "w": 800, "h": 80 }, "threshold": 0.95 } },
-      "then": [{"action": "return_home"}, {"action": "end", "message": "no free package offered"}]
-    },
-    {
-      "action": "click",
-      "template": "gem_shop_free_price.png",
-      "roi": { "x": 250, "y": 430, "w": 800, "h": 80 },
-      "threshold": 0.95,
-      "expect": { "template": "gem_shop_confirm_question.png", "roi": { "x": 440, "y": 110, "w": 400, "h": 80 }, "threshold": 0.9 }
-    },
-    {
-      "action": "if",
-      "when": { "present": { "template": "gem_shop_confirm_price_free.png", "roi": { "x": 780, "y": 400, "w": 150, "h": 80 }, "threshold": 0.95 } },
-      "then": [{ "action": "click", "template": "dialog_ok_yellow.png", "roi": { "x": 640, "y": 530, "w": 260, "h": 110 }, "threshold": 0.9 }],
-      "else": [{"action": "back"}, {"action": "fail", "message": "the confirmation does not show a free price"}]
+      "when": { "present": { "template": "cash_shop_confirm_free.png", "roi": { "x": 720, "y": 415, "w": 280, "h": 55 }, "threshold": 0.9 } },
+      "then": [
+        {
+          "action": "click",
+          "x": 763,
+          "y": 594,
+          "require": { "template": "cash_shop_confirm_question.png", "roi": { "x": 460, "y": 115, "w": 370, "h": 70 }, "threshold": 0.9 },
+          "no_verify": true
+        },
+        { "action": "wait_stable", "timeout_ms": 5000 }
+      ],
+      "else": [{ "action": "back" }, { "action": "fail", "message": "the question does not show a free price" }]
     },
     { "action": "return_home" }
   ]

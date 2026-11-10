@@ -1,13 +1,34 @@
 {
   "id": "gem_shop",
   "notes": [
-    "Pyroxene purchase dialog over the main screen. Tabs: special sale, pyroxene, packages. Most items cost real money.",
-    "Safety: a task may press a buy button only when gem_shop_free_price.png (the 'free' price label) matches on that very button."
+    "Cash shop (full screen since the 2026-11-10 update; was a dialog). Opened from 'cash shop' on the main screen (left side). Categories on the left: recommended, special, subscriptions, general, pyroxene, special support. Most items cost real money.",
+    "Safety: a task may press a buy button only when the 'free' price label matches on that very button."
   ],
   "anchors": [
-    { "template": "gem_shop_title.png", "roi": { "x": 540, "y": 80, "w": 200, "h": 70 }, "threshold": 0.9 }
+    {
+      "template": "cash_shop_title.png",
+      "roi": {
+        "x": 90,
+        "y": 0,
+        "w": 110,
+        "h": 50
+      },
+      "threshold": 0.9
+    }
   ],
   "transitions": [
-    { "to": "main_menu", "click": { "x": 1008, "y": 113 } }
+    {
+      "to": "main_menu",
+      "click": {
+        "template": "common_home_button.png",
+        "roi": {
+          "x": 1195,
+          "y": 0,
+          "w": 85,
+          "h": 55
+        },
+        "threshold": 0.9
+      }
+    }
   ]
 }

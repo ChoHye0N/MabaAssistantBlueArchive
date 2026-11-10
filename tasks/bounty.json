@@ -36,7 +36,7 @@
         { "action": "wait_stable", "timeout_ms": 3000 },
         {
           "action": "if",
-          "when": { "absent": { "template": "campaign_bonus_tag.png", "roi": { "x": 650, "y": 305, "w": 200, "h": 70 }, "threshold": 0.9 } },
+          "when": { "absent": { "template": "campaign_bonus_tag.png", "roi": { "x": 650, "y": 305, "w": 200, "h": 70 }, "threshold": 0.8 } },
           "then": [{ "action": "return_home" }, { "action": "end", "status": "skipped", "message": "no campaign bonus now" }]
         }
       ]

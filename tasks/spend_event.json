@@ -148,17 +148,16 @@
     },
     {
       "action": "click",
-      "when": { "absent": { "template": "event_quest_tab_active.png", "roi": { "x": 840, "y": 75, "w": 220, "h": 70 }, "threshold": 0.9 } },
-      "x": 943,
-      "y": 110,
-      "expect": { "template": "event_quest_tab_active.png", "roi": { "x": 840, "y": 75, "w": 220, "h": 70 }, "threshold": 0.9 },
+      "when": { "absent": { "template": "event_quest_tab_active.png", "roi": { "x": 680, "y": 75, "w": 540, "h": 70 }, "threshold": 0.9 } },
+      "template": "event_quest_tab.png", "roi": { "x": 680, "y": 75, "w": 540, "h": 70 }, "threshold": 0.9,
+      "expect": { "template": "event_quest_tab_active.png", "roi": { "x": 680, "y": 75, "w": 540, "h": 70 }, "threshold": 0.9 },
       "retries": 1,
       "optional": true,
       "quiet": true
     },
     {
       "action": "if",
-      "when": { "absent": { "template": "event_quest_tab_active.png", "roi": { "x": 840, "y": 75, "w": 220, "h": 70 }, "threshold": 0.9 } },
+      "when": { "absent": { "template": "event_quest_tab_active.png", "roi": { "x": 680, "y": 75, "w": 540, "h": 70 }, "threshold": 0.9 } },
       "then": [{ "action": "return_home" }, { "action": "end", "status": "skipped", "message": "nothing to sweep here" }]
     },
     {
@@ -248,7 +247,7 @@
               "until": { "present": { "template": "event_title.png", "roi": { "x": 80, "y": 0, "w": 130, "h": 55 }, "threshold": 0.9 } },
               "steps": [{ "action": "sleep", "sleep_ms": 8000 }]
             },
-            { "action": "click", "x": 943, "y": 110, "on_page": "event", "no_verify": true }
+            { "action": "click", "template": "event_quest_tab.png", "roi": { "x": 680, "y": 75, "w": 540, "h": 70 }, "threshold": 0.9, "on_page": "event", "no_verify": true, "optional": true, "quiet": true }
           ]
         }
       ]
@@ -353,7 +352,7 @@
           "until": { "present": { "template": "event_title.png", "roi": { "x": 80, "y": 0, "w": 130, "h": 55 }, "threshold": 0.9 } },
           "steps": [{ "action": "sleep", "sleep_ms": 8000 }]
         },
-        { "action": "click", "x": 943, "y": 110, "on_page": "event", "no_verify": true },
+        { "action": "click", "template": "event_quest_tab.png", "roi": { "x": 680, "y": 75, "w": 540, "h": 70 }, "threshold": 0.9, "on_page": "event", "no_verify": true, "optional": true, "quiet": true },
         { "action": "return_home" },
         { "action": "end", "status": "skipped", "message": "nothing to sweep here" }
       ]

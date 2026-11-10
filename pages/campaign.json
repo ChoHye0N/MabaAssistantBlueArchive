@@ -2,7 +2,7 @@
   "id": "campaign",
   "notes": [
     "Campaign hub (bottom right 'campaign' button on the main screen). Event banners sit at the top left under the back button; with several events the banner rotates and the first dot is the most recent event.",
-    "Also holds bounty, commissions, scrimmage, total assault, joint firing drill, grand assault and limit-release showdown."
+    "Also holds bounty, commissions, scrimmage, total assault, joint firing drill, grand assault and limit-release showdown. Top row since 2026-11-10: missions (narrower), a locked virtual aptitude test (beta), story."
   ],
   "anchors": [{ "template": "campaign_title.png", "roi": { "x": 80, "y": 0, "w": 110, "h": 55 }, "threshold": 0.9 }],
   "transitions": [
