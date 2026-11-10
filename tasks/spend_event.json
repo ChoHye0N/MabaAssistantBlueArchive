@@ -12,6 +12,7 @@
     "An event whose play period ended still opens ('the event period has ended'): it is skipped.",
     "Uncleared event quests (grey stars) are played with the 'quest_team' team before the highest 3-star quest is swept. Campaign missions that are not cleared are grid maps and are not played yet (roadmap).",
     "Story stages are taken from the top 'Story' tag (cleared stages lose the tag). Story scenes are skipped like the owner's earlier project does: back opens the skip confirmation, which is confirmed (popups/story_*.json). Battles use the event's preset team with AUTO.",
+    "After a story stage the event page shows for a moment, then the reward result opens over it; the event title and the story tags still match through its dark overlay. The next stage is picked only once the Story/Quest tab bar is bright white again (no overlay).",
     "Every player's progress differs, so stages are chosen on screen: 'highest' takes the highest stage with 3 stars; a number picks that stage (found with OCR while scrolling). Event bonuses depend on the students in the team, so the farmed quest and the team are settings.",
     "Sweeps are confirmed only on the 'run the sweep?' question; any other dialog (for example an AP purchase offer) is closed with back. AP is read with OCR; below 20 AP the task is skipped."
   ],
@@ -95,7 +96,7 @@
         { "action": "click", "x": 766, "y": 110, "on_page": "event", "no_verify": true },
         {
           "action": "loop",
-          "max": 15,
+          "max": 12,
           "until": { "absent": { "template": "event_story_tag.png", "roi": { "x": 680, "y": 140, "w": 540, "h": 550 }, "threshold": 0.9 } },
           "steps": [
             { "action": "read_number", "roi": { "x": 500, "y": 8, "w": 105, "h": 30 }, "store": "ap", "optional": true },
@@ -131,7 +132,7 @@
                     },
                     { "action": "click", "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 }, "threshold": 0.9, "expect_gone": { "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 }, "threshold": 0.9 }, "timeout_ms": 6000, "retries": 4 }
                   ],
-                  "else": [{ "action": "back" }, { "action": "break" }]
+                  "else": [{ "action": "back", "when": { "no_color": { "hsv_min": [0, 0, 225], "hsv_max": [180, 40, 255], "area": [11000, 30000], "roi": { "x": 680, "y": 85, "w": 530, "h": 50 } } } }, { "action": "break" }]
                 }
               ]
             },
@@ -140,6 +141,13 @@
               "max": 25,
               "until": { "present": { "template": "event_title.png", "roi": { "x": 80, "y": 0, "w": 130, "h": 55 }, "threshold": 0.9 } },
               "steps": [{ "action": "sleep", "sleep_ms": 8000 }]
+            },
+            { "action": "sleep", "sleep_ms": 3000 },
+            {
+              "action": "loop",
+              "max": 15,
+              "until": { "color": { "hsv_min": [0, 0, 225], "hsv_max": [180, 40, 255], "area": [11000, 30000], "roi": { "x": 680, "y": 85, "w": 530, "h": 50 } } },
+              "steps": [{ "action": "sleep", "sleep_ms": 2000 }]
             },
             { "action": "click", "x": 766, "y": 110, "on_page": "event", "no_verify": true }
           ]
@@ -166,7 +174,7 @@
       "then": [
         {
           "action": "loop",
-          "max": 6,
+          "max": 12,
           "until": { "absent": { "template": "stage_no_stars.png", "roi": { "x": 680, "y": 130, "w": 560, "h": 560 }, "threshold": 0.9 } },
           "steps": [
             { "action": "read_number", "roi": { "x": 500, "y": 8, "w": 105, "h": 30 }, "store": "ap", "optional": true },
@@ -247,7 +255,7 @@
               "until": { "present": { "template": "event_title.png", "roi": { "x": 80, "y": 0, "w": 130, "h": 55 }, "threshold": 0.9 } },
               "steps": [{ "action": "sleep", "sleep_ms": 8000 }]
             },
-            { "action": "click", "template": "event_quest_tab.png", "roi": { "x": 680, "y": 75, "w": 540, "h": 70 }, "threshold": 0.9, "on_page": "event", "no_verify": true, "optional": true, "quiet": true }
+            { "action": "click", "when": { "absent": { "template": "event_quest_tab_active.png", "roi": { "x": 680, "y": 75, "w": 540, "h": 70 }, "threshold": 0.9 } }, "template": "event_quest_tab.png", "roi": { "x": 680, "y": 75, "w": 540, "h": 70 }, "threshold": 0.9, "on_page": "event", "no_verify": true, "optional": true, "quiet": true }
           ]
         }
       ]
@@ -352,7 +360,7 @@
           "until": { "present": { "template": "event_title.png", "roi": { "x": 80, "y": 0, "w": 130, "h": 55 }, "threshold": 0.9 } },
           "steps": [{ "action": "sleep", "sleep_ms": 8000 }]
         },
-        { "action": "click", "template": "event_quest_tab.png", "roi": { "x": 680, "y": 75, "w": 540, "h": 70 }, "threshold": 0.9, "on_page": "event", "no_verify": true, "optional": true, "quiet": true },
+        { "action": "click", "when": { "absent": { "template": "event_quest_tab_active.png", "roi": { "x": 680, "y": 75, "w": 540, "h": 70 }, "threshold": 0.9 } }, "template": "event_quest_tab.png", "roi": { "x": 680, "y": 75, "w": 540, "h": 70 }, "threshold": 0.9, "on_page": "event", "no_verify": true, "optional": true, "quiet": true },
         { "action": "return_home" },
         { "action": "end", "status": "skipped", "message": "nothing to sweep here" }
       ]
