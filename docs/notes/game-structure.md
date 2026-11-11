@@ -26,6 +26,8 @@ Window class `UnityWndClass`, title `Blue Archive`, 16:9 client area. BitBlt, Pr
 | Tactical challenge | Claim rewards, opponent list, formation, sortie |
 | Shop | Tabs: general, pyroxene, Eligma I and II, total assault, grand assault. "Refresh now" costs pyroxene. The general list is longer than the screen |
 | Cash shop | Full screen since the 2026-11-10 update. Categories on the left: recommended, special, subscriptions, general, pyroxene, special support; mostly real-money items. The daily free package is under general, daily: its band turns red ("0 purchases left") once claimed |
+| Battle pass | Badge beside the event banner on the main screen, only during a season (ends after the shown days). Level rewards in a free and a paid channel, "claim all" bottom right. Missions (daily, weekly, achievements) give points with a weekly cap; claiming points needs no confirmation dialog. Paid channel unlock and "buy levels" cost money or pyroxene |
+| Attendance book | Icon at the top left of the main screen. Left tabs: daily attendance (claimed at login), then campaign attendance books (2026-11-11: 5th anniversary growth support, work support campaign, Kivotos tour); they change with the season. Each tab has a 'claim' button bottom right, grey once claimed. The work support campaign also has a paid button |
 
 Stage dialogs differ in size: the one of campaign missions has tabs and sits about 30 px away from the one of bounty and commissions.
 

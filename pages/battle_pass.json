@@ -1,0 +1,13 @@
+{
+  "id": "battle_pass",
+  "notes": [
+    "Battle pass (badge beside the event banner on the main screen, shown only during a season). Level rewards: free channel on the left, paid channel on the right.",
+    "Never press: the paid channel unlock (bottom left), 'buy levels' and the pyroxene '+'; they cost money or pyroxene.",
+    "The title template leaves out the season line ('SEASON n'), which changes every season."
+  ],
+  "anchors": [{ "template": "battle_pass_title.png", "roi": { "x": 5, "y": 40, "w": 200, "h": 70 }, "threshold": 0.9 }],
+  "transitions": [
+    { "to": "main_menu", "click": { "x": 1243, "y": 40 } },
+    { "to": "battle_pass_mission", "click": { "x": 370, "y": 640 } }
+  ]
+}

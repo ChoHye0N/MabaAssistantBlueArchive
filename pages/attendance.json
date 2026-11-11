@@ -1,0 +1,11 @@
+{
+  "id": "attendance",
+  "notes": [
+    "Combined attendance book ('attendance' icon, top left of the main screen). Tabs on the left: the daily attendance book first, then campaign attendance books that change with the season.",
+    "Never press the paid button of a campaign tab ('activate special rewards', a real-money price)."
+  ],
+  "anchors": [{ "template": "attendance_title.png", "roi": { "x": 90, "y": 0, "w": 160, "h": 50 }, "threshold": 0.9 }],
+  "transitions": [
+    { "to": "main_menu", "click": { "template": "common_home_button.png", "roi": { "x": 1195, "y": 0, "w": 85, "h": 55 }, "threshold": 0.9 } }
+  ]
+}

@@ -24,7 +24,6 @@
     <sys:String x:Key="Tab.Settings">Settings</sys:String>
     <sys:String x:Key="Tab.Log">Log</sys:String>
 
-    <sys:String x:Key="Tasks.Header">Dailies to run</sys:String>
     <sys:String x:Key="Tasks.Start">Start</sys:String>
     <sys:String x:Key="Tasks.Stop">Stop</sys:String>
     <sys:String x:Key="Tasks.Reload">Reload data</sys:String>
@@ -57,7 +56,9 @@
     <sys:String x:Key="TaskInfo.cafe">Collects cafe income, invites the chosen students and taps students for relationship points. No income, no claim.</sys:String>
     <sys:String x:Key="TaskInfo.schedule">Spends every schedule ticket in the chosen locations, rooms with three students first if set.</sys:String>
     <sys:String x:Key="TaskInfo.circle">Claims the circle attendance reward when you are in a circle.</sys:String>
-    <sys:String x:Key="TaskInfo.free_package">Claims the daily free package in the pyroxene shop.</sys:String>
+    <sys:String x:Key="TaskInfo.free_package">Claims the daily free package in the cash shop.</sys:String>
+    <sys:String x:Key="TaskInfo.battle_pass">Claims battle pass mission points and level rewards. Skipped outside a season.</sys:String>
+    <sys:String x:Key="TaskInfo.attendance">Claims the rewards of campaign attendance tabs that show a reward mark.</sys:String>
     <sys:String x:Key="TaskInfo.shop">Buys the general shop list with credits. Refreshes and the tactical challenge shop run only when turned on.</sys:String>
     <sys:String x:Key="TaskInfo.craft">Claims finished crafts. Quick craft uses materials and credits only when a count is set.</sys:String>
     <sys:String x:Key="TaskInfo.buy_ap">Buys AP with pyroxene; nothing above the price limit or past 999 AP.</sys:String>
@@ -78,7 +79,9 @@
     <sys:String x:Key="Task.cafe">Café: collect earnings, invite and tap students</sys:String>
     <sys:String x:Key="Task.schedule">Schedule: use tickets</sys:String>
     <sys:String x:Key="Task.circle">Club: attendance (if you are in one)</sys:String>
-    <sys:String x:Key="Task.free_package">Pyroxene shop: daily free package</sys:String>
+    <sys:String x:Key="Task.free_package">Cash shop: daily free package</sys:String>
+    <sys:String x:Key="Task.battle_pass">Battle pass: claim rewards</sys:String>
+    <sys:String x:Key="Task.attendance">Attendance book: campaign rewards</sys:String>
     <sys:String x:Key="Task.shop">Shop: buy from the General list</sys:String>
     <sys:String x:Key="Task.commission">Commissions: sweep a set number of times</sys:String>
     <sys:String x:Key="Task.scrimmage">Scrimmage: spend tickets</sys:String>
@@ -107,6 +110,8 @@
     <sys:String x:Key="Setting.cafe.invite_second">Students to invite to café 2 (by priority, comma-separated)</sys:String>
     <sys:String x:Key="Setting.shop.buy_reports">Also buy Activity Reports (row 1)</sys:String>
     <sys:String x:Key="Setting.spend_event.clear_quests">Clear event quests not cleared yet</sys:String>
+    <sys:String x:Key="Setting.battle_pass.claim_missions">Claim mission points</sys:String>
+    <sys:String x:Key="Setting.battle_pass.claim_levels">Claim level rewards</sys:String>
     <sys:String x:Key="Setting.spend_event.quest_team">Team for quests (1-4, with bonus students)</sys:String>
     <sys:String x:Key="Setting.schedule.locations">Locations to use (checked ones, in list order)</sys:String>
     <sys:String x:Key="Setting.commission.requests">Requests to sweep (checked ones, in list order)</sys:String>

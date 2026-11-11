@@ -52,6 +52,7 @@ Release builds ask GitHub at start whether a new version exists and show a notic
 - Invite and tap students
 - Run schedules
 - Circle attendance
+- Claim campaign attendance rewards in the attendance book
 - Claim the daily free package
 
 ### 02. Spend
@@ -68,6 +69,7 @@ Release builds ask GitHub at start whether a new version exists and show a notic
 
 - Claim mailbox rewards (including AP above the cap)
 - Claim daily mission rewards
+- Claim battle pass mission points and level rewards (during a season)
 - Record resources per account
 
 ### Additional Features

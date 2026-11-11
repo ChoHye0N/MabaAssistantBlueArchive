@@ -1,0 +1,67 @@
+{
+  "id": "battle_pass",
+  "name": "Battle pass: claim rewards",
+  "order": 115,
+  "after": [],
+  "status": "wip",
+  "needs_ocr": false,
+  "notes": [
+    "Runs after the other tasks: most battle pass missions are completed by them.",
+    "The battle pass exists only during a season: without its badge on the main screen the task is skipped.",
+    "Mission points first (they raise the level), then the level rewards. Both 'claim all' buttons are pressed only while yellow; nothing else that costs money or pyroxene is touched.",
+    "verify: with the paid channel bought, 'claim all' also takes its rewards."
+  ],
+  "settings": [
+    { "key": "claim_missions", "type": "bool", "default": true, "description": "Claim the points of finished battle pass missions." },
+    { "key": "claim_levels", "type": "bool", "default": true, "description": "Claim the level rewards." }
+  ],
+  "steps": [
+    { "action": "goto", "page": "main_menu" },
+    {
+      "action": "if",
+      "when": { "absent": { "template": "battle_pass_badge.png", "roi": { "x": 290, "y": 500, "w": 130, "h": 70 }, "threshold": 0.9 } },
+      "then": [{ "action": "end", "status": "skipped", "message": "no battle pass running" }]
+    },
+    {
+      "action": "if",
+      "when": { "setting": "claim_missions", "equals": true },
+      "then": [
+        { "action": "goto", "page": "battle_pass_mission" },
+        { "action": "wait_stable", "timeout_ms": 4000 },
+        {
+          "action": "loop",
+          "max": 3,
+          "steps": [
+            {
+              "action": "if",
+              "when": { "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [3000, 12000], "roi": { "x": 1140, "y": 610, "w": 140, "h": 55 } } },
+              "then": [{ "action": "click", "x": 1205, "y": 638, "on_page": "battle_pass_mission", "no_verify": true, "sleep_ms": 3000 }],
+              "else": [{ "action": "break" }]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "action": "if",
+      "when": { "setting": "claim_levels", "equals": true },
+      "then": [
+        { "action": "goto", "page": "battle_pass" },
+        { "action": "wait_stable", "timeout_ms": 4000 },
+        {
+          "action": "loop",
+          "max": 3,
+          "steps": [
+            {
+              "action": "if",
+              "when": { "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [3000, 12000], "roi": { "x": 1140, "y": 610, "w": 140, "h": 55 } } },
+              "then": [{ "action": "click", "x": 1210, "y": 638, "on_page": "battle_pass", "no_verify": true, "sleep_ms": 3000 }],
+              "else": [{ "action": "break" }]
+            }
+          ]
+        }
+      ]
+    },
+    { "action": "return_home" }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "id": "battle_pass_mission",
+  "notes": [
+    "Battle pass missions ('missions' button on the battle pass page). Tabs: all, daily, weekly, achievements. Points have a weekly cap.",
+    "Never press 'go to' on a mission: it leaves for another screen."
+  ],
+  "anchors": [{ "template": "battle_pass_mission_title.png", "roi": { "x": 650, "y": 68, "w": 110, "h": 40 }, "threshold": 0.9 }],
+  "transitions": [{ "to": "battle_pass", "click": { "x": 38, "y": 40 } }]
+}

@@ -1,0 +1,119 @@
+{
+  "id": "attendance",
+  "name": "Attendance book: campaign rewards",
+  "order": 15,
+  "after": [],
+  "status": "wip",
+  "needs_ocr": false,
+  "notes": [
+    "The daily attendance book (first tab) is claimed at login by the attendance popups. The other tabs are campaign attendance books; their number changes with the season.",
+    "Runs early: the rewards can include AP.",
+    "Tabs are taken by position (second to sixth slot). A tab is opened only while it shows the red reward dot, and 'claim' is pressed only while it is yellow.",
+    "verify: the position of the red dot on a tab and the popups after claiming (seen only once rewards are waiting)."
+  ],
+  "steps": [
+    { "action": "goto", "page": "attendance" },
+    { "action": "wait_stable", "timeout_ms": 4000 },
+    {
+      "action": "if",
+      "when": { "color": { "hsv_min": [0, 170, 180], "hsv_max": [10, 255, 255], "area": [20, 150], "roi": { "x": 20, "y": 172, "w": 255, "h": 90 } } },
+      "then": [
+        { "action": "click", "x": 130, "y": 222, "on_page": "attendance", "no_verify": true, "sleep_ms": 2000 },
+        { "action": "wait_stable", "timeout_ms": 4000 },
+        {
+          "action": "loop",
+          "max": 2,
+          "steps": [
+            {
+              "action": "if",
+              "when": { "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [3000, 20000], "roi": { "x": 1030, "y": 640, "w": 235, "h": 70 } } },
+              "then": [{ "action": "click", "x": 1145, "y": 675, "on_page": "attendance", "no_verify": true, "sleep_ms": 3000 }],
+              "else": [{ "action": "break" }]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "action": "if",
+      "when": { "color": { "hsv_min": [0, 170, 180], "hsv_max": [10, 255, 255], "area": [20, 150], "roi": { "x": 20, "y": 247, "w": 255, "h": 90 } } },
+      "then": [
+        { "action": "click", "x": 130, "y": 297, "on_page": "attendance", "no_verify": true, "sleep_ms": 2000 },
+        { "action": "wait_stable", "timeout_ms": 4000 },
+        {
+          "action": "loop",
+          "max": 2,
+          "steps": [
+            {
+              "action": "if",
+              "when": { "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [3000, 20000], "roi": { "x": 1030, "y": 640, "w": 235, "h": 70 } } },
+              "then": [{ "action": "click", "x": 1145, "y": 675, "on_page": "attendance", "no_verify": true, "sleep_ms": 3000 }],
+              "else": [{ "action": "break" }]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "action": "if",
+      "when": { "color": { "hsv_min": [0, 170, 180], "hsv_max": [10, 255, 255], "area": [20, 150], "roi": { "x": 20, "y": 325, "w": 255, "h": 90 } } },
+      "then": [
+        { "action": "click", "x": 130, "y": 375, "on_page": "attendance", "no_verify": true, "sleep_ms": 2000 },
+        { "action": "wait_stable", "timeout_ms": 4000 },
+        {
+          "action": "loop",
+          "max": 2,
+          "steps": [
+            {
+              "action": "if",
+              "when": { "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [3000, 20000], "roi": { "x": 1030, "y": 640, "w": 235, "h": 70 } } },
+              "then": [{ "action": "click", "x": 1145, "y": 675, "on_page": "attendance", "no_verify": true, "sleep_ms": 3000 }],
+              "else": [{ "action": "break" }]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "action": "if",
+      "when": { "color": { "hsv_min": [0, 170, 180], "hsv_max": [10, 255, 255], "area": [20, 150], "roi": { "x": 20, "y": 402, "w": 255, "h": 90 } } },
+      "then": [
+        { "action": "click", "x": 130, "y": 452, "on_page": "attendance", "no_verify": true, "sleep_ms": 2000 },
+        { "action": "wait_stable", "timeout_ms": 4000 },
+        {
+          "action": "loop",
+          "max": 2,
+          "steps": [
+            {
+              "action": "if",
+              "when": { "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [3000, 20000], "roi": { "x": 1030, "y": 640, "w": 235, "h": 70 } } },
+              "then": [{ "action": "click", "x": 1145, "y": 675, "on_page": "attendance", "no_verify": true, "sleep_ms": 3000 }],
+              "else": [{ "action": "break" }]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "action": "if",
+      "when": { "color": { "hsv_min": [0, 170, 180], "hsv_max": [10, 255, 255], "area": [20, 150], "roi": { "x": 20, "y": 480, "w": 255, "h": 90 } } },
+      "then": [
+        { "action": "click", "x": 130, "y": 530, "on_page": "attendance", "no_verify": true, "sleep_ms": 2000 },
+        { "action": "wait_stable", "timeout_ms": 4000 },
+        {
+          "action": "loop",
+          "max": 2,
+          "steps": [
+            {
+              "action": "if",
+              "when": { "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [3000, 20000], "roi": { "x": 1030, "y": 640, "w": 235, "h": 70 } } },
+              "then": [{ "action": "click", "x": 1145, "y": 675, "on_page": "attendance", "no_verify": true, "sleep_ms": 3000 }],
+              "else": [{ "action": "break" }]
+            }
+          ]
+        }
+      ]
+    },
+    { "action": "return_home" }
+  ]
+}

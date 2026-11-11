@@ -13,6 +13,8 @@
   ],
   "enter": { "tap": { "x": 640, "y": 100 }, "max_taps": 30, "interval_ms": 2000 },
   "transitions": [
+    { "to": "attendance", "click": { "template": "main_menu_attendance_icon.png", "roi": { "x": 170, "y": 90, "w": 110, "h": 90 }, "threshold": 0.9 } },
+    { "to": "battle_pass", "click": { "template": "battle_pass_badge.png", "roi": { "x": 290, "y": 500, "w": 130, "h": 70 }, "threshold": 0.9 } },
     { "to": "mail", "click": { "template": "main_menu_mail_icon.png", "roi": { "x": 1110, "y": 0, "w": 90, "h": 70 }, "threshold": 0.9 } },
     { "to": "mission", "click": { "template": "main_menu_mission_icon.png", "roi": { "x": 14, "y": 190, "w": 70, "h": 75 }, "threshold": 0.9 } },
     { "to": "gem_shop", "click": { "x": 133, "y": 228 } },
