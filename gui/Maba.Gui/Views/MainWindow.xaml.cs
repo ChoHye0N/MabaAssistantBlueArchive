@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Maba.Gui.ViewModels;
 
 namespace Maba.Gui.Views;
@@ -84,9 +85,15 @@ public partial class MainWindow : HandyControl.Controls.Window
         return null;
     }
 
-    private void ScrollLogToEnd(object? sender, NotifyCollectionChangedEventArgs e)
+    // The newest line is at the bottom. Scrolling waits until the list has laid out the new line
+    // (ScrollIntoView on a virtualized list jumped back to the top), and the tab opens at the end too.
+    private void ScrollLogToEnd(object? sender, NotifyCollectionChangedEventArgs e) => ScrollLogToEnd();
+
+    private void ScrollLogToEnd() =>
+        Dispatcher.BeginInvoke(DispatcherPriority.Background, () => FindChild<ScrollViewer>(LogList)?.ScrollToEnd());
+
+    private void OnLogVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
-        if (e.Action == NotifyCollectionChangedAction.Add && LogList.Items.Count > 0)
-            LogList.ScrollIntoView(LogList.Items[^1]);
+        if (e.NewValue is true) ScrollLogToEnd();
     }
 }

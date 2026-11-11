@@ -137,7 +137,7 @@
                                                             <TextBlock DockPanel.Dock="Left" Width="240" VerticalAlignment="Center"
                                                                        TextWrapping="Wrap" Text="{Binding Label}" ToolTip="{Binding Key}" />
                                                             <Grid>
-                                                                <CheckBox IsChecked="{Binding BoolValue}"
+                                                                <CheckBox IsChecked="{Binding BoolValue}" HorizontalAlignment="Left"
                                                                           Visibility="{Binding IsBool, Converter={StaticResource Boolean2VisibilityConverter}}" />
                                                                 <hc:NumericUpDown Value="{Binding IntValue}" Minimum="{Binding Min}" Maximum="{Binding Max}"
                                                                                   Increment="1" DecimalPlaces="0" Width="120" HorizontalAlignment="Left"
@@ -152,7 +152,10 @@
                                                                     </ItemsControl.ItemsPanel>
                                                                     <ItemsControl.ItemTemplate>
                                                                         <DataTemplate DataType="{x:Type vm:ChecklistItem}">
-                                                                            <CheckBox Content="{Binding Label}" IsChecked="{Binding IsChecked}" Margin="0,0,12,4" MinWidth="150" />
+                                                                            <!-- The cell keeps the columns aligned; only the box and its label take the click. -->
+                                                                            <Border MinWidth="150" Margin="0,0,12,4">
+                                                                                <CheckBox Content="{Binding Label}" IsChecked="{Binding IsChecked}" HorizontalAlignment="Left" />
+                                                                            </Border>
                                                                         </DataTemplate>
                                                                     </ItemsControl.ItemTemplate>
                                                                 </ItemsControl>
@@ -287,13 +290,13 @@
                                          SelectedValuePath="Value" SelectedValue="{Binding Capture}" />
                             <TextBlock Margin="140,4,0,8" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"
                                        Text="{DynamicResource Settings.CaptureHint}" />
-                            <CheckBox Content="{DynamicResource Settings.FitWindow}" IsChecked="{Binding FitWindow}" Margin="0,0,0,8" />
+                            <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.FitWindow}" IsChecked="{Binding FitWindow}" Margin="0,0,0,8" />
 
                             <TextBlock Style="{StaticResource TextBlockSubTitleBold}" HorizontalAlignment="Left"
                                        Text="{DynamicResource Settings.Launch}" Margin="0,8,0,8" />
-                            <CheckBox Content="{DynamicResource Settings.SteamStartGame}" IsChecked="{Binding SteamStartGame}"
+                            <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.SteamStartGame}" IsChecked="{Binding SteamStartGame}"
                                       Margin="0,0,0,8" />
-                            <CheckBox Content="{DynamicResource Settings.CloseGameAfter}" IsChecked="{Binding SteamCloseGame}"
+                            <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.CloseGameAfter}" IsChecked="{Binding SteamCloseGame}"
                                       Margin="0,0,0,4" />
                             <TextBlock Margin="0,0,0,8" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"
                                        Text="{DynamicResource Settings.SteamLaunchHint}" />
@@ -333,7 +336,7 @@
 
                             <TextBlock Style="{StaticResource TextBlockSubTitleBold}" HorizontalAlignment="Left"
                                        Text="{DynamicResource Settings.Launch}" Margin="0,8,0,8" />
-                            <CheckBox Content="{DynamicResource Settings.StartEmulator}" IsChecked="{Binding StartEmulator}"
+                            <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.StartEmulator}" IsChecked="{Binding StartEmulator}"
                                       Margin="0,0,0,8" />
                             <StackPanel IsEnabled="{Binding StartEmulator}">
                                 <hc:TextBox hc:InfoElement.Title="{DynamicResource Settings.EmulatorPath}"
@@ -345,25 +348,25 @@
                                 <TextBlock Margin="140,4,0,8" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"
                                            Text="{DynamicResource Settings.EmulatorPathHint}" />
                             </StackPanel>
-                            <CheckBox Content="{DynamicResource Settings.StartGame}" IsChecked="{Binding StartGame}"
+                            <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.StartGame}" IsChecked="{Binding StartGame}"
                                       Margin="0,0,0,8" />
-                            <CheckBox Content="{DynamicResource Settings.CloseGameAfter}" IsChecked="{Binding CloseGameAfter}"
+                            <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.CloseGameAfter}" IsChecked="{Binding CloseGameAfter}"
                                       Margin="0,0,0,8" />
-                            <CheckBox Content="{DynamicResource Settings.CloseEmulatorAfter}" IsChecked="{Binding CloseEmulatorAfter}"
+                            <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.CloseEmulatorAfter}" IsChecked="{Binding CloseEmulatorAfter}"
                                       Margin="0,0,0,4" />
                             <TextBlock Margin="0,0,0,8" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"
                                        Text="{DynamicResource Settings.LaunchHint}" />
                         </StackPanel>
 
-                        <CheckBox Content="{DynamicResource Settings.CheckUpdates}" IsChecked="{Binding CheckUpdates}" Margin="0,0,0,8" />
-                        <CheckBox Content="{DynamicResource Settings.Ocr}" IsChecked="{Binding OcrEnabled}" Margin="0,4,0,8" />
+                        <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.CheckUpdates}" IsChecked="{Binding CheckUpdates}" Margin="0,0,0,8" />
+                        <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.Ocr}" IsChecked="{Binding OcrEnabled}" Margin="0,4,0,8" />
                         <hc:TextBox hc:InfoElement.Title="{DynamicResource Settings.DataRoot}"
                                     hc:InfoElement.TitlePlacement="Left" hc:InfoElement.TitleWidth="140"
                                     Text="{Binding DataRoot, UpdateSourceTrigger=LostFocus}" Margin="0,0,0,16" />
 
                         <TextBlock Style="{StaticResource TextBlockSubTitleBold}" HorizontalAlignment="Left"
                                    Text="{DynamicResource Settings.Schedule}" Margin="0,0,0,8" />
-                        <CheckBox Content="{DynamicResource Settings.ScheduleEnabled}" IsChecked="{Binding ScheduleEnabled}"
+                        <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.ScheduleEnabled}" IsChecked="{Binding ScheduleEnabled}"
                                   Margin="0,0,0,8" />
                         <hc:ComboBox hc:InfoElement.Title="{DynamicResource Settings.ScheduleMode}"
                                      hc:InfoElement.TitlePlacement="Left" hc:InfoElement.TitleWidth="140"
@@ -407,7 +410,7 @@
                 <DockPanel Margin="8">
                     <Button DockPanel.Dock="Bottom" HorizontalAlignment="Left" Margin="0,8,0,0"
                             Content="{DynamicResource Log.Clear}" Command="{Binding ClearLogCommand}" />
-                    <ListBox x:Name="LogList" ItemsSource="{Binding Log}" VirtualizingPanel.IsVirtualizing="True"
+                    <ListBox x:Name="LogList" ItemsSource="{Binding Log}" VirtualizingPanel.IsVirtualizing="True" IsVisibleChanged="OnLogVisibleChanged"
                              FontFamily="Consolas, Malgun Gothic">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
