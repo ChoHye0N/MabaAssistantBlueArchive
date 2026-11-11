@@ -51,7 +51,6 @@ public:
     const AssistantConfig& Config() const { return config_; }
 
     void SetController(std::unique_ptr<IController> controller) { controller_ = std::move(controller); }
-    void SetMatcher(std::unique_ptr<IMatcher> matcher) { matcher_ = std::move(matcher); }
     void SetOcr(std::unique_ptr<IOcr> ocr) { ocr_ = std::move(ocr); }
     IController* Controller() { return controller_.get(); }
 

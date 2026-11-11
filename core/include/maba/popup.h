@@ -76,7 +76,6 @@ public:
     SettleResult Settle(IController& controller, IClock& clock);
 
     const std::vector<PopupDef>& Popups() const { return popups_; }
-    void SetCancel(const std::atomic<bool>* cancel) { options_.cancel = cancel; }
     // Popups left alone (a task that works in them, like buying AP); empty = none.
     void SetIgnored(std::set<std::string> ids) { ignored_ = std::move(ids); }
 

@@ -51,7 +51,6 @@ public:
     // adb connect (network serials), device check, screen size, screencap probe, touch helper.
     // Called automatically by the first operation.
     bool Connect();
-    bool Connected() const { return connected_; }
 
     Size NativeSize() const override { return native_; }
     Frame Screenshot() override;
