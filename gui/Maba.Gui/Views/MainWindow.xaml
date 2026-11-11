@@ -9,7 +9,7 @@
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            mc:Ignorable="d"
            d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
-           Title="{DynamicResource App.Title}"
+           Title="{Binding WindowTitle}"
            Width="880" Height="640" MinWidth="720" MinHeight="480"
            WindowStartupLocation="CenterScreen"
            ShowTitle="True">
@@ -88,7 +88,7 @@
                                             <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center"
                                                       IsEnabled="{Binding DataContext.IsRunning, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={StaticResource Boolean2BooleanReConverter}}" />
                                             <TextBlock Margin="6,0,0,0" VerticalAlignment="Center" Text="{Binding Name}"
-                                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}" />
+                                                       TextTrimming="CharacterEllipsis" />
                                         </DockPanel>
                                     </Border>
                                 </DataTemplate>
@@ -135,7 +135,7 @@
                                                     <DataTemplate DataType="{x:Type vm:SettingItemViewModel}">
                                                         <DockPanel Margin="0,0,0,6">
                                                             <TextBlock DockPanel.Dock="Left" Width="240" VerticalAlignment="Center"
-                                                                       TextWrapping="Wrap" Text="{Binding Label}" ToolTip="{Binding Key}" />
+                                                                       TextWrapping="Wrap" Text="{Binding Label}" />
                                                             <Grid>
                                                                 <CheckBox IsChecked="{Binding BoolValue}" HorizontalAlignment="Left"
                                                                           Visibility="{Binding IsBool, Converter={StaticResource Boolean2VisibilityConverter}}" />

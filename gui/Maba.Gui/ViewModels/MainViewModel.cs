@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Reflection;
 using System.Text.Json.Nodes;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -166,6 +167,32 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private string _coreVersion = "";
     [ObservableProperty] private bool _coreAvailable;
 
+    // Window title: "MABA (profile) - v0.1.3 - Steam" or "... - ADB (16384)". The profile shows only
+    // when there are several, and a local emulator address drops its "127.0.0.1:" part.
+    private static readonly string AppVersion =
+        (Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "")
+        .Split('+')[0];
+
+    public string WindowTitle
+    {
+        get
+        {
+            var title = "MABA";
+            if (Profiles.Count > 1 && SelectedProfile is { } profile) title += $" ({profile.Name})";
+            if (AppVersion.Length > 0) title += $" - v{AppVersion}";
+            if (IsAdb)
+            {
+                var serial = (AdbSerial ?? "").Replace("127.0.0.1:", "").Replace("localhost:", "");
+                title += serial.Length > 0 ? $" - ADB ({serial})" : " - ADB";
+            }
+            else
+            {
+                title += " - Steam";
+            }
+            return title;
+        }
+    }
+
     public bool IsAdb => Controller == "adb";
     public bool IsSteam => Controller == "steam";
     public bool IsClockSchedule => ScheduleMode == "clock";
@@ -256,11 +283,18 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private void AddProfileItem(TaskProfile profile)
     {
         Profiles.Add(profile);
-        profile.PropertyChanged += (_, _) => { if (!_initializing) Save(); };
+        profile.PropertyChanged += (_, _) =>
+        {
+            if (_initializing) return;
+            Save();
+            OnPropertyChanged(nameof(WindowTitle));
+        };
+        OnPropertyChanged(nameof(WindowTitle));
     }
 
     partial void OnSelectedProfileChanged(TaskProfile value)
     {
+        OnPropertyChanged(nameof(WindowTitle));
         if (_initializing) return;
         _settings.ActiveProfile = Profiles.IndexOf(value);
         Save();
@@ -287,6 +321,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _settings.Profiles.Remove(profile);
         Profiles.Remove(profile);
         SelectedProfile = Profiles[0];
+        OnPropertyChanged(nameof(WindowTitle));
     }
 
     [RelayCommand]
@@ -332,6 +367,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
             case nameof(Controller):
                 OnPropertyChanged(nameof(IsAdb));
                 OnPropertyChanged(nameof(IsSteam));
+                OnPropertyChanged(nameof(WindowTitle));
+                break;
+            case nameof(AdbSerial):
+                OnPropertyChanged(nameof(WindowTitle));
                 break;
             case nameof(ResetHourUtc):
             case nameof(ResetMinuteUtc):
@@ -352,6 +391,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             case nameof(IsClockSchedule):
             case nameof(IsResetSchedule):
             case nameof(ScheduleWarning):
+            case nameof(WindowTitle):
                 return;
         }
         _settings.Controller = Controller;
