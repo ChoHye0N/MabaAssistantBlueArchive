@@ -11,12 +11,11 @@
 
 <br/>
 
-[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D4?style=flat-square&logo=windows)](https://www.microsoft.com/windows)
-[![C++](https://img.shields.io/badge/C%2B%2B-20-00599C?style=flat-square&logo=cplusplus)](https://isocpp.org/)
-[![.NET](https://img.shields.io/badge/.NET-10-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
-[![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
-[![Status](https://img.shields.io/badge/Status-Beta-orange?style=flat-square)](docs/ROADMAP.md)
-[![License](https://img.shields.io/badge/License-AGPL--3.0--only-green?style=flat-square)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Windows-128AFA?style=flat-square&logo=windows)](https://www.microsoft.com/windows)
+[![C++](https://img.shields.io/badge/C%2B%2B-20-128AFA?style=flat-square&logo=cplusplus)](https://isocpp.org/)
+[![Release](https://img.shields.io/github/v/release/ChoHye0N/MabaAssistantBlueArchive?style=flat-square&label=Release&color=FF6FA8&logo=github)](../../releases/latest)
+[![License](https://img.shields.io/badge/License-AGPL--3.0--only-4FC3F7?style=flat-square&logo=gnu)](LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/ChoHye0N/MabaAssistantBlueArchive/total?style=flat-square&label=Downloads&color=FF6FA8&logo=github)](../../releases)
 
 <br/>
 
@@ -54,6 +53,7 @@ MABA는 블루 아카이브의 반복적인 일일 숙제를 자동으로 처리
 - 서클 출석
 - 통합 출석부 캠페인 출석 보상 수령
 - 일일 무료 패키지 수령
+- 제조 완료 수령 및 빠른 제조
 
 ### 02. Spend — 자원 소비
 
@@ -62,7 +62,7 @@ MABA는 블루 아카이브의 반복적인 일일 숙제를 자동으로 처리
 - 특별의뢰 소탕 (거점 방어, 물건 회수)
 - 학원교류회
 - 이벤트 스토리 및 퀘스트
-- 일반 임무 소탕
+- 임무 소탕 및 일괄 소탕 (노말, 하드 프리셋)
 - 전술 대회 보상 수령 및 도전권 사용
 
 ### 03. Complete — 일일 정리
@@ -84,7 +84,7 @@ MABA는 블루 아카이브의 반복적인 일일 숙제를 자동으로 처리
 | Task Configuration | 작업별 활성화 및 세부 설정 |
 | Account Tracking | 계정별 닉네임, 레벨, 크레딧, 청휘석, 활동력 기록, GUI의 내 정보 탭에서 확인 (PC에만 저장) |
 | Task Profiles | 숙제 선택, 설정, 실행 순서를 프로필로 저장하고 전환 |
-| AP Purchase | 청휘석으로 AP 구매, 1회 가격 상한과 횟수 지정 (선택했을 때만 실행) |
+| Pyroxene Use | 청휘석으로 AP 구매와 상점 즉시 갱신, 1회 가격 상한과 횟수 지정 (기본 꺼짐, 선택했을 때만 실행) |
 | Display Language | 프로그램 화면 한국어, 영어 지원 (설정의 **화면 언어**, 기본값은 Windows 언어) |
 | Template Override | 사용자 정의 화면 인식 템플릿 지원 |
 
@@ -104,7 +104,7 @@ MabaAssistantBlueArchive/
 │   └── tests           # Unit Tests
 │
 ├── ocr/                # Python OCR Sidecar
-├── tools/              # Template Capture & Check Tools
+├── tools/              # Template, Check & Live-check Tools
 │
 ├── tasks/              # JSON Task Definitions
 ├── pages/              # Page Recognition Definitions

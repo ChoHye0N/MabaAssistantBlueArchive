@@ -11,12 +11,11 @@ from the cafe to the daily missions, in a fixed order
 
 <br/>
 
-[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D4?style=flat-square&logo=windows)](https://www.microsoft.com/windows)
-[![C++](https://img.shields.io/badge/C%2B%2B-20-00599C?style=flat-square&logo=cplusplus)](https://isocpp.org/)
-[![.NET](https://img.shields.io/badge/.NET-10-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
-[![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
-[![Status](https://img.shields.io/badge/Status-Beta-orange?style=flat-square)](docs/ROADMAP.md)
-[![License](https://img.shields.io/badge/License-AGPL--3.0--only-green?style=flat-square)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Windows-128AFA?style=flat-square&logo=windows)](https://www.microsoft.com/windows)
+[![C++](https://img.shields.io/badge/C%2B%2B-20-128AFA?style=flat-square&logo=cplusplus)](https://isocpp.org/)
+[![Release](https://img.shields.io/github/v/release/ChoHye0N/MabaAssistantBlueArchive?style=flat-square&label=Release&color=FF6FA8&logo=github)](../../releases/latest)
+[![License](https://img.shields.io/badge/License-AGPL--3.0--only-4FC3F7?style=flat-square&logo=gnu)](LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/ChoHye0N/MabaAssistantBlueArchive/total?style=flat-square&label=Downloads&color=FF6FA8&logo=github)](../../releases)
 
 <br/>
 
@@ -54,6 +53,7 @@ Release builds ask GitHub at start whether a new version exists and show a notic
 - Circle attendance
 - Claim campaign attendance rewards in the attendance book
 - Claim the daily free package
+- Claim finished crafting and quick crafting
 
 ### 02. Spend
 
@@ -62,7 +62,7 @@ Release builds ask GitHub at start whether a new version exists and show a notic
 - Commission sweeps (Base Defense, Item Retrieval)
 - Scrimmage
 - Event story and quests
-- Campaign mission sweeps
+- Campaign mission sweeps and batch sweeps (Normal, Hard presets)
 - Tactical challenge: claim rewards and use tickets
 
 ### 03. Complete
@@ -84,7 +84,7 @@ Release builds ask GitHub at start whether a new version exists and show a notic
 | Task Configuration | Enable each task and set its details |
 | Account Tracking | Nickname, level, credits, pyroxene and AP per account, shown on the My info tab (stored on this PC only) |
 | Task Profiles | Save and switch sets of selected tasks, their settings and run order |
-| AP Purchase | Buy AP with pyroxene within a price limit and a count (runs only when selected) |
+| Pyroxene Use | Buy AP and refresh the shop with pyroxene within a price limit and a count (off by default, runs only when selected) |
 | Display Language | Program UI in Korean and English (**Display language** in the settings; defaults to the Windows language) |
 | Template Override | Custom screen-recognition templates |
 
@@ -104,7 +104,7 @@ MabaAssistantBlueArchive/
 │   └── tests           # Unit Tests
 │
 ├── ocr/                # Python OCR Sidecar
-├── tools/              # Template Capture & Check Tools
+├── tools/              # Template, Check & Live-check Tools
 │
 ├── tasks/              # JSON Task Definitions
 ├── pages/              # Page Recognition Definitions
