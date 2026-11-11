@@ -1,5 +1,18 @@
 # Tools
 
+## All checks (`check_all.py`)
+`python tools/check_all.py` runs what a change should pass before a commit and prints one line per check: Core tests (`ctest`), the local screenshot fixtures when present, the template matrix as CI sees it, GUI string tables, the tool and OCR unit tests and the privacy scan. `--build` builds Core first, `--gui` also builds the GUI, `--preset` picks the CMake preset. Standard library only.
+
+## Live checks in the game (`live_tour.py`, `record_frames.py`, `contact_sheet.py`, `replay_frames.py`)
+For looking at the real game without spending anything; the rules are in the `ba-live-check` skill. They need numpy, Pillow and OpenCV, which the OCR environment has: run them with `ocr/.venv/Scripts/python`.
+
+- `live_tour.py STEPS.json [--out captures/tour] [--page FILE] [--template FILE]`: runs a list of steps from a temporary copy of the data, records the screen and writes `sheet.png`. It refuses a click at a fixed point without `on_page` or `require`, and always ends on the main screen. `--page` and `--template` add data under test without touching tracked files.
+- `record_frames.py --out DIR --cli PATH`: saves a normalized frame whenever the screen changed, while a run plays. `stop.flag` in the folder ends it.
+- `contact_sheet.py DIR --out sheet.png`: the frames on one image with their names.
+- `replay_frames.py "captures/run1/f*.png"`: the page and popups each frame is detected as. With `--template NAME.png --roi x,y,w,h` it reports where a template matches and how close the best other frame comes, to check that an anchor is unique.
+
+Frames show the nickname and resources: they stay under `captures/` (gitignored).
+
 ## Template capture (`template_capture.py`)
 Needs Python 3.10+ with tkinter and `pip install -r tools/requirements.txt`.
 
@@ -29,8 +42,8 @@ Lists, per task and language, the templates the task needs (its steps including 
 ## Release archive (`build_package.ps1`)
 `tools\build_package.ps1 -Version 0.1.0-beta.2` builds `dist\MABA-<version>-win-x64.zip` from a finished Core build and `ocr/.venv` with its models: self-contained GUI, embeddable Python, data files and templates. The archive holds one executable and the folders `bin/`, `data/`, `ocr/` and `docs/`; these tools sit in `data/tools/`, and `bin/maba_cli.exe` needs `--root ..\data`. `-Repository owner/name` turns on the new-version notice of the GUI. The `release` workflow runs it when started by hand and creates a draft.
 
-## Privacy check (available now)
+## Privacy check (`privacy_check.py`)
 `python tools/privacy_check.py` scans files that would be committed for emails, local user paths, tokens, keys and any personal terms listed in `.privacy-terms.local` (gitignored). `--staged` checks staged content only. Enable the pre-commit hook once per clone with `git config core.hooksPath .githooks`; it also requires the commit author email to be a GitHub noreply address.
 
-## Commit and push rules (available now)
+## Commit and push rules (`git_rules.py`)
 `tools/git_rules.py` is called by `.githooks/commit-msg` (subject format `type(scope): description`, no trailing period, max 100 chars, no AI attribution lines) and `.githooks/pre-push` (privacy scan, plus every new commit: message rules, noreply author/committer email, no force push). See `CONTRIBUTING.md`. `MABA_ALLOW_ANY_EMAIL=1` and `MABA_ALLOW_FORCE=1` are explicit, owner-only escapes.
