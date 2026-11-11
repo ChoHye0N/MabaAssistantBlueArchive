@@ -5,7 +5,7 @@ description: Procedure for adding or changing a daily task (cafe, schedule, shop
 
 # Adding a daily task
 
-Read `ba-architecture` first. This skill is the step-by-step for one task. The fixed procedure exists because per-task ad-hoc implementations drift apart in popup handling and language support, which raises maintenance cost.
+Read `docs/ARCHITECTURE.md` first. This skill is the step-by-step for one task. The fixed procedure exists because per-task ad-hoc implementations drift apart in popup handling and language support, which raises maintenance cost.
 
 ## Steps
 
@@ -29,28 +29,12 @@ Read `ba-architecture` first. This skill is the step-by-step for one task. The f
 4. **Check popups.** Make sure every popup that can appear on entry, during, or on exit is in the global handler list. Add missing ones to `popups/*.json`, not to the task.
 5. **Bound everything.** Every wait, retry and loop gets a cap and a timeout. On exceeding it: save a screenshot and fail the task.
    - Wait for the screen, not the clock: `wait_stable` or `wait_template` instead of `sleep`. A fixed-point click needs `expect`, `on_page` or `require`. Toggles get `no_verify`, small changes `change_roi` (`docs/PAGE_FORMAT.md`).
-6. **Test.** Engine behaviour goes in `core/tests/flow_tests.cpp` with the fakes (`fakes.h`, `nav_rig.h`). `RepoTaskFilesLoad` in `task_tests.cpp` checks the run order. Screenshot fixtures (`maba_fixture_tests`) stay local because they show UIDs. Items that need the real game go into `docs/ROADMAP.md` and the PR description as a manual checklist.
+6. **Test.** Engine behaviour goes in `core/tests/flow_tests.cpp` with the fakes (`fakes.h`, `nav_rig.h`). `RepoTaskFilesLoad` in `task_tests.cpp` checks the run order. Screenshot fixtures (`maba_fixture_tests`) stay local because they show UIDs. Items that need the real game go into `docs/ROADMAP.md` and the PR description as a manual checklist; checks in the game follow `ba-live-check`.
 7. **Check the language matrix** with `python tools/check_templates.py` (it covers nested steps, the pages on the route, popups and `{value}` names); languages without templates show as missing. Korean (`ko`) first: implement and verify it before other languages, with UI text in `strings/ko.json` by key.
 8. **Update docs**: README feature list (both `README.md` and `README.en.md`), `docs/ROADMAP.md`, and `docs/PAGE_FORMAT.md` for new steps or conditions.
 
-## Daily run order and notes
-Order (`RepoTaskFilesLoad` checks it): cafe, schedule, circle, free package, shop, bounty, commissions, scrimmage, event, campaign missions, tactical challenge, mail, daily missions, account record. The server reset is 04:00 KST; schedule by it or by a clock time, not local midnight.
-
-| Task | Notes |
-|---|---|
-| `cafe` | Income, invitations from a settings list (second cafe included), student taps. The view is zoomed out with the wheel first, then dragged to the corners. Income includes AP. |
-| `schedule` | 12 locations by name, chosen with check boxes. Preferring rooms by student is still open. |
-| `circle` | Attendance gives 10 AP through the mailbox. Skip when no circle is joined. |
-| `free_package`, `shop` | Shop stock rotates, so templates need upkeep. Purchases are confirmed by the dialog's text. |
-| `commission` | No tickets and AP is the only limit, so it sweeps a set count (`runs`) instead of MAX. Runs before the AP tasks. |
-| `scrimmage` | Uses tickets and AP. Runs before the AP tasks. |
-| `spend_event`, `spend_mission` | Event: Story (scenes skipped), then the highest 3-star Quest. Missions: one stage of the shown area. Sweeping needs a 3-star clear. Reads AP with OCR. |
-| `tactical_challenge` | Claim rewards, then use every ticket. |
-| `mail_claim_all` | AP above the 999 cap waits in the mailbox, so it runs after both AP tasks. |
-| `mission_claim_all` | Rewards include pyroxene and AP (claimed AP can pass the regular cap), so it runs last. |
-| `account_info` | Saves credits, pyroxene and AP per UID in the data directory, never in the repository. |
-
-Items marked "verify" are unconfirmed game rules. Check them in the real client and update this table. Open items live in `docs/ROADMAP.md`; facts about the game worth keeping in `docs/notes/game-structure.md`, without personal data or one account's values.
+## Order and notes
+The run order is the `order` of each task file (list: `docs/ARCHITECTURE.md`, "Task engine"). What is special about a task is in its own `notes`; game facts are in `docs/notes/game-structure.md`. Mail runs after AP spending (AP above the 999 cap waits in the mailbox), and anything that gives AP runs before it. The server reset is 04:00 KST; schedule by it or by a clock time, not local midnight.
 
 ## Deferred
 Total Assault and Limit-Release Showdown need AI or real gameplay. Do not add them with this procedure. Story is only skipped (scene -> back -> confirm skip), never read or chosen.

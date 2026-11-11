@@ -11,6 +11,8 @@ GUI (C#, WPF, HandyControls)  --P/Invoke, C ABI (functions + JSON)--  Core (C++)
 ```
 `Assistant` (`assistant.h`) is the composition root: it loads the data (`pages/`, `popups/`, `tasks/`, `config/languages.json`), owns the controller, matcher and OCR, and runs tasks. The C ABI and `maba_cli run` both use it.
 
+Core and the GUI talk only through the C ABI, so either side can change alone. Python is for OCR and tools only: game flow never moves into Python. The controller interface stays small (`Screenshot`, `CaptureRegion`, `Click`, `Swipe`, `Scroll`, `Back`, `Error`), one implementation per platform.
+
 ## Controllers
 | Target | Capture | Input | Notes |
 |---|---|---|---|
@@ -63,7 +65,7 @@ The Steam window can be resized freely. At the start of a run a window that is n
 - Task settings (`settings` in the task file: bool, int, choice, list) have defaults; a run overrides them (`ResolveSettings`, from the GUI, `MabaStart` or `maba_cli run --settings`). Steps branch and loop on them.
 - `TaskRunner` (`task_runner.h`): enters the game from start-up screens once (`EnterGame`), returns home before each task and after a failure (recovery); runs the steps with their caps; a step marked `optional` only logs its failure. A task without steps is skipped as "not implemented" and does not block dependents. A selected dependency that failed blocks its dependents (mail after AP spending).
 - Required ordering rule: mail runs after AP spending, because AP above the 999 cap waits in the mailbox.
-- Daily run order (owner): cafe, schedule, circle, daily free package, shop, bounty, commissions, scrimmage, event, campaign missions, tactical challenge, mail, daily missions. `RepoTaskFilesLoad` in `core/tests/task_tests.cpp` checks it.
+- Daily run order (owner): cafe, attendance book, schedule, circle, daily free package, crafting, shop, bounty, AP purchase, commissions, scrimmage, event, campaign missions, tactical challenge, mail, daily missions, battle pass, account record. `RepoTaskFilesLoad` in `core/tests/task_tests.cpp` checks it.
 - Scheduling is keyed to the server reset time (a setting), not local midnight: `schedule.h` computes the daily slot (reset + delay) in UTC; the GUI asks Core through `MabaScheduleNext`. A clock-time mode runs at a local time instead (the GUI passes the current UTC offset); a missed slot runs as soon as the GUI is open, and the GUI warns when the time is less than an hour before the reset.
 
 ## Vision and OCR
@@ -85,7 +87,7 @@ core    -> {"id": 2, "op": "ping"} | {"id": 3, "op": "shutdown"}
 A startup failure is reported as `{"error": "..."}` instead of the ready line. Core skips stale responses by id, restarts a crashed sidecar at most `max_restarts` times, and times out every request.
 
 ## C ABI
-`core/include/maba/maba_api.h`, versioned by `MabaApiVersion()` (currently 5: clock-time mode in `MabaScheduleNext` and Steam launch in `MabaStart`; 4 added emulator launch). Functions take and return UTF-8 JSON; returned strings stay valid until the next call on the same handle.
+`core/include/maba/maba_api.h`, versioned by `MabaApiVersion()` (currently 5: clock-time mode in `MabaScheduleNext` and Steam launch in `MabaStart`; 4 added emulator launch). Functions take and return UTF-8 JSON; returned strings stay valid until the next call on the same handle. A change of the contract raises `MabaApiVersion()` and the GUI's `ExpectedApiVersion` together.
 
 | Function | Purpose |
 |---|---|
@@ -113,4 +115,4 @@ Events (callback, worker thread): `{"type": "log", "level", "message"}`, `{"type
 - Controllers, matchers, clocks, adb and the OCR peer are faked in tests (`core/tests/fakes.h`, `nav_rig.h`); real screenshots are checked by `maba_fixture_tests` when present.
 
 ## Out of scope for now
-Total Assault, Limit-Release Showdown and story automation (need AI/real gameplay). Model selection and training are decided later.
+Total Assault and Limit-Release Showdown (they need AI or real gameplay). Story is only skipped, never read or chosen. Model selection and training are decided later.

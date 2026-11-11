@@ -38,10 +38,3 @@ Fixed choices. Change one only with a note here.
 | 32 | A release is one executable (single file, its runtime unpacks to the user's temp folder on the first start) with `bin/`, `data/`, `ocr/` and `docs/` beside it. |
 | 33 | Players keep task profiles (selection, settings, order). A profile may reorder tasks; Core keeps `after` dependencies first, so mail stays after AP spending. |
 | 34 | Pyroxene is spent only by features the player turns on (AP purchase, shop refreshes), each with a price limit and a count; an unreadable price stops them, and every other task still cancels the AP purchase window. |
-
-## Checklist for a public repository
-- [ ] `python tools/privacy_check.py` passes, and the whole history is scanned (`git log -p` for personal data, paths, keys).
-- [ ] No snapshots or clones of other repositories; `docs/SOURCES.md` porting log is complete and headers carry original notices.
-- [ ] Every external resource is recorded in `assets/PROVENANCE.md`; unlicensed ones are not in the repo.
-- [ ] README (both languages), `THIRD_PARTY_NOTICES.md` and the library table are current.
-- [ ] Logo and screenshots contain no game characters, nicknames, UIDs or other personal data.

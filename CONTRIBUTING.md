@@ -23,8 +23,8 @@ Examples: `feat(core): 좌표 정규화 모듈 추가`, `fix(navigator): 팝업 
 
 ## Before you push
 ```
-cmake --preset linux-dev && cmake --build --preset linux-dev && ctest --preset linux-dev
-python tools/privacy_check.py
+cmake --preset linux-dev && cmake --build --preset linux-dev
+python tools/check_all.py        # Core tests, templates, GUI strings, tool tests, privacy scan
 ```
 Do not force-push shared branches.
 
