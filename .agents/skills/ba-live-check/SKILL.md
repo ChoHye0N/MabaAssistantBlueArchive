@@ -8,6 +8,7 @@ description: Procedure for looking at the real game and verifying a task in it f
 The game is the maintainer's real account. A wrong click can spend pyroxene, AP or tickets, or open a real-money purchase. These rules exist because each one was broken once.
 
 ## Before anything runs
+- The main screen hides its buttons after a while without input; that looks like an unknown screen, and the start-up tap brings them back.
 - The game should be on the main screen and the maintainer should not be playing: a run that starts on a screen it does not know taps the start-up point (`enter` in `pages/main_menu.json`) until a known page shows.
 - Say what will be pressed and what it can spend. Spending needs the maintainer's order, and a live test spends once: one sweep, one battle, one purchase.
 

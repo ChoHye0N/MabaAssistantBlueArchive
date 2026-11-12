@@ -16,6 +16,7 @@ A run starts by going to the main screen: put the route to the screen under test
 """
 import argparse
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -64,6 +65,19 @@ def build_task(steps):
     return {"id": TASK_ID, "name": "live tour", "order": 1, "after": [], "status": "wip", "needs_ocr": False, "notes": [], "steps": steps}
 
 
+def link_ocr(tmp, root=ROOT):
+    """Core looks for the OCR environment beside the data: link the repository's into the temporary root."""
+    src = root / "ocr"
+    if not src.is_dir():
+        return False
+    try:
+        os.symlink(src, tmp / "ocr", target_is_directory=True)
+    except OSError:
+        import _winapi  # Windows without the symlink privilege: a junction needs none
+        _winapi.CreateJunction(str(src), str(tmp / "ocr"))
+    return True
+
+
 def make_root(tmp, steps, pages=(), templates=(), root=ROOT):
     for d in DATA_DIRS:
         if d != "tasks" and (root / d).is_dir():
@@ -109,12 +123,19 @@ def main(argv=None):
     time.sleep(1)
     with tempfile.TemporaryDirectory(prefix="maba_tour_") as tmp:
         make_root(Path(tmp), steps, args.page, args.template)
+        if args.ocr:
+            link_ocr(Path(tmp))
         cmd = [str(cli), "run", "--tasks", TASK_ID, "--root", tmp] + ([] if args.ocr else ["--no-ocr"])
         try:
             code = subprocess.run(cmd, cwd=ROOT, stdin=subprocess.DEVNULL, timeout=args.seconds).returncode
         except subprocess.TimeoutExpired:
             print(f"the run did not finish within {args.seconds:.0f} s and was stopped")
             code = 1
+        if (Path(tmp) / "ocr").exists():
+            try:  # the link only: never let the clean-up walk into the real folder
+                os.unlink(Path(tmp) / "ocr")
+            except OSError:
+                os.rmdir(Path(tmp) / "ocr")  # a junction is removed like an empty folder
     (out / "stop.flag").touch()
     recorder.wait(timeout=30)
     subprocess.run([sys.executable, str(here / "contact_sheet.py"), str(out), "--out", str(out / "sheet.png")])
