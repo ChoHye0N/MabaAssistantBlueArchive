@@ -2,6 +2,8 @@
 
 <div align="center">
 
+<img alt="MABA" src="docs/images/logo.png" width="200" height="200" />
+
 # MABA
 
 ### Maba Assistant Blue Archive
@@ -148,7 +150,7 @@ Run `MabaAssistantBlueArchive.exe`.
 >
 > The release package includes the .NET runtime, the Python runtime, the OCR models and the screen-recognition templates, so nothing else needs to be installed.
 >
-> Settings are stored in `%APPDATA%\MabaAssistantBlueArchive`.
+> Settings (selected tasks, task settings, order, profiles) and account records are stored in `%APPDATA%\MabaAssistantBlueArchive`. Unpack a new version into a new folder; the settings carry over.
 
 ### Before Running
 
@@ -156,6 +158,8 @@ Run `MabaAssistantBlueArchive.exe`.
 - Leave the mouse alone while MABA is running. If another window covers the game, MABA stops instead of clicking.
 - Run the game and MABA with the same privilege level. If only the game runs as administrator, Windows blocks the input.
 - Set up teams 1-4 for quests in advance.
+- Check the tasks to run on the Tasks tab. Clicking a task shows its description and settings on the right; drag the grip to change the order.
+- Starting with the game on its main screen is recommended.
 - To start the game automatically, use **Launch** in the settings. The Steam version is started through Steam; for an emulator, enter its executable and arguments. Scheduled runs use them too.
 - Enter the names of students to invite exactly as the game shows them. Example (Korean client): `아루, 히나(수영복)`
 
@@ -261,7 +265,7 @@ The copyright and license of each library follow that project's terms.
 | [Task Format](docs/PAGE_FORMAT.md) | Page, popup and task JSON format |
 | [Roadmap](docs/ROADMAP.md) | Development roadmap |
 | [Decisions](docs/DECISIONS.md) | Technical design decisions |
-| [Tools](tools/README.md) | Template capture and check tools |
+| [Tools](tools/README.md) | Template capture, checks and live checks in the game |
 | [OCR](ocr/README.md) | OCR sidecar setup and languages |
 | [Contributing](CONTRIBUTING.md) | Development and contribution guide |
 | [Third-party Notices](THIRD_PARTY_NOTICES.md) | Open-source licenses and copyright notices |
@@ -281,7 +285,7 @@ This project is licensed under the **AGPL-3.0-only** license.
 Blue Archive and its related assets are the property of NEXON Korea Corp. and NEXON GAMES Co., Ltd. and are not covered by this project's license.
 
 - MABA is an independent, unofficial fan-made project.
-- The MABA name and the original artwork of its logo and icons are © 2026 ChoHye0N, the developer, and are not covered by this project's license.
+- The MABA name and the original artwork of its logo and icons are © 2026 ChoHye0N, the developer, and are not covered by this project's license. The character drawn in the logo (Chidori Michiru) belongs to NEXON Korea Corp. and NEXON GAMES Co., Ltd.
 - Third-party libraries and their assets are subject to their respective licenses.
 - MABA uses image recognition and ordinary input only; it never reads or modifies game memory, files or network traffic.
 - Using automation software may violate the game's Terms of Service. Users are solely responsible for any consequences, including account restrictions.

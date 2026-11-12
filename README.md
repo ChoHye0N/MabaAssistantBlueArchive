@@ -2,6 +2,8 @@
 
 <div align="center">
 
+<img alt="MABA" src="docs/images/logo.png" width="200" height="200" />
+
 # MABA
 
 ### Maba Assistant Blue Archive
@@ -148,7 +150,7 @@ MabaAssistantBlueArchive/
 >
 > 릴리스 패키지에는 .NET 런타임, Python 런타임, OCR 모델, 화면 인식 템플릿이 모두 포함되어 있어 따로 설치할 것이 없습니다.
 >
-> 설정은 `%APPDATA%\MabaAssistantBlueArchive` 폴더에 저장됩니다.
+> 설정(숙제 선택, 숙제 설정, 순서, 프로필)과 계정 기록은 `%APPDATA%\MabaAssistantBlueArchive` 폴더에 저장됩니다. 새 버전은 새 폴더에 압축을 풀면 되며, 설정은 그대로 이어집니다.
 
 ### Before Running
 
@@ -156,6 +158,8 @@ MabaAssistantBlueArchive/
 - MABA 실행 중에는 마우스를 직접 조작하지 않는 것을 권장합니다. 다른 창이 게임을 가리면 클릭하지 않고 멈춥니다.
 - 게임과 MABA를 동일한 권한 수준으로 실행합니다. 게임만 관리자 권한으로 실행하면 Windows가 입력을 막습니다.
 - 퀘스트에 사용할 부대 1~4번을 미리 편성합니다.
+- 숙제 탭에서 실행할 숙제를 체크합니다. 숙제를 누르면 오른쪽에 설명과 설정이 나오고, 손잡이를 끌어 순서를 바꿀 수 있습니다.
+- 게임을 메인 화면에 둔 채 시작하는 것을 권장합니다.
 - 게임을 자동으로 켜려면 설정의 **실행 준비**를 사용합니다. Steam판은 Steam으로 게임을 켜고, 에뮬레이터는 실행 파일과 인자를 입력합니다. 예약 실행도 이 설정을 따릅니다.
 - 초대할 학생의 이름은 게임에 표시되는 이름과 동일하게 입력합니다. 예: `아루, 히나(수영복)`
 
@@ -261,7 +265,7 @@ MABA는 안정적인 화면 인식, OCR 처리, JSON 데이터 관리 및 사용
 | [Task Format](docs/PAGE_FORMAT.md) | 페이지, 팝업 및 작업 JSON 형식 |
 | [Roadmap](docs/ROADMAP.md) | 개발 로드맵 |
 | [Decisions](docs/DECISIONS.md) | 기술적 설계 결정 |
-| [Tools](tools/README.md) | 템플릿 캡처 및 점검 도구 |
+| [Tools](tools/README.md) | 템플릿 캡처, 점검, 실제 게임 확인 도구 |
 | [OCR](ocr/README.md) | OCR 사이드카 설정 및 언어 |
 | [Contributing](CONTRIBUTING.md) | 개발 및 기여 가이드 |
 | [Third-party Notices](THIRD_PARTY_NOTICES.md) | 오픈소스 라이선스 및 저작권 고지 |
@@ -281,7 +285,7 @@ MABA는 오픈소스 프로젝트입니다.
 블루 아카이브 및 관련 리소스의 권리는 NEXON Korea Corp. 및 NEXON GAMES Co., Ltd.에 있으며, 이 프로젝트의 라이선스에 포함되지 않습니다.
 
 - MABA는 비공식 개인 팬 프로젝트입니다.
-- MABA의 이름과 로고 및 아이콘의 창작 부분에 대한 권리는 개발자인 ChoHye0N에 있으며, 이 프로젝트의 라이선스에 포함되지 않습니다.
+- MABA의 이름과 로고 및 아이콘의 창작 부분에 대한 권리는 개발자인 ChoHye0N에 있으며, 이 프로젝트의 라이선스에 포함되지 않습니다. 로고에 그려진 캐릭터(치도리 미치루)의 원작 권리는 NEXON Korea Corp. 및 NEXON GAMES Co., Ltd.에 있습니다.
 - 서드파티 라이브러리와 그 리소스는 각각의 라이선스를 따릅니다.
 - MABA는 화면 인식과 일반 입력만 사용하며, 게임 메모리, 파일, 네트워크 통신을 읽거나 변경하지 않습니다.
 - 자동화 프로그램 사용은 게임 이용약관에 위반될 수 있으며, 계정 제재를 포함한 모든 결과의 책임은 사용자에게 있습니다.
