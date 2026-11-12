@@ -9,20 +9,11 @@
     "Route: main screen bottom bar -> shop (general tab). Prices are credits.",
     "'Select all' then 'buy selected'. The list is longer than the screen; 'select all' covers it without scrolling.",
     "Activity reports (first row) are poor value for credits: with 'buy_reports' off they are unticked after 'select all' (a ticked box shows a green check).",
-    "'Refresh now' (bottom right) renews the purchase counts, not the items, for pyroxene (40 at first, 3 a day, seen 2026-11-09). It is used only with 'refreshes' above 0; its price and the refreshes left are read first, and a price above 'max_refresh_price', none left, or an unreadable number stops without refreshing.",
-    "The tactical challenge tab is further down the tab list (scrolled first); it has 'select all' like the general list. Its first row starts with two AP drinks (30 and 60 AP)."
+    "'Refresh now' (bottom right) costs pyroxene and is never pressed.",
+    "The tactical challenge tab is further down the tab list: the list is scrolled until the tab shows (a swipe right after a purchase can be ignored); it has 'select all' like the general list. Its first row starts with two AP drinks (30 and 60 AP)."
   ],
   "settings": [
     { "key": "buy_reports", "type": "bool", "default": false, "description": "Also buy the activity reports (first row)." },
-    {
-      "key": "refreshes",
-      "type": "int",
-      "default": 0,
-      "min": 0,
-      "max": 3,
-      "description": "Refreshes of the purchase counts after buying, each followed by buying again (costs pyroxene); 0 = none."
-    },
-    { "key": "max_refresh_price", "type": "int", "default": 40, "min": 0, "max": 500, "description": "Highest price in pyroxene for one refresh." },
     {
       "key": "contest_shop",
       "type": "choice",
@@ -34,138 +25,70 @@
   "steps": [
     { "action": "goto", "page": "shop" },
     {
-      "action": "loop",
-      "max_setting": "refreshes",
-      "max_adjust": 1,
-      "steps": [
+      "action": "click",
+      "template": "shop_select_all.png",
+      "roi": { "x": 1080, "y": 55, "w": 190, "h": 70 },
+      "threshold": 0.9,
+      "expect": { "template": "shop_buy_selected.png", "roi": { "x": 1070, "y": 620, "w": 200, "h": 90 }, "threshold": 0.9 },
+      "optional": true
+    },
+    {
+      "action": "if",
+      "when": { "setting": "buy_reports", "equals": false },
+      "then": [
         {
-          "action": "if",
-          "when": { "first_iteration": false },
-          "then": [
-            {
-              "action": "click",
-              "x": 1158,
-              "y": 662,
-              "on_page": "shop",
-              "expect": { "template": "shop_refresh_question.png", "roi": { "x": 430, "y": 230, "w": 440, "h": 80 }, "threshold": 0.9 },
-              "timeout_ms": 5000
-            },
-            { "action": "wait_stable", "timeout_ms": 3000 },
-            { "action": "read_number", "roi": { "x": 570, "y": 326, "w": 50, "h": 26 }, "store": "refresh_left" },
-            { "action": "read_number", "roi": { "x": 690, "y": 380, "w": 60, "h": 28 }, "store": "refresh_price" },
-            {
-              "action": "if",
-              "when": { "value": "refresh_left", "equals": 0 },
-              "then": [
-                {
-                  "action": "click",
-                  "x": 515,
-                  "y": 481,
-                  "require": { "template": "shop_refresh_question.png", "roi": { "x": 430, "y": 230, "w": 440, "h": 80 }, "threshold": 0.9 },
-                  "no_verify": true
-                },
-                { "action": "break" }
-              ]
-            },
-            {
-              "action": "if",
-              "when": { "value": "refresh_price", "gt": { "setting": "max_refresh_price" } },
-              "then": [
-                {
-                  "action": "click",
-                  "x": 515,
-                  "y": 481,
-                  "require": { "template": "shop_refresh_question.png", "roi": { "x": 430, "y": 230, "w": 440, "h": 80 }, "threshold": 0.9 },
-                  "no_verify": true
-                },
-                { "action": "break" }
-              ]
-            },
-            {
-              "action": "click",
-              "x": 765,
-              "y": 481,
-              "require": { "template": "shop_refresh_question.png", "roi": { "x": 430, "y": 230, "w": 440, "h": 80 }, "threshold": 0.9 },
-              "no_verify": true
-            },
-            { "action": "wait_stable", "timeout_ms": 4000 }
-          ]
+          "action": "click",
+          "x": 647,
+          "y": 197,
+          "when": { "color": { "hsv_min": [30, 120, 150], "hsv_max": [50, 255, 255], "area": [60, 500], "roi": { "x": 633, "y": 183, "w": 28, "h": 28 } } },
+          "on_page": "shop",
+          "no_verify": true
         },
         {
           "action": "click",
-          "template": "shop_select_all.png",
-          "roi": { "x": 1080, "y": 55, "w": 190, "h": 70 },
-          "threshold": 0.9,
-          "expect": { "template": "shop_buy_selected.png", "roi": { "x": 1070, "y": 620, "w": 200, "h": 90 }, "threshold": 0.9 },
-          "optional": true
+          "x": 798,
+          "y": 197,
+          "when": { "color": { "hsv_min": [30, 120, 150], "hsv_max": [50, 255, 255], "area": [60, 500], "roi": { "x": 784, "y": 183, "w": 28, "h": 28 } } },
+          "on_page": "shop",
+          "no_verify": true
         },
         {
-          "action": "if",
-          "when": { "setting": "buy_reports", "equals": false },
-          "then": [
-            {
-              "action": "click",
-              "x": 647,
-              "y": 197,
-              "when": {
-                "color": { "hsv_min": [30, 120, 150], "hsv_max": [50, 255, 255], "area": [60, 500], "roi": { "x": 633, "y": 183, "w": 28, "h": 28 } }
-              },
-              "on_page": "shop",
-              "no_verify": true
-            },
-            {
-              "action": "click",
-              "x": 798,
-              "y": 197,
-              "when": {
-                "color": { "hsv_min": [30, 120, 150], "hsv_max": [50, 255, 255], "area": [60, 500], "roi": { "x": 784, "y": 183, "w": 28, "h": 28 } }
-              },
-              "on_page": "shop",
-              "no_verify": true
-            },
-            {
-              "action": "click",
-              "x": 949,
-              "y": 197,
-              "when": {
-                "color": { "hsv_min": [30, 120, 150], "hsv_max": [50, 255, 255], "area": [60, 500], "roi": { "x": 935, "y": 183, "w": 28, "h": 28 } }
-              },
-              "on_page": "shop",
-              "no_verify": true
-            },
-            {
-              "action": "click",
-              "x": 1099,
-              "y": 197,
-              "when": {
-                "color": { "hsv_min": [30, 120, 150], "hsv_max": [50, 255, 255], "area": [60, 500], "roi": { "x": 1085, "y": 183, "w": 28, "h": 28 } }
-              },
-              "on_page": "shop",
-              "no_verify": true
-            }
-          ]
+          "action": "click",
+          "x": 949,
+          "y": 197,
+          "when": { "color": { "hsv_min": [30, 120, 150], "hsv_max": [50, 255, 255], "area": [60, 500], "roi": { "x": 935, "y": 183, "w": 28, "h": 28 } } },
+          "on_page": "shop",
+          "no_verify": true
         },
         {
-          "action": "if",
-          "when": { "present": { "template": "shop_buy_selected.png", "roi": { "x": 1070, "y": 620, "w": 200, "h": 90 }, "threshold": 0.9 } },
-          "then": [
-            {
-              "action": "click",
-              "template": "shop_buy_selected.png",
-              "roi": { "x": 1070, "y": 620, "w": 200, "h": 90 },
-              "threshold": 0.9,
-              "expect": { "template": "shop_confirm_question.png", "roi": { "x": 440, "y": 130, "w": 400, "h": 80 }, "threshold": 0.9 }
-            },
-            {
-              "action": "click",
-              "template": "dialog_ok_yellow.png",
-              "roi": { "x": 640, "y": 530, "w": 260, "h": 110 },
-              "threshold": 0.9,
-              "require": { "template": "shop_confirm_question.png", "roi": { "x": 440, "y": 130, "w": 400, "h": 80 }, "threshold": 0.9 }
-            },
-            { "action": "wait_stable", "timeout_ms": 4000 }
-          ]
+          "action": "click",
+          "x": 1099,
+          "y": 197,
+          "when": { "color": { "hsv_min": [30, 120, 150], "hsv_max": [50, 255, 255], "area": [60, 500], "roi": { "x": 1085, "y": 183, "w": 28, "h": 28 } } },
+          "on_page": "shop",
+          "no_verify": true
         }
+      ]
+    },
+    {
+      "action": "if",
+      "when": { "present": { "template": "shop_buy_selected.png", "roi": { "x": 1070, "y": 620, "w": 200, "h": 90 }, "threshold": 0.9 } },
+      "then": [
+        {
+          "action": "click",
+          "template": "shop_buy_selected.png",
+          "roi": { "x": 1070, "y": 620, "w": 200, "h": 90 },
+          "threshold": 0.9,
+          "expect": { "template": "shop_confirm_question.png", "roi": { "x": 440, "y": 130, "w": 400, "h": 80 }, "threshold": 0.9 }
+        },
+        {
+          "action": "click",
+          "template": "dialog_ok_yellow.png",
+          "roi": { "x": 640, "y": 530, "w": 260, "h": 110 },
+          "threshold": 0.9,
+          "require": { "template": "shop_confirm_question.png", "roi": { "x": 440, "y": 130, "w": 400, "h": 80 }, "threshold": 0.9 }
+        },
+        { "action": "wait_stable", "timeout_ms": 4000 }
       ]
     },
     {
@@ -173,8 +96,16 @@
       "when": { "setting": "contest_shop", "not_equals": "off" },
       "then": [
         { "action": "goto", "page": "shop" },
-        { "action": "swipe", "from": { "x": 110, "y": 520 }, "to": { "x": 110, "y": 140 }, "duration_ms": 600 },
-        { "action": "wait_stable", "timeout_ms": 3000 },
+        { "action": "wait_stable", "timeout_ms": 4000 },
+        {
+          "action": "loop",
+          "max": 3,
+          "until": { "present": { "template": "shop_tab_contest.png", "roi": { "x": 0, "y": 90, "w": 230, "h": 480 }, "threshold": 0.9 } },
+          "steps": [
+            { "action": "swipe", "from": { "x": 110, "y": 520 }, "to": { "x": 110, "y": 140 }, "duration_ms": 600 },
+            { "action": "wait_stable", "timeout_ms": 3000 }
+          ]
+        },
         {
           "action": "click",
           "template": "shop_tab_contest.png",

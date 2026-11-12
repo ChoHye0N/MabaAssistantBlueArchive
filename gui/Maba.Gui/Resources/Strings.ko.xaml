@@ -53,12 +53,12 @@
     <sys:String x:Key="Summary.RunFormat">{0} · 완료 {1}, 실패 {2}, 건너뜀 {3}</sys:String>
     <sys:String x:Key="Summary.RunCancelledFormat">{0} · 중지됨 (완료 {1}, 실패 {2}, 건너뜀 {3})</sys:String>
     <sys:String x:Key="TaskInfo.cafe">카페 수익을 받고, 설정한 학생을 초대한 뒤 학생을 터치해 인연 포인트를 얻습니다. 수익이 없으면 수령은 건너뜁니다.</sys:String>
-    <sys:String x:Key="TaskInfo.schedule">고른 장소에서 스케줄 티켓을 모두 씁니다. 학생 3명인 방을 먼저 진행할 수 있습니다.</sys:String>
+    <sys:String x:Key="TaskInfo.schedule">고른 장소에서 스케줄 티켓을 모두 씁니다. 보유한 학생이 많은 방부터 진행하고, 오늘 이미 진행한 방은 건너뜁니다.</sys:String>
     <sys:String x:Key="TaskInfo.circle">서클 출석 보상을 받습니다. 서클에 가입한 경우에만 동작합니다.</sys:String>
     <sys:String x:Key="TaskInfo.free_package">캐시샵의 일일 무료 패키지를 받습니다.</sys:String>
     <sys:String x:Key="TaskInfo.battle_pass">배틀패스 미션 포인트와 레벨 보상을 받습니다. 시즌이 아닐 때는 건너뜁니다.</sys:String>
     <sys:String x:Key="TaskInfo.attendance">통합 출석부에서 보상 표시가 있는 캠페인 출석부 탭의 보상을 받습니다.</sys:String>
-    <sys:String x:Key="TaskInfo.shop">일반 상점 상품을 크레딧으로 일괄 구매합니다. 즉시 갱신과 전술대회 상점은 설정을 켜야 동작합니다.</sys:String>
+    <sys:String x:Key="TaskInfo.shop">일반 상점 상품을 크레딧으로 일괄 구매합니다. 전술대회 상점은 설정을 켜야 동작합니다.</sys:String>
     <sys:String x:Key="TaskInfo.craft">완료된 제조를 일괄 수령합니다. 빠른 제조는 횟수를 정했을 때만 재료와 크레딧을 써서 진행합니다.</sys:String>
     <sys:String x:Key="TaskInfo.buy_ap">청휘석으로 AP를 삽니다. 가격 상한을 넘거나 AP가 999를 넘게 되면 사지 않습니다.</sys:String>
     <sys:String x:Key="TaskInfo.bounty">현상수배를 표로 소탕합니다.</sys:String>
@@ -71,7 +71,6 @@
     <sys:String x:Key="TaskInfo.mission_claim_all">미션 보상을 모두 받습니다.</sys:String>
     <sys:String x:Key="TaskInfo.account_info">UID, 닉네임, 레벨, AP, 크레딧, 청휘석을 이 PC에 기록합니다.</sys:String>
     <sys:String x:Key="TaskWarn.buy_ap">청휘석을 사용합니다.</sys:String>
-    <sys:String x:Key="TaskWarn.shop">즉시 갱신 설정을 켜면 청휘석을 사용합니다.</sys:String>
     <sys:String x:Key="Tasks.Settings">설정</sys:String>
     <sys:String x:Key="Task.NotImplemented">아직 구현되지 않음</sys:String>
     <!-- Display names by task id (tasks/*.json); a missing id falls back to the task's own name. -->
@@ -88,15 +87,13 @@
     <sys:String x:Key="Task.spend_event">이벤트: 활동력 소비</sys:String>
     <sys:String x:Key="Task.spend_mission">임무: 활동력 소비</sys:String>
     <sys:String x:Key="Setting.shop.contest_shop">전술대회 상점 (off 꺼짐 / ap AP 음료만 / all 전부)</sys:String>
-    <sys:String x:Key="Setting.schedule.prefer_full_rooms">학생 3명인 방 먼저</sys:String>
+    <sys:String x:Key="Setting.schedule.prefer_owned">보유 학생이 많은 방 먼저 (고른 지역 전체에서)</sys:String>
     <sys:String x:Key="Task.craft">제조: 완료 수령, 빠른 제조</sys:String>
     <sys:String x:Key="Setting.craft.quick_crafts">빠른 제조 횟수 (재료와 크레딧 사용, 0 = 사용 안 함)</sys:String>
     <sys:String x:Key="Setting.craft.quick_preset">빠른 제조 프리셋 (1~3, 왼쪽부터)</sys:String>
     <sys:String x:Key="Task.buy_ap">AP 구매: 청휘석으로 활동력 구매 (기본 꺼짐)</sys:String>
     <sys:String x:Key="Setting.buy_ap.purchases">구매 횟수 (1회 120 AP)</sys:String>
     <sys:String x:Key="Setting.buy_ap.max_price">1회 최대 가격 (청휘석)</sys:String>
-    <sys:String x:Key="Setting.shop.refreshes">즉시 갱신 횟수 (청휘석 사용, 0 = 사용 안 함)</sys:String>
-    <sys:String x:Key="Setting.shop.max_refresh_price">갱신 1회 최대 가격 (청휘석)</sys:String>
     <sys:String x:Key="Task.tactical_challenge">전술 대회: 보상 수령, 티켓 소비</sys:String>
     <sys:String x:Key="Task.mail_claim_all">우편함: 모두 받기</sys:String>
     <sys:String x:Key="Task.mission_claim_all">미션: 모두 받기</sys:String>

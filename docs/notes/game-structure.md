@@ -19,7 +19,7 @@ Window class `UnityWndClass`, title `Blue Archive`, 16:9 client area. BitBlt, Pr
 | Page | Contents |
 |---|---|
 | Cafe | Two cafes. Income panel, invitation tickets, students to touch. The wheel zooms; even fully zoomed out the view does not cover the whole room |
-| Schedule | 12 locations in a list, then "all schedules" with the rooms, then a room dialog |
+| Schedule | 12 locations in a list, then "all schedules" with the rooms, then a room dialog. In the room list an owned student has a pink portrait frame and a heart with the relationship rank, a student not owned a grey frame. After a room is done today its owned students get a green check and the portraits turn dark; a room without owned students shows no check (**verify**) |
 | Bounty | 3 locations, then a stage list |
 | Commissions | Base Defense (EXP items) and Item Retrieval (credits), then a stage list |
 | Scrimmage | 3 academies, then a stage list |

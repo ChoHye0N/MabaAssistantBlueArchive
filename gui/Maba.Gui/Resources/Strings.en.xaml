@@ -53,12 +53,12 @@
     <sys:String x:Key="Summary.RunFormat">{0} · {1} done, {2} failed, {3} skipped</sys:String>
     <sys:String x:Key="Summary.RunCancelledFormat">{0} · stopped ({1} done, {2} failed, {3} skipped)</sys:String>
     <sys:String x:Key="TaskInfo.cafe">Collects cafe income, invites the chosen students and taps students for relationship points. No income, no claim.</sys:String>
-    <sys:String x:Key="TaskInfo.schedule">Spends every schedule ticket in the chosen locations, rooms with three students first if set.</sys:String>
+    <sys:String x:Key="TaskInfo.schedule">Spends all schedule tickets in the chosen locations. Rooms with more owned students go first, and rooms already done today are skipped.</sys:String>
     <sys:String x:Key="TaskInfo.circle">Claims the circle attendance reward when you are in a circle.</sys:String>
     <sys:String x:Key="TaskInfo.free_package">Claims the daily free package in the cash shop.</sys:String>
     <sys:String x:Key="TaskInfo.battle_pass">Claims battle pass mission points and level rewards. Skipped outside a season.</sys:String>
     <sys:String x:Key="TaskInfo.attendance">Claims the rewards of campaign attendance tabs that show a reward mark.</sys:String>
-    <sys:String x:Key="TaskInfo.shop">Buys the general shop list with credits. Refreshes and the tactical challenge shop run only when turned on.</sys:String>
+    <sys:String x:Key="TaskInfo.shop">Buys the general shop list with credits. The tactical challenge shop runs only when turned on.</sys:String>
     <sys:String x:Key="TaskInfo.craft">Claims finished crafts. Quick craft uses materials and credits only when a count is set.</sys:String>
     <sys:String x:Key="TaskInfo.buy_ap">Buys AP with pyroxene; nothing above the price limit or past 999 AP.</sys:String>
     <sys:String x:Key="TaskInfo.bounty">Sweeps bounties with tickets.</sys:String>
@@ -71,7 +71,6 @@
     <sys:String x:Key="TaskInfo.mission_claim_all">Claims all mission rewards.</sys:String>
     <sys:String x:Key="TaskInfo.account_info">Records UID, nickname, level, AP, credits and pyroxene on this PC.</sys:String>
     <sys:String x:Key="TaskWarn.buy_ap">Spends pyroxene.</sys:String>
-    <sys:String x:Key="TaskWarn.shop">Spends pyroxene when refreshes are turned on.</sys:String>
     <sys:String x:Key="Tasks.Settings">Settings</sys:String>
     <sys:String x:Key="Task.NotImplemented">Not implemented yet</sys:String>
     <!-- Display names by task id (tasks/*.json); a missing id falls back to the task's own name. -->
@@ -88,15 +87,13 @@
     <sys:String x:Key="Task.spend_event">Event: spend AP</sys:String>
     <sys:String x:Key="Task.spend_mission">Missions: spend AP</sys:String>
     <sys:String x:Key="Setting.shop.contest_shop">Tactical challenge shop (off / ap: AP drinks / all)</sys:String>
-    <sys:String x:Key="Setting.schedule.prefer_full_rooms">Rooms with three students first</sys:String>
+    <sys:String x:Key="Setting.schedule.prefer_owned">Rooms with more owned students first (across the chosen locations)</sys:String>
     <sys:String x:Key="Task.craft">Craft: claim, quick craft</sys:String>
     <sys:String x:Key="Setting.craft.quick_crafts">Quick crafts (uses materials and credits, 0 = none)</sys:String>
     <sys:String x:Key="Setting.craft.quick_preset">Quick craft preset (1-3 from the left)</sys:String>
     <sys:String x:Key="Task.buy_ap">Buy AP: AP for pyroxene (off by default)</sys:String>
     <sys:String x:Key="Setting.buy_ap.purchases">Purchases (120 AP each)</sys:String>
     <sys:String x:Key="Setting.buy_ap.max_price">Highest price per purchase (pyroxene)</sys:String>
-    <sys:String x:Key="Setting.shop.refreshes">Refreshes (pyroxene, 0 = none)</sys:String>
-    <sys:String x:Key="Setting.shop.max_refresh_price">Highest price per refresh (pyroxene)</sys:String>
     <sys:String x:Key="Task.tactical_challenge">Tactical Challenge: claim rewards, use tickets</sys:String>
     <sys:String x:Key="Task.mail_claim_all">Mailbox: claim all</sys:String>
     <sys:String x:Key="Task.mission_claim_all">Tasks: claim all</sys:String>

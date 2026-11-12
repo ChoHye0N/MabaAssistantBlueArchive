@@ -16,7 +16,7 @@ Open items first; finished ones are kept below as a record of what was verified 
 - [ ] Other languages
 - [ ] Decide how the AP collected from the mailbox is spent (owner, later)
 - [ ] Push campaign areas that are not cleared yet (grid maps: team movement per stage, from a written stage guide)
-- [ ] Schedule: prefer rooms with configured students across the chosen locations; otherwise spend tickets in list order
+- [ ] Schedule by owned students (`prefer_owned`): rooms with three owned students across the chosen locations first, then two, one, the rest; rooms done today are skipped. Written 2026-11-12 from saved frames with 0 tickets left: a run with tickets is not verified. Preferring particular students is still open
 - [ ] On hold: record the owned students. Reading the student list with OCR gave misreads and noise; it needs a dictionary of student names per language to correct them (see `assets/PROVENANCE.md`)
 - [ ] Verify a sweep count above the AP, and a battle in a mission grid map
 
