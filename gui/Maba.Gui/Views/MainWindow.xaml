@@ -10,6 +10,7 @@
            mc:Ignorable="d"
            d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
            Title="{Binding WindowTitle}"
+           Icon="/Resources/app.ico"
            Width="880" Height="640" MinWidth="720" MinHeight="480"
            WindowStartupLocation="CenterScreen"
            ShowTitle="True">

@@ -43,7 +43,7 @@ Set-Content -Path "$data\assets-local\README.txt" -Encoding utf8 -Value 'Templat
 Copy-Item tools\template_capture.py, tools\check_templates.py, tools\requirements.txt, tools\README.md "$data\tools"
 Copy-Item LICENSE, THIRD_PARTY_NOTICES.md, README.md, README.en.md $pkg
 New-Item -ItemType Directory -Force "$pkg\docs\images" | Out-Null
-Copy-Item docs\images\screenshot-ko.png "$pkg\docs\images"
+Copy-Item docs\images\screenshot-ko.png, docs\images\logo.png "$pkg\docs\images"
 
 # OCR: embeddable Python with the packages and models of ocr/.venv
 Copy-Item ocr\server.py, ocr\requirements.txt, ocr\README.md "$pkg\ocr"

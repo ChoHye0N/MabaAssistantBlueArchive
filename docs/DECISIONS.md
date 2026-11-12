@@ -13,7 +13,7 @@ Fixed choices. Change one only with a note here.
 | 7 | Platform order: Steam PC client first, emulators second. |
 | 8 | Windows only for now. Global server only; the Japan server has no PC client and is out of scope. |
 | 9 | OCR: PaddleOCR models run by RapidOCR on ONNX Runtime, in a Python sidecar first (changed 2026-11-02 from the PaddleOCR package: same models without the PaddlePaddle framework, much smaller install, and the same ONNX files can later run natively in C++). |
-| 10 | Logo and icons: later, with clearly owned rights, no game characters. |
+| 10 | Logo and icons: fan art of a game character (Chidori Michiru) drawn by the owner, used for the README logo and the program icon (changed 2026-11-12 from "no game characters"). The drawing is the owner's and outside the project license; the character belongs to NEXON. |
 | 11 | Personal and sensitive data are never committed (see `CONTRIBUTING.md`, `tools/privacy_check.py`). |
 | 12 | GUI: WPF on .NET 10 (LTS; .NET 8 support ends 2026-11-10) with HandyControls for theme and controls and CommunityToolkit.Mvvm for MVVM (maintained, source-generated, no IL weaving). Talks to Core only through the C ABI. |
 | 13 | Emulator control: own ADB controller written from behavior notes (`docs/notes/controllers.md`), `adb shell input` by default and MaaTouch as an optional faster helper the user supplies. A full automation framework with its own controllers was considered and not adopted: it would bring a second OpenCV/ONNX stack and its own task model. |
