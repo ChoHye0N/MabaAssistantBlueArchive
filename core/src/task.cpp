@@ -130,6 +130,17 @@ Condition ParseCondition(const json& obj, const std::string& where) {
                 if (auto r = ParseRoi(wrapper, where + ".roi_by_loop[" + std::to_string(i) + "]")) c.rois_by_loop.push_back(*r);
             }
         }
+        if (seen) {
+            c.min_count = OptInt(obj, "min_count", where, 1, 0, 64);
+            if (auto it = obj.find("min_count_by_outer_loop"); it != obj.end()) {
+                if (!it->is_array() || it->empty()) throw ParseError(where + ": 'min_count_by_outer_loop' must be a non-empty array");
+                for (const auto& n : *it) {
+                    if (!n.is_number_integer() || n.get<int>() < 0 || n.get<int>() > 64)
+                        throw ParseError(where + ": 'min_count_by_outer_loop' holds counts from 0 to 64");
+                    c.min_counts_by_outer_loop.push_back(n.get<int>());
+                }
+            }
+        }
         if (auto it = obj.find("roi_by_value"); it != obj.end()) {
             if (!it->is_array() || it->empty()) throw ParseError(where + ": 'roi_by_value' must be a non-empty array");
             for (std::size_t i = 0; i < it->size(); ++i) {

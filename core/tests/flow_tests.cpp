@@ -272,6 +272,30 @@ MABA_TEST(ColourAreaChosenByLoopRound) {
     CHECK(c.size() == 2 && c[0].x == 10 && c[1].x == 20);
 }
 
+MABA_TEST(ColourBlobCountByOuterLoopRound) {
+    NavRig rig;
+    // Two items: the first shows two markers, the second three. Pass 1 takes items with three,
+    // pass 2 items with two or more, pass 3 any (count 0).
+    maba::Frame& f = rig.controller.scenes[NavRig::kMainScene];
+    Paint(f, {100, 100, 35, 12}, 2, 222, 255);
+    Paint(f, {150, 100, 35, 12}, 2, 222, 255);
+    Paint(f, {100, 300, 35, 12}, 2, 222, 255);
+    Paint(f, {150, 300, 35, 12}, 2, 222, 255);
+    Paint(f, {200, 300, 35, 12}, 2, 222, 255);
+    const auto task = Task(R"({"id": "t", "steps": [{"action": "loop", "max": 3, "steps": [{"action": "loop", "max": 2, "steps": [
+        {"action": "click", "points": [{"x": 10, "y": 5}, {"x": 20, "y": 5}], "no_verify": true,
+         "when": {"color": {"hsv_min": [20, 200, 230], "hsv_max": [30, 255, 255], "width": [30, 40]},
+                  "min_count_by_outer_loop": [3, 2, 0],
+                  "roi_by_loop": [{"x": 90, "y": 90, "w": 200, "h": 40}, {"x": 90, "y": 290, "w": 200, "h": 40}]}}]}]}]})");
+    maba::TaskRunner runner(rig.Nav(), nullptr);
+    CHECK(runner.RunTask(task).status == maba::TaskStatus::kSucceeded);
+    const auto& c = rig.controller.clicks;
+    // pass 1: second item; pass 2: both; pass 3: both
+    CHECK(c.size() == 5 && c[0].x == 20 && c[1].x == 10 && c[2].x == 20 && c[3].x == 10 && c[4].x == 20);
+    CHECK(!maba::ParseTask(R"({"id": "t", "steps": [{"action": "back", "when": {"color": {"hsv_min": [0, 0, 0], "hsv_max": [1, 1, 1]}, "min_count_by_outer_loop": []}}]})").ok);
+    CHECK(!maba::ParseTask(R"({"id": "t", "steps": [{"action": "back", "when": {"color": {"hsv_min": [0, 0, 0], "hsv_max": [1, 1, 1]}, "min_count": 99}}]})").ok);
+}
+
 MABA_TEST(LoopCountAdjustedBySetting) {
     const auto clicks = [](const char* settings) {
         NavRig rig;

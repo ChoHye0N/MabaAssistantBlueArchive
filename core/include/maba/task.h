@@ -90,6 +90,8 @@ struct Condition {
     std::optional<ColorSpec> color;    // kColor, kNoColor
     std::vector<Rect> rois_by_value;   // kColor, kNoColor: the area for the each value (1 = first)
     std::vector<Rect> rois_by_loop;    // kColor, kNoColor: the area for the innermost loop round (cycled)
+    int min_count = 1;                 // kColor: at least this many blobs (0 always holds)
+    std::vector<int> min_counts_by_outer_loop;  // kColor: min_count for the outermost loop round (cycled)
     int timeout_ms = 0;                // kPresent/kColor: keep looking this long (0 = one look)
 };
 

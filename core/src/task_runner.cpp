@@ -250,10 +250,17 @@ bool TaskRunner::Holds(const Condition& c, Context& ctx) {
         case ConditionKind::kColor: {
             bool seen = false;
             const ColorSpec spec = ColorFor(c, ctx.each_value, ctx.loop_index.empty() ? 0 : ctx.loop_index.back());
+            // Several passes over the same items can ask for fewer blobs each time (outermost loop round).
+            int need = c.min_count;
+            if (!c.min_counts_by_outer_loop.empty()) {
+                const int round = ctx.loop_index.empty() ? 0 : ctx.loop_index.front();
+                need = c.min_counts_by_outer_loop[static_cast<std::size_t>(round) % c.min_counts_by_outer_loop.size()];
+            }
+            if (need <= 0) return true;
             WaitUntil(
                 [&] {
                     const Observation obs = nav_.Observe();
-                    seen = obs.ok && !FindColorBlobs(obs.frame, spec, 1).empty();
+                    seen = obs.ok && static_cast<int>(FindColorBlobs(obs.frame, spec, need).size()) >= need;
                     return seen;
                 },
                 StepWait(std::max(c.timeout_ms, 100), options_.cancel), nav_.Clock());
