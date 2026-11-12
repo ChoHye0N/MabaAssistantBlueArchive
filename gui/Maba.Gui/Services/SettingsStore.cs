@@ -105,17 +105,19 @@ public sealed class SettingsStore
 
     // The data root holds pages/, tasks/, config/: data/ beside the executable in a release, the
     // repository root during development (searched upward from the executable).
+    // The program's own data always wins. The settings file is shared by every copy of the program
+    // on this PC, so a saved path may belong to another copy (a release run before a development
+    // build, or an older release): it is used only when this copy has no data of its own.
     public static string ResolveDataRoot(string configured)
     {
-        // First: a saved path can point at an older release in another folder.
         var release = Path.Combine(AppContext.BaseDirectory, "data");
         if (IsDataRoot(release)) return release;
-        if (!string.IsNullOrWhiteSpace(configured) && IsDataRoot(configured)) return configured;
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         for (var i = 0; dir is not null && i < 8; ++i, dir = dir.Parent)
         {
             if (IsDataRoot(dir.FullName)) return dir.FullName;
         }
+        if (!string.IsNullOrWhiteSpace(configured) && IsDataRoot(configured)) return configured;
         return AppContext.BaseDirectory;
     }
 
