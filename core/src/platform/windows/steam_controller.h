@@ -23,7 +23,7 @@ struct SteamControllerOptions {
     std::wstring window_class = L"UnityWndClass";
     std::wstring window_title = L"Blue Archive";
     bool bring_to_front = true;  // SetForegroundWindow before input
-    bool fit_window = false;     // Connect changes a window that is not 16:9 or too small to 1280x720
+    bool fit_window = false;     // change a window that is not 16:9 or too small to 1280x720 (on connect and before actions)
     LogFn log;
     bool restore_cursor = true;  // put the cursor back after each click/swipe
     int move_settle_ms = 100;    // pause after moving, before pressing (the game reads the

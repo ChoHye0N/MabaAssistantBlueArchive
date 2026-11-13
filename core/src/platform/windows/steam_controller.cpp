@@ -67,7 +67,8 @@ bool SteamController::Connect() {
     return true;
 }
 
-// Once per connection: a size changed during a run fails that task, and the next run fits it again.
+// On connecting, and again before an action when the window no longer fits (a game that has just
+// started sizes its window once more).
 void SteamController::FitWindow() {
     DpiAwareScope dpi;
     if (IsIconic(hwnd_)) return;
@@ -114,7 +115,14 @@ bool SteamController::EnsureWindow() {
     if (IsIconic(hwnd_)) return Fail("game window is minimized");
     RECT rc{};
     if (!GetClientRect(hwnd_, &rc)) return Fail("cannot read the client size");
-    const Size size{rc.right - rc.left, rc.bottom - rc.top};
+    Size size{rc.right - rc.left, rc.bottom - rc.top};
+    // A game started by this run sizes its window again after the window first appears (seen
+    // 2026-11-13: 1468x856 after the title screen), so a window that stopped fitting is fitted again.
+    if (!IsSupportedAspect(size) && options_.fit_window) {
+        FitWindow();
+        if (!GetClientRect(hwnd_, &rc)) return Fail("cannot read the client size");
+        size = Size{rc.right - rc.left, rc.bottom - rc.top};
+    }
     if (!IsSupportedAspect(size)) {
         return Fail("client area " + std::to_string(size.width) + "x" + std::to_string(size.height) +
                     " is not 16:9; set a 16:9 window, at least 1280x720");
