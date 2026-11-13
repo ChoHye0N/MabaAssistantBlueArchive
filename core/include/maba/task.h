@@ -41,6 +41,7 @@ enum class StepAction {
     kEnd,             // finish the task now (succeeded or skipped)
     kFail,            // fail the task with `message`
     kBreak,           // leave the innermost loop or each
+    kScheduleRooms,   // schedule: look at the chosen locations, then run the best rooms (ScheduleSpec)
 };
 
 const char* ToString(StepAction action);
@@ -93,6 +94,26 @@ struct Condition {
     int min_count = 1;                 // kColor: at least this many blobs (0 always holds)
     std::vector<int> min_counts_by_outer_loop;  // kColor: min_count for the outermost loop round (cycled)
     int timeout_ms = 0;                // kPresent/kColor: keep looking this long (0 = one look)
+};
+
+// kScheduleRooms. Starts inside a schedule location and moves between locations with the arrow
+// `next` (it goes round all of them). With the `prefer` setting on, it first looks at the 'all
+// schedules' list of every chosen location (rooms done today, owned students per room) and then
+// runs the rooms with the most owned students, as many as there are tickets; with it off it runs
+// the rooms of the chosen locations in order. Locations are told apart by their name (OCR of
+// `name_roi`, strings "<name_key>{value}").
+struct ScheduleSpec {
+    std::string locations_setting;  // list setting with the chosen locations
+    std::string prefer_setting;     // bool setting: rooms by owned students across locations
+    std::string name_key;           // strings key prefix of the location names
+    std::string tickets;            // stored number with the tickets left (read_number before)
+    Rect name_roi;
+    Point next;
+    TemplateRef open, list, info, start;  // 'all schedules' button and title, room dialog, start
+    Rect ticket_roi;                      // tickets in the list ("4/7")
+    std::vector<Point> rooms;             // click points, list order
+    std::vector<Rect> card_rois, owned_rois, done_rois;  // per room, same order
+    ColorSpec card, owned, done;          // a room exists / an owned student / done today
 };
 
 // Which match a template click uses when several are visible.
@@ -151,6 +172,7 @@ struct Step {
     std::vector<std::pair<std::string, std::vector<Step>>> cases;  // kEach: per value
     std::string message;               // kEnd, kFail
     bool end_skipped = false;          // kEnd: report the task as skipped
+    std::optional<ScheduleSpec> schedule;  // kScheduleRooms
 };
 
 inline constexpr int kDefaultTaskOrder = 1000;

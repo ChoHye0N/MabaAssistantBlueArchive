@@ -10,6 +10,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
+#include <functional>
+#include <map>
 #include <set>
 
 #include <nlohmann/json.hpp>
@@ -820,6 +822,8 @@ TaskRunner::Flow TaskRunner::RunAction(const Step& s, Context& ctx, std::string&
             return Flow::kFail;
         case StepAction::kBreak:
             return Flow::kBreak;
+        case StepAction::kScheduleRooms:
+            return RunScheduleRooms(s, ctx, error) ? Flow::kNext : Flow::kFail;
         default:
             return RunStep(s, ctx, error) ? Flow::kNext : Flow::kFail;
     }
@@ -1013,5 +1017,232 @@ RunReport TaskRunner::Run(const std::vector<TaskSpec>& tasks,
     }
     return report;
 }
+
+// The schedule step (StepAction::kScheduleRooms): look at the chosen locations once, then run the
+// best rooms. Behaviour notes: docs/notes/schedule.md.
+namespace {
+
+constexpr int kMaxLocations = 16;   // laps round the location arrow; more means the wrap was missed
+constexpr int kNameMargin = 16;
+constexpr milliseconds kRoomTimeout{20000};
+
+std::string Normalize(std::string text) {
+    text.erase(std::remove(text.begin(), text.end(), ' '), text.end());
+    return text;
+}
+
+}  // namespace
+
+bool TaskRunner::RunScheduleRooms(const Step& s, Context& ctx, std::string& error) {
+    const ScheduleSpec& sp = *s.schedule;
+    IController& controller = nav_.Controller();
+    if (!ocr_) {
+        error = "OCR is not available (start the OCR sidecar)";
+        return false;
+    }
+
+    // Chosen locations and their names in the game language.
+    std::vector<std::string> keys;
+    if (auto it = ctx.settings.find(sp.locations_setting); it != ctx.settings.end()) keys = it->second.list;
+    std::map<std::string, std::string> names;  // key -> name without spaces
+    for (const auto& key : keys) {
+        auto it = options_.strings.find(sp.name_key + key);
+        if (it == options_.strings.end()) {
+            error = "no text '" + sp.name_key + key + "' in strings/" + options_.language + ".json";
+            return false;
+        }
+        names[key] = Normalize(it->second);
+    }
+    bool prefer = false;
+    if (auto it = ctx.settings.find(sp.prefer_setting); it != ctx.settings.end()) prefer = it->second.scalar == "true";
+    long long tickets = 99;
+    if (auto it = ctx.result.values.find(sp.tickets); it != ctx.result.values.end()) tickets = it->second;
+    if (tickets <= 0 || keys.empty()) return true;
+
+    // The location shown: the name OCR read, matched to a chosen key ("" = not chosen).
+    const auto read_location = [&](std::string& raw) -> std::string {
+        const Frame crop = controller.CaptureRegion(sp.name_roi);
+        raw = crop.empty() ? std::string{} : Normalize(JoinLeftToRight(ocr_->Recognize(AddMargin(crop, kNameMargin), Rect{}, options_.language)));
+        for (const auto& [key, name] : names)
+            if (!name.empty() && raw.find(name) != std::string::npos) return key;
+        return {};
+    };
+    // A relationship rank-up can show up late after a lesson and swallow the arrow: popups are
+    // dismissed before each press, and a location that did not change is pressed once more.
+    const auto next_location = [&](const std::string& was) {
+        for (int attempt = 0; attempt < 2; ++attempt) {
+            nav_.Observe();
+            if (!controller.Click(sp.next)) return false;
+            Settle();
+            std::string raw;
+            const std::string key = read_location(raw);
+            const std::string id = key.empty() ? raw : key;
+            if (id.empty() || id != was) return true;
+        }
+        return true;
+    };
+    Step open;
+    open.action = StepAction::kClick;
+    open.templ = sp.open;
+    open.expect = sp.list;
+    open.timeout_ms = 8000;
+    const auto open_list = [&](std::string& why) { return ClickTemplate(open, ctx, why); };
+    Step gone;
+    gone.timeout_ms = 8000;
+    const auto close_list = [&]() {
+        if (!nav_.Matcher().Find(controller.Screenshot(), sp.list).found) return true;
+        controller.Back();
+        const bool closed = WaitGone(sp.list, gone);
+        Settle();
+        return closed;
+    };
+    struct Room {
+        int lap;
+        std::string key;
+        std::size_t index;
+        int owned;
+    };
+    // Rooms of the open list that exist and are not done today, in list order.
+    const auto rooms_now = [&](int lap, const std::string& key, std::vector<Room>& out) {
+        const Observation obs = nav_.Observe();
+        if (!obs.ok) return false;
+        for (std::size_t i = 0; i < sp.rooms.size(); ++i) {
+            ColorSpec card = sp.card;
+            card.roi = sp.card_rois[i];
+            if (FindColorBlobs(obs.frame, card, 1).empty()) break;  // rooms fill the list in order
+            ColorSpec done = sp.done;
+            done.roi = sp.done_rois[i];
+            if (!FindColorBlobs(obs.frame, done, 1).empty()) continue;
+            ColorSpec owned = sp.owned;
+            owned.roi = sp.owned_rois[i];
+            out.push_back({lap, key, i, static_cast<int>(FindColorBlobs(obs.frame, owned, 8).size())});
+        }
+        return true;
+    };
+    // Runs one room of the open list; false when its dialog did not open (nothing spent).
+    const auto run_room = [&](const Room& room) {
+        Step click;
+        click.action = StepAction::kClick;
+        click.point = sp.rooms[room.index];
+        click.expect = sp.info;
+        click.timeout_ms = 3000;
+        click.retries = 1;
+        std::string why;
+        if (!CheckedAction(click, ctx, [&](std::string& w) {
+                if (controller.Click(sp.rooms[room.index])) return true;
+                w = Failed("click", controller);
+                return false;
+            }, "a room", why)) {
+            Log(log_, LogLevel::kInfo, "room " + std::to_string(room.index + 1) + " did not open: " + why);
+            if (nav_.Matcher().Find(controller.Screenshot(), sp.info).found) controller.Back();
+            return false;
+        }
+        Step start;
+        start.action = StepAction::kClick;
+        start.templ = sp.start;
+        start.timeout_ms = 5000;
+        start.no_verify = true;
+        if (!ClickTemplate(start, ctx, why)) {
+            Log(log_, LogLevel::kWarn, "the start button did not show: " + why);
+            controller.Back();
+            return false;
+        }
+        // Results and rank-up popups are dismissed while waiting; the dialog closes by itself.
+        const bool done = WaitUntil(
+            [&] {
+                const Observation obs = nav_.Observe();
+                return obs.ok && !nav_.Matcher().Find(obs.frame, sp.info).found &&
+                       nav_.Matcher().Find(obs.frame, sp.list).found;
+            },
+            StepWait(static_cast<int>(kRoomTimeout.count()), options_.cancel), nav_.Clock()).ok;
+        Settle();
+        const Frame crop = controller.CaptureRegion(sp.ticket_roi);
+        const std::string text = crop.empty() ? std::string{} : JoinLeftToRight(ocr_->Recognize(AddMargin(crop, kNameMargin), Rect{}, options_.language));
+        if (const auto frac = ParseFraction(text)) {
+            tickets = frac->value;
+        } else {
+            --tickets;  // unreadable: count it as spent
+        }
+        ctx.result.values[sp.tickets] = tickets;
+        Log(log_, LogLevel::kInfo, "schedule: " + room.key + " room " + std::to_string(room.index + 1) + " (" +
+                                       std::to_string(room.owned) + " owned), tickets " + std::to_string(tickets));
+        return done;
+    };
+
+    // One lap round the locations; `visit` runs for every chosen one and may stop the lap.
+    const auto lap_round = [&](const std::function<bool(int, const std::string&)>& visit) {
+        std::string first, raw;
+        for (int lap = 0; lap < kMaxLocations && !Cancelled(); ++lap) {
+            const std::string key = read_location(raw);
+            const std::string id = key.empty() ? raw : key;
+            if (lap == 0) {
+                first = id;
+            } else if (!id.empty() && id == first) {
+                return true;  // back where the lap started
+            }
+            if (!key.empty() && !visit(lap, key)) return true;
+            if (!next_location(id)) {
+                error = Failed("click", controller);
+                return false;
+            }
+        }
+        if (!Cancelled()) Log(log_, LogLevel::kWarn, "schedule: the first location never came back");
+        return !Cancelled();
+    };
+
+    // By location, not by lap: a lap can count a location twice when an arrow press was missed.
+    std::map<std::string, std::vector<Room>> plan;
+    if (prefer) {
+        std::vector<Room> seen;
+        std::set<std::string> looked;
+        if (!lap_round([&](int lap, const std::string& key) {
+                if (!looked.insert(key).second) return true;  // already seen in this lap
+                std::string why;
+                if (!open_list(why)) {
+                    Log(log_, LogLevel::kWarn, "schedule: the list of " + key + " did not open: " + why);
+                    return true;
+                }
+                rooms_now(lap, key, seen);
+                close_list();
+                return true;
+            }))
+            return false;
+        std::stable_sort(seen.begin(), seen.end(), [](const Room& a, const Room& b) { return a.owned > b.owned; });
+        if (seen.size() > static_cast<std::size_t>(tickets)) seen.resize(static_cast<std::size_t>(tickets));
+        for (const auto& room : seen) plan[room.key].push_back(room);
+        std::string chosen;
+        for (const auto& room : seen) chosen += " " + room.key + "#" + std::to_string(room.index + 1) + "(" + std::to_string(room.owned) + ")";
+        Log(log_, LogLevel::kInfo, "schedule plan:" + (chosen.empty() ? std::string{" nothing to run"} : chosen));
+        if (plan.empty()) return true;
+    }
+
+    std::size_t planned = 0;
+    for (const auto& [where, rooms] : plan) planned += rooms.size();
+    std::set<std::string> visited;
+    return lap_round([&](int lap, const std::string& key) {
+        if (tickets <= 0) return false;
+        if (!visited.insert(key).second) return true;
+        if (prefer && !plan.count(key)) return true;
+        std::string why;
+        if (!open_list(why)) {
+            Log(log_, LogLevel::kWarn, "schedule: the list of " + key + " did not open: " + why);
+            return true;
+        }
+        std::vector<Room> rooms;
+        if (prefer) {
+            rooms = plan[key];
+        } else {
+            rooms_now(lap, key, rooms);
+        }
+        for (const auto& room : rooms) {
+            if (tickets <= 0 || Cancelled()) break;
+            run_room(room);
+            if (prefer) --planned;
+        }
+        close_list();
+        return tickets > 0 && (!prefer || planned > 0);
+    });
+}
+
 
 }  // namespace maba

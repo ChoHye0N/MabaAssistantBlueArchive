@@ -234,6 +234,23 @@ MABA_TEST(RunCancelledMarksRemainingTasks) {
     CHECK(rig.controller.clicks.empty());
 }
 
+MABA_TEST(ScheduleRoomsStepIsParsed) {
+    const std::string head = R"({"id": "s", "steps": [{"action": "schedule_rooms", "locations_setting": "l", "prefer_setting": "p",
+        "name_key": "k.", "tickets": "t", "name_roi": {"x": 1, "y": 1, "w": 10, "h": 10}, "next": {"x": 5, "y": 5},
+        "open": {"template": "o.png"}, "list": {"template": "l.png"}, "info": {"template": "i.png"}, "start": {"template": "s.png"},
+        "ticket_roi": {"x": 1, "y": 1, "w": 10, "h": 10}, "rooms": [{"x": 1, "y": 1}, {"x": 2, "y": 2}],
+        "card": {"hsv_min": [0, 0, 0], "hsv_max": [1, 1, 1]}, "owned": {"hsv_min": [0, 0, 0], "hsv_max": [1, 1, 1]},
+        "done": {"hsv_min": [0, 0, 0], "hsv_max": [1, 1, 1]},
+        "card_rois": [{"x": 1, "y": 1, "w": 5, "h": 5}, {"x": 1, "y": 1, "w": 5, "h": 5}],
+        "owned_rois": [{"x": 1, "y": 1, "w": 5, "h": 5}, {"x": 1, "y": 1, "w": 5, "h": 5}],)";
+    const auto ok = maba::ParseTask(head + R"("done_rois": [{"x": 1, "y": 1, "w": 5, "h": 5}, {"x": 1, "y": 1, "w": 5, "h": 5}]}]})");
+    CHECK(ok.ok);
+    CHECK(ok.ok && ok.task.steps[0].schedule && ok.task.steps[0].schedule->rooms.size() == 2);
+    // one area per room
+    CHECK(!maba::ParseTask(head + R"("done_rois": [{"x": 1, "y": 1, "w": 5, "h": 5}]}]})").ok);
+    CHECK(!maba::ParseTask(R"({"id": "s", "steps": [{"action": "schedule_rooms"}]})").ok);
+}
+
 MABA_TEST(RepoTaskFilesLoad) {
     const auto set = maba::LoadTaskDir(std::string(MABA_SOURCE_DIR) + "/tasks");
     if (!set.ok) std::printf("%s\n", set.error.c_str());

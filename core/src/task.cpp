@@ -40,6 +40,7 @@ const char* ToString(StepAction action) {
         case StepAction::kEnd: return "end";
         case StepAction::kFail: return "fail";
         case StepAction::kBreak: return "break";
+        case StepAction::kScheduleRooms: return "schedule_rooms";
     }
     return "?";
 }
@@ -70,6 +71,7 @@ const std::map<std::string, StepAction>& Actions() {
         {"end", StepAction::kEnd},
         {"fail", StepAction::kFail},
         {"break", StepAction::kBreak},
+        {"schedule_rooms", StepAction::kScheduleRooms},
     };
     return actions;
 }
@@ -287,6 +289,50 @@ Step ParseStep(const json& obj, const std::string& where, int depth) {
             }
             s.duration_ms = OptInt(obj, "duration_ms", where, 400, 50, 5000);
             break;
+        case StepAction::kScheduleRooms: {
+            ScheduleSpec sp;
+            const auto rect = [&](const json& v, const std::string& at) {
+                const json wrapper = {{"roi", v}};
+                const auto r = ParseRoi(wrapper, at);
+                if (!r) throw ParseError(at + ": needs a non-empty area");
+                return *r;
+            };
+            const auto rects = [&](const char* key) {
+                std::vector<Rect> out;
+                const json& arr = Require(obj, key, where);
+                if (!arr.is_array()) throw ParseError(where + ": '" + key + "' must be an array");
+                for (std::size_t i = 0; i < arr.size(); ++i)
+                    out.push_back(rect(arr[i], where + "." + key + "[" + std::to_string(i) + "]"));
+                return out;
+            };
+            sp.locations_setting = RequireString(obj, "locations_setting", where);
+            sp.prefer_setting = RequireString(obj, "prefer_setting", where);
+            sp.name_key = RequireString(obj, "name_key", where);
+            sp.tickets = RequireString(obj, "tickets", where);
+            sp.name_roi = rect(Require(obj, "name_roi", where), where + ".name_roi");
+            sp.next = ParsePoint(Require(obj, "next", where), where + ".next");
+            sp.open = ParseTemplateRef(Require(obj, "open", where), where + ".open");
+            sp.list = ParseTemplateRef(Require(obj, "list", where), where + ".list");
+            sp.info = ParseTemplateRef(Require(obj, "info", where), where + ".info");
+            sp.start = ParseTemplateRef(Require(obj, "start", where), where + ".start");
+            sp.ticket_roi = rect(Require(obj, "ticket_roi", where), where + ".ticket_roi");
+            const json& rooms = Require(obj, "rooms", where);
+            if (!rooms.is_array() || rooms.empty() || rooms.size() > 12)
+                throw ParseError(where + ": 'rooms' must list 1 to 12 points");
+            for (std::size_t i = 0; i < rooms.size(); ++i)
+                sp.rooms.push_back(ParsePoint(rooms[i], where + ".rooms[" + std::to_string(i) + "]"));
+            sp.card_rois = rects("card_rois");
+            sp.owned_rois = rects("owned_rois");
+            sp.done_rois = rects("done_rois");
+            if (sp.card_rois.size() != sp.rooms.size() || sp.owned_rois.size() != sp.rooms.size() ||
+                sp.done_rois.size() != sp.rooms.size())
+                throw ParseError(where + ": 'card_rois', 'owned_rois' and 'done_rois' need one area per room");
+            sp.card = ParseColor(Require(obj, "card", where), where + ".card");
+            sp.owned = ParseColor(Require(obj, "owned", where), where + ".owned");
+            sp.done = ParseColor(Require(obj, "done", where), where + ".done");
+            s.schedule = std::move(sp);
+            break;
+        }
         case StepAction::kSwipe:
             s.point = ParsePoint(Require(obj, "from", where), where + ".from");
             s.to = ParsePoint(Require(obj, "to", where), where + ".to");

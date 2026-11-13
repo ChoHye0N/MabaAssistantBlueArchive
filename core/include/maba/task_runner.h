@@ -89,6 +89,7 @@ private:
     bool RunStep(const Step& step, Context& ctx, std::string& error);
     bool Holds(const Condition& c, Context& ctx);
     bool ClickTemplate(const Step& s, Context& ctx, std::string& error);
+    bool RunScheduleRooms(const Step& s, Context& ctx, std::string& error);
     bool CheckedAction(const Step& s, Context& ctx, const std::function<bool(std::string&)>& act,
                        const std::string& what, std::string& error);
     bool WaitReaction(const Frame& before, const Step& s);

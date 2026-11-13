@@ -1,10 +1,12 @@
 {
   "id": "schedule",
   "notes": [
-    "Schedule (tickets). Opened from the main screen bottom bar."
+    "Schedule (tickets): the location list. Opened from the main screen bottom bar.",
+    "The title 'schedule' also matches the start of 'schedule select', the title inside a location, so the 'Location Select' header of the list is required too (pages/schedule_location.json is the inside)."
   ],
   "anchors": [
-    { "template": "schedule_title.png", "roi": { "x": 80, "y": 0, "w": 130, "h": 55 }, "threshold": 0.9 }
+    { "template": "schedule_title.png", "roi": { "x": 80, "y": 0, "w": 130, "h": 55 }, "threshold": 0.9 },
+    { "template": "schedule_location_select.png", "roi": { "x": 630, "y": 75, "w": 280, "h": 65 }, "threshold": 0.9 }
   ],
   "transitions": [
     { "to": "main_menu", "click": { "template": "common_home_button.png", "roi": { "x": 1195, "y": 0, "w": 85, "h": 55 }, "threshold": 0.9 } }
