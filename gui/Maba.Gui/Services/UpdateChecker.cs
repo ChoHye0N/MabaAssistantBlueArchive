@@ -15,11 +15,11 @@ public static class UpdateChecker
     private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(5);
 
     // "owner/name", set by the release build; other builds have none and never check.
-    private static string Repository =>
+    internal static string Repository =>
         Assembly.GetExecutingAssembly().GetCustomAttributes<AssemblyMetadataAttribute>()
             .FirstOrDefault(a => a.Key == "Repository")?.Value ?? "";
 
-    private static string CurrentVersion =>
+    internal static string CurrentVersion =>
         Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()
             ?.InformationalVersion ?? "";
 
@@ -45,7 +45,7 @@ public static class UpdateChecker
     }
 
     // "v0.1.0", "0.1.0-beta.2" and "0.1.0+abc" all give 0.1.0.
-    private static Version? ParseVersion(string text)
+    internal static Version? ParseVersion(string text)
     {
         var plain = text.TrimStart('v').Split('-', '+')[0];
         return Version.TryParse(plain, out var version) ? version : null;

@@ -26,6 +26,9 @@
                 <TextBlock DockPanel.Dock="Right" Margin="0,0,16,0">
                     <Hyperlink Command="{Binding OpenUpdateCommand}"><Run Text="{Binding UpdateText, Mode=OneWay}" /></Hyperlink>
                 </TextBlock>
+                <TextBlock DockPanel.Dock="Right" Margin="0,0,16,0">
+                    <Hyperlink Command="{Binding UpdateResourcesCommand}"><Run Text="{Binding ResourceText, Mode=OneWay}" /></Hyperlink>
+                </TextBlock>
                 <TextBlock Text="{Binding StatusText}" TextTrimming="CharacterEllipsis" />
             </DockPanel>
         </Border>
@@ -363,6 +366,14 @@
                         </StackPanel>
 
                         <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.CheckUpdates}" IsChecked="{Binding CheckUpdates}" Margin="0,0,0,8" />
+                        <StackPanel Visibility="{Binding ResourceUpdatesSupported, Converter={StaticResource Boolean2VisibilityConverter}}">
+                            <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.AutoUpdateResources}" IsChecked="{Binding AutoUpdateResources}" Margin="0,0,0,4" />
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <Button Content="{DynamicResource Settings.CheckResources}" Command="{Binding UpdateResourcesCommand}" />
+                                <TextBlock Margin="12,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryTextBrush}"
+                                           Text="{Binding ResourceVersion}" />
+                            </StackPanel>
+                        </StackPanel>
                         <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.Ocr}" IsChecked="{Binding OcrEnabled}" Margin="0,4,0,8" />
                         <hc:TextBox hc:InfoElement.Title="{DynamicResource Settings.DataRoot}"
                                     hc:InfoElement.TitlePlacement="Left" hc:InfoElement.TitleWidth="140"

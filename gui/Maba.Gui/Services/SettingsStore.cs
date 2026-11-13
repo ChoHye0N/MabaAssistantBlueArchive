@@ -31,6 +31,8 @@ public sealed class AppSettings
     public bool SteamCloseGame { get; set; }
     public bool OcrEnabled { get; set; } = true;
     public bool CheckUpdates { get; set; } = true;
+    // Resources (tasks, pages, templates) newer than the installed ones are installed without asking.
+    public bool AutoUpdateResources { get; set; } = true;
     // Named sets of selected tasks, their settings and their order; one is active.
     public List<TaskProfile> Profiles { get; set; } = new();
     public int ActiveProfile { get; set; }

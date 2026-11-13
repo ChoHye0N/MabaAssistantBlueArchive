@@ -43,7 +43,7 @@ It captures the game screen, recognizes the current state with image matching an
 
 It never accesses game files, process memory or network packets. Only screen capture and ordinary input are used.
 
-Release builds ask GitHub at start whether a new version exists and show a notice. No game or account data is sent, nothing is downloaded or installed, and it can be turned off in the settings.
+Release builds ask GitHub at start whether something new exists. A new program version only shows a notice; newer resources (task data, page definitions, templates) are downloaded and applied at once, after their checksum and content were checked. No game or account data is sent, and it can be turned off in the settings.
 
 ## ✦ Features
 

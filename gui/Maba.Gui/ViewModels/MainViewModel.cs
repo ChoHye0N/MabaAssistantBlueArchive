@@ -60,6 +60,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _steamCloseGame = settings.SteamCloseGame;
         _ocrEnabled = settings.OcrEnabled;
         _checkUpdates = settings.CheckUpdates;
+        _autoUpdateResources = settings.AutoUpdateResources;
         _scheduleEnabled = settings.ScheduleEnabled;
         _resetHourUtc = settings.ResetHourUtc;
         _resetMinuteUtc = settings.ResetMinuteUtc;
@@ -147,6 +148,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool _checkUpdates;
     [ObservableProperty] private string _updateText = "";
     private string _updateUrl = "";
+    [ObservableProperty] private bool _autoUpdateResources;
+    [ObservableProperty] private string _resourceText = "";     // a waiting resource update (status bar link)
+    [ObservableProperty] private string _resourceVersion = "";  // the installed pack (settings tab)
+    [ObservableProperty] private bool _resourceUpdatesSupported;
+    private ResourceUpdate? _resourceUpdate;
+    private bool _resourceBusy;
     [ObservableProperty] private bool _scheduleEnabled;
     [ObservableProperty] private int _resetHourUtc;
     [ObservableProperty] private int _resetMinuteUtc;
@@ -209,7 +216,93 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _initializing = false;
         UpdateNextRun();
         _scheduleTimer.Start();
+        ResourceUpdatesSupported = ResourceUpdater.Supported(DataRoot);
+        ResourceVersion = ResourceUpdater.InstalledVersion(DataRoot);
         if (CheckUpdates) _ = CheckForUpdateAsync();
+        if (CheckUpdates) _ = CheckResourcesAsync(manual: false);
+    }
+
+    // Resources are small and follow the game's UI changes, so by default a newer pack is installed
+    // at once; with the setting off it waits behind a link. Never while tasks run.
+    private async Task CheckResourcesAsync(bool manual)
+    {
+        if (_resourceBusy || !ResourceUpdatesSupported) return;
+        _resourceBusy = true;
+        try
+        {
+            _resourceUpdate = await ResourceUpdater.CheckAsync(DataRoot);
+            if (_resourceUpdate is not { } update)
+            {
+                ResourceText = "";
+                if (manual) AddLog("info", Strings.Get("Resource.UpToDate"));
+                return;
+            }
+            if (update.NeedsProgram)
+            {
+                ResourceText = "";
+                AddLog("warn", Strings.Format("Resource.NeedsProgram", update.Version, update.MinCore));
+                return;
+            }
+            if (AutoUpdateResources || manual) await ApplyResourcesAsync();
+            else ResourceText = Strings.Format("Resource.Available", update.Version);
+        }
+        finally
+        {
+            _resourceBusy = false;
+        }
+    }
+
+    private async Task ApplyResourcesAsync()
+    {
+        if (_resourceUpdate is not { } update) return;
+        if (IsRunning)
+        {
+            ResourceText = Strings.Format("Resource.Available", update.Version);  // after the run
+            return;
+        }
+        // Core checks the new data before anything is replaced.
+        var error = await ResourceUpdater.ApplyAsync(update, DataRoot, staging =>
+        {
+            try
+            {
+                using var probe = new CoreClient(staging, _settings.Language, false);
+                return probe.LastError;
+            }
+            catch (Exception e) when (e is DllNotFoundException or EntryPointNotFoundException or InvalidOperationException
+                                          or BadImageFormatException)
+            {
+                return e.Message;
+            }
+        });
+        if (error.Length > 0)
+        {
+            AddLog("warn", Strings.Format("Resource.Failed", update.Version, error));
+            return;
+        }
+        _resourceUpdate = null;
+        ResourceText = "";
+        if (!IsRunning) CreateCore();
+        ResourceVersion = ResourceUpdater.InstalledVersion(DataRoot);
+        AddLog("info", Strings.Format("Resource.Updated", ResourceVersion));
+    }
+
+    [RelayCommand]
+    private async Task UpdateResources()
+    {
+        if (_resourceUpdate is not null && !_resourceBusy)
+        {
+            _resourceBusy = true;
+            try
+            {
+                await ApplyResourcesAsync();
+            }
+            finally
+            {
+                _resourceBusy = false;
+            }
+            return;
+        }
+        await CheckResourcesAsync(manual: true);
     }
 
     private async Task CheckForUpdateAsync()
@@ -384,6 +477,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
             case nameof(StatusText):
             case nameof(NextRunText):
             case nameof(CoreVersion):
+            case nameof(ResourceText):
+            case nameof(ResourceVersion):
+            case nameof(ResourceUpdatesSupported):
             case nameof(CoreAvailable):
             case nameof(IsAdb):
             case nameof(IsSteam):
@@ -413,6 +509,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _settings.SteamCloseGame = SteamCloseGame;
         _settings.OcrEnabled = OcrEnabled;
         _settings.CheckUpdates = CheckUpdates;
+        _settings.AutoUpdateResources = AutoUpdateResources;
         _settings.ScheduleEnabled = ScheduleEnabled;
         _settings.ResetHourUtc = Math.Clamp(ResetHourUtc, 0, 23);
         _settings.ResetMinuteUtc = Math.Clamp(ResetMinuteUtc, 0, 59);
@@ -690,12 +787,26 @@ public partial class MainViewModel : ObservableObject, IDisposable
             : "";
     }
 
-    private void CheckSchedule()
+    private bool _scheduledStarting;
+
+    // A scheduled run first takes newer resources, so a fix for a changed game screen is in use
+    // the same day even when the program has been open for a long time.
+    private async void CheckSchedule()
     {
         UpdateNextRun();
-        if (!ScheduleEnabled || !CoreAvailable || IsRunning) return;
+        if (!ScheduleEnabled || !CoreAvailable || IsRunning || _scheduledStarting) return;
         var info = QuerySchedule();
         if (info?.Due != true) return;
+        _scheduledStarting = true;
+        try
+        {
+            if (CheckUpdates) await CheckResourcesAsync(manual: false);
+        }
+        finally
+        {
+            _scheduledStarting = false;
+        }
+        if (!ScheduleEnabled || !CoreAvailable || IsRunning) return;
         AddLog("info", Strings.Get("Log.ScheduledStart"));
         StartRun(scheduled: true);
         if (!IsRunning)

@@ -29,6 +29,7 @@ Windows build: `cmake --preset windows-msvc` (needs `VCPKG_ROOT`).
 - Internal coordinates are 1280x720; Controllers normalize (see `core/include/maba/coords.h`).
 - Popups are handled by one global handler, never per task. All waits/retries/loops have caps and timeouts.
 - No game memory access, injection or packet manipulation. Screen capture + ordinary input only.
+- Resources (`config/`, `pages/`, `popups/`, `tasks/`, `strings/`, `assets/`) are released apart from the program and install themselves: when data starts to use something the released program does not know, raise `min_core` in `config/resource.json` (`docs/notes/updates.md`).
 - Tasks are data (`tasks/*.json`): `order` sets the sequence, `after` only where a failure must block; do not hard-code order. Mail must run after AP spending.
 - Korean (`ko`) is the baseline; other languages come later. Languages are data (`config/languages.json`); UI text that logic compares lives in `strings/<lang>.json` by key, never as literals; templates resolve `assets-local/` then `assets/`, per language then common. See `docs/PAGE_FORMAT.md`.
 - OCR reads digits only where possible (language-independent); identify text items by icon templates. Use `CaptureRegion` for OCR crops.

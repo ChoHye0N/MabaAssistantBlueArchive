@@ -16,7 +16,7 @@ Open items first; finished ones are kept below as a record of what was verified 
 - [ ] Other languages
 - [ ] Decide how the AP collected from the mailbox is spent (owner, later)
 - [ ] Push campaign areas that are not cleared yet (grid maps: team movement per stage, from a written stage guide)
-- [ ] Schedule by owned students (`prefer_owned`): rooms with three owned students across the chosen locations first, then two, one, the rest; rooms done today are skipped. Written 2026-11-12 from saved frames with 0 tickets left: a run with tickets is not verified. Preferring particular students is still open
+- [ ] Schedule by owned students (`schedule_rooms`): run in the game on 2026-11-13 with twelve locations (one look round, rooms with three owned students run, no list scrolling). Open: a run with the setting off, a planned room that no longer opens, unit tests of the step with fakes. Preferring particular students is not planned yet
 - [ ] On hold: record the owned students. Reading the student list with OCR gave misreads and noise; it needs a dictionary of student names per language to correct them (see `assets/PROVENANCE.md`)
 - [ ] Verify a sweep count above the AP, and a battle in a mission grid map
 
@@ -26,7 +26,8 @@ Open items first; finished ones are kept below as a record of what was verified 
 - [ ] Verify Steam not running or signed out; skip the animation at login too
 - [ ] Unattended runs without the GUI open (Task Scheduler entry or start with Windows, tray)
 - [ ] Check the English UI in the running GUI (text length in the settings layout); English game client support (templates, `strings/en.json`) is separate
-- [ ] On hold: automatic update of resources, then of the program
+- [ ] Program update from inside the program: a separate updater, packages per part (`docs/notes/updates.md`)
+- [ ] Resource update against a published `resources-*` release (checked 2026-11-13 with a local feed: newer pack installed, too-new pack refused, wrong checksum, entries outside the folders and data that does not load refused)
 
 ## Open questions to verify in the real game
 Game facts and their **verify** marks are in `docs/notes/game-structure.md`.

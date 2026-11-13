@@ -14,6 +14,13 @@ A release, tag or package is made only on the maintainer's explicit order (`docs
 4. **Notes** in Korean, for players: what changed (new, fixed), how to update (unpack into a new folder; settings and account records stay in the user folder), known limits that are still true, and the fixed notice (terms-of-service risk, screen recognition and ordinary input only, game images belong to NEXON Korea Corp. and NEXON GAMES Co., Ltd.). No internal names, no personal data, nothing that was not verified.
 5. **Publish** only when both runs succeeded: `gh release edit vX.Y.Z --notes-file FILE --draft=false --latest`, then check that the tag points at the intended commit.
 
+## Resource releases
+Task data and templates reach players without a program release (`docs/notes/updates.md`). Also only on the maintainer's order.
+1. Everything is committed, pushed and green; the change was checked in the game (`ba-live-check`), because a published pack installs itself on every player's PC.
+2. Raise `version` in `config/resource.json` (date and counter, `20261113.1`). Raise `min_core` to the next program version when the data uses a step, condition or field the released program does not know; such a pack only reaches players after that program is released.
+3. `gh workflow run resources.yml`, wait for it, read the draft `resources-<version>` (pack and `resources.json`), then publish it as a pre-release: `gh release edit resources-<version> --draft=false --prerelease`. Never mark it latest.
+4. A bad pack is not deleted: publish a higher version with the fix (players never go back to an older pack).
+
 ## Rules
 - A draft that misses a fix is deleted and rebuilt (a draft has no tag yet). A published release is not deleted or moved: the next version carries the fix.
 - The GUI built in the repository shows the version it was built with: rebuild it after a version change (`dotnet build gui/Maba.Gui -c Release`) before checking it by hand.

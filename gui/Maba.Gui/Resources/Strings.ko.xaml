@@ -11,7 +11,14 @@
     <sys:String x:Key="Tab.Settings">설정</sys:String>
     <sys:String x:Key="Account.Empty">아직 기록이 없습니다. 숙제의 계정 기록을 실행하면 계정별로 표시됩니다.</sys:String>
     <sys:String x:Key="Update.Available">새 버전 {0}</sys:String>
-    <sys:String x:Key="Settings.CheckUpdates">시작할 때 새 버전 확인 (GitHub에 접속, 알림만 표시)</sys:String>
+    <sys:String x:Key="Settings.CheckUpdates">시작할 때 업데이트 확인 (GitHub에 접속: 프로그램은 알림, 리소스는 아래 설정대로)</sys:String>
+    <sys:String x:Key="Resource.Available">리소스 업데이트 {0}</sys:String>
+    <sys:String x:Key="Resource.Updated">리소스를 {0} 버전으로 업데이트했습니다.</sys:String>
+    <sys:String x:Key="Resource.UpToDate">리소스가 최신입니다.</sys:String>
+    <sys:String x:Key="Resource.NeedsProgram">리소스 {0} 버전은 프로그램 {1} 이상이 필요합니다. 프로그램을 업데이트해 주세요.</sys:String>
+    <sys:String x:Key="Resource.Failed">리소스 {0} 업데이트 실패: {1}</sys:String>
+    <sys:String x:Key="Settings.AutoUpdateResources">리소스(숙제, 화면 정의, 템플릿) 자동 업데이트</sys:String>
+    <sys:String x:Key="Settings.CheckResources">리소스 업데이트 확인</sys:String>
     <sys:String x:Key="Account.Delete">기록 삭제</sys:String>
     <sys:String x:Key="Account.DeleteQuestion">{0} (UID {1})의 기록을 삭제할까요? 저장된 변화 이력도 함께 지워지며 되돌릴 수 없습니다.</sys:String>
     <sys:String x:Key="Account.DeleteConfirm">삭제</sys:String>

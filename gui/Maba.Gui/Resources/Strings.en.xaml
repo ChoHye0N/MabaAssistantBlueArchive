@@ -10,7 +10,14 @@
     <sys:String x:Key="Tab.Account">My info</sys:String>
     <sys:String x:Key="Account.Empty">Nothing recorded yet. Run the account record task to see each account here.</sys:String>
     <sys:String x:Key="Update.Available">New version {0}</sys:String>
-    <sys:String x:Key="Settings.CheckUpdates">Check for a new version at start (connects to GitHub, only shows a notice)</sys:String>
+    <sys:String x:Key="Settings.CheckUpdates">Check for updates at start (connects to GitHub: a notice for the program, resources as set below)</sys:String>
+    <sys:String x:Key="Resource.Available">Resource update {0}</sys:String>
+    <sys:String x:Key="Resource.Updated">Resources updated to {0}.</sys:String>
+    <sys:String x:Key="Resource.UpToDate">Resources are up to date.</sys:String>
+    <sys:String x:Key="Resource.NeedsProgram">Resources {0} need program {1} or newer. Please update the program.</sys:String>
+    <sys:String x:Key="Resource.Failed">Resource update {0} failed: {1}</sys:String>
+    <sys:String x:Key="Settings.AutoUpdateResources">Update resources (tasks, pages, templates) automatically</sys:String>
+    <sys:String x:Key="Settings.CheckResources">Check for resource updates</sys:String>
     <sys:String x:Key="Account.Delete">Delete record</sys:String>
     <sys:String x:Key="Account.DeleteQuestion">Delete the record of {0} (UID {1})? Its saved history goes with it and cannot be restored.</sys:String>
     <sys:String x:Key="Account.DeleteConfirm">Delete</sys:String>

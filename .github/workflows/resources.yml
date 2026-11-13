@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
+#
+# Builds the resource pack (tasks, pages, popups, strings, config, templates) from this commit and
+# attaches it to a draft release tagged resources-<version>. It runs only when started by hand and
+# never publishes: the maintainer reads the draft and publishes it. The program installs a published
+# pack by itself (docs/notes/updates.md).
+name: resources
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pack:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write  # creates the draft release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Data loads and templates are complete
+        run: |
+          python tools/check_templates.py --committed --strict > /dev/null
+          python -m unittest discover tools/tests
+      - name: Build the pack
+        id: pack
+        run: |
+          python tools/build_resources.py --out dist
+          echo "version=$(python -c "import json; print(json.load(open('dist/resources.json'))['version'])")" >> "$GITHUB_OUTPUT"
+          echo "min_core=$(python -c "import json; print(json.load(open('dist/resources.json'))['min_core'])")" >> "$GITHUB_OUTPUT"
+      - name: Draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.pack.outputs.version }}
+          MIN_CORE: ${{ steps.pack.outputs.min_core }}
+        # A pre-release, so the program's new-version notice (latest full release) never points here.
+        run: |
+          if gh release view "resources-$VERSION" > /dev/null 2>&1; then
+            echo "resources-$VERSION exists already: raise the version in config/resource.json" >&2
+            exit 1
+          fi
+          gh release create "resources-$VERSION" "dist/MABA-resources-$VERSION.zip" dist/resources.json \
+            --draft --prerelease --target "${{ github.sha }}" --title "MABA resources $VERSION" \
+            --notes "Resource pack built from ${{ github.sha }}. Needs program $MIN_CORE or newer."
