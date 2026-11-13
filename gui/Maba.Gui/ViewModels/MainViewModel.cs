@@ -61,6 +61,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _ocrEnabled = settings.OcrEnabled;
         _checkUpdates = settings.CheckUpdates;
         _autoUpdateResources = settings.AutoUpdateResources;
+        _programUpdateMode = settings.ProgramUpdate is "download" or "install" ? settings.ProgramUpdate : "notify";
         _scheduleEnabled = settings.ScheduleEnabled;
         _resetHourUtc = settings.ResetHourUtc;
         _resetMinuteUtc = settings.ResetMinuteUtc;
@@ -149,6 +150,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private string _updateText = "";
     private string _updateUrl = "";
     [ObservableProperty] private bool _autoUpdateResources;
+    [ObservableProperty] private string _programUpdateMode = "notify";
+    [ObservableProperty] private bool _programUpdatesSupported;
+    public IReadOnlyList<Choice> ProgramUpdateModes { get; } = new[] { "notify", "download", "install" }
+        .Select(m => new Choice(m, Strings.Get("UpdateMode." + m))).ToArray();
+    private ProgramUpdate? _programUpdate;
+    private bool _programBusy;
     [ObservableProperty] private string _resourceText = "";     // a waiting resource update (status bar link)
     [ObservableProperty] private string _resourceVersion = "";  // the installed pack (settings tab)
     [ObservableProperty] private bool _resourceUpdatesSupported;
@@ -217,6 +224,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
         UpdateNextRun();
         _scheduleTimer.Start();
         ResourceUpdatesSupported = ResourceUpdater.Supported(DataRoot);
+        ProgramUpdatesSupported = ProgramUpdater.Supported;
+        if (ProgramUpdater.TakeStatus() is { } status)
+        {
+            if (status.Ok) AddLog("info", Strings.Format("Program.Updated", status.Version));
+            else AddLog("warn", Strings.Format("Program.UpdateFailed", status.Version, status.Error));
+        }
         ResourceVersion = ResourceUpdater.InstalledVersion(DataRoot);
         if (CheckUpdates) _ = CheckForUpdateAsync();
         if (CheckUpdates) _ = CheckResourcesAsync(manual: false);
@@ -305,18 +318,80 @@ public partial class MainViewModel : ObservableObject, IDisposable
         await CheckResourcesAsync(manual: true);
     }
 
+    // A new program version shows as a link. A release that can update itself (it has the updater
+    // and the release offers update packages) installs from the link; otherwise the link opens the
+    // release page, as before.
     private async Task CheckForUpdateAsync()
     {
-        if (await UpdateChecker.CheckAsync() is not { } update) return;
-        _updateUrl = update.Url;
+        if (await UpdateChecker.CheckAsync() is { } notice)
+        {
+            _updateUrl = notice.Url;
+            UpdateText = Strings.Format("Update.Available", notice.Version);
+        }
+        if (!ProgramUpdatesSupported || await ProgramUpdater.CheckAsync() is not { } update) return;
+        _programUpdate = update;
         UpdateText = Strings.Format("Update.Available", update.Version);
+        if (ProgramUpdateMode == "notify") return;
+        if (!await DownloadProgramAsync()) return;
+        if (ProgramUpdateMode == "install" && !IsRunning) InstallProgram();
+    }
+
+    private async Task<bool> DownloadProgramAsync()
+    {
+        if (_programUpdate is not { } update || _programBusy) return false;
+        _programBusy = true;
+        try
+        {
+            UpdateText = Strings.Format("Update.Downloading", update.Version);
+            var error = await ProgramUpdater.DownloadAsync(update);
+            if (error.Length > 0)
+            {
+                AddLog("warn", Strings.Format("Program.UpdateFailed", update.Version, error));
+                UpdateText = Strings.Format("Update.Available", update.Version);
+                return false;
+            }
+            UpdateText = Strings.Format("Update.Ready", update.Version);
+            return true;
+        }
+        finally
+        {
+            _programBusy = false;
+        }
+    }
+
+    // Hands over to the updater and closes the program; the updater starts it again.
+    private void InstallProgram()
+    {
+        if (_programUpdate is not { } update || IsRunning) return;
+        var error = ProgramUpdater.Launch(update);
+        if (error.Length > 0)
+        {
+            AddLog("warn", Strings.Format("Program.UpdateFailed", update.Version, error));
+            return;
+        }
+        Save();
+        System.Windows.Application.Current.Shutdown();
     }
 
     [RelayCommand]
-    private void OpenUpdate()
+    private async Task OpenUpdate()
     {
-        if (_updateUrl.Length == 0) return;
-        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(_updateUrl) { UseShellExecute = true });
+        if (_programUpdate is not { } update)
+        {
+            if (_updateUrl.Length == 0) return;
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(_updateUrl) { UseShellExecute = true });
+            return;
+        }
+        if (_programBusy) return;
+        if (IsRunning)
+        {
+            AddLog("info", Strings.Get("Program.UpdateAfterRun"));
+            return;
+        }
+        if (!Views.ConfirmDialog.Ask(Strings.Get("Program.UpdateTitle"), Strings.Format("Program.UpdateQuestion", update.Version),
+                                     Strings.Get("Program.UpdateYes"), Strings.Get("Account.DeleteCancel"))) return;
+        if (!ProgramUpdater.Downloaded && !await DownloadProgramAsync()) return;
+        InstallProgram();
     }
 
     private void CreateCore()
@@ -480,6 +555,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             case nameof(ResourceText):
             case nameof(ResourceVersion):
             case nameof(ResourceUpdatesSupported):
+            case nameof(ProgramUpdatesSupported):
             case nameof(CoreAvailable):
             case nameof(IsAdb):
             case nameof(IsSteam):
@@ -510,6 +586,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _settings.OcrEnabled = OcrEnabled;
         _settings.CheckUpdates = CheckUpdates;
         _settings.AutoUpdateResources = AutoUpdateResources;
+        _settings.ProgramUpdate = ProgramUpdateMode;
         _settings.ScheduleEnabled = ScheduleEnabled;
         _settings.ResetHourUtc = Math.Clamp(ResetHourUtc, 0, 23);
         _settings.ResetMinuteUtc = Math.Clamp(ResetMinuteUtc, 0, 59);

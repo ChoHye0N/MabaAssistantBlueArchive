@@ -33,6 +33,9 @@ public sealed class AppSettings
     public bool CheckUpdates { get; set; } = true;
     // Resources (tasks, pages, templates) newer than the installed ones are installed without asking.
     public bool AutoUpdateResources { get; set; } = true;
+    // A new program version: "notify" (a link installs it), "download" (fetched at once, a link
+    // installs it) or "install" (installed at start, the program starts again by itself).
+    public string ProgramUpdate { get; set; } = "notify";
     // Named sets of selected tasks, their settings and their order; one is active.
     public List<TaskProfile> Profiles { get; set; } = new();
     public int ActiveProfile { get; set; }

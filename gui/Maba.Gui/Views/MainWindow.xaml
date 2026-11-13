@@ -366,6 +366,12 @@
                         </StackPanel>
 
                         <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.CheckUpdates}" IsChecked="{Binding CheckUpdates}" Margin="0,0,0,8" />
+                        <hc:ComboBox hc:InfoElement.Title="{DynamicResource Settings.ProgramUpdate}"
+                                     hc:InfoElement.TitlePlacement="Left" hc:InfoElement.TitleWidth="140"
+                                     ItemsSource="{Binding ProgramUpdateModes}" DisplayMemberPath="Label"
+                                     SelectedValuePath="Value" SelectedValue="{Binding ProgramUpdateMode}"
+                                     Visibility="{Binding ProgramUpdatesSupported, Converter={StaticResource Boolean2VisibilityConverter}}"
+                                     Margin="0,0,0,8" />
                         <StackPanel Visibility="{Binding ResourceUpdatesSupported, Converter={StaticResource Boolean2VisibilityConverter}}">
                             <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.AutoUpdateResources}" IsChecked="{Binding AutoUpdateResources}" Margin="0,0,0,4" />
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">

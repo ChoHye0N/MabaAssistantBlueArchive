@@ -43,7 +43,7 @@ It captures the game screen, recognizes the current state with image matching an
 
 It never accesses game files, process memory or network packets. Only screen capture and ordinary input are used.
 
-Release builds ask GitHub at start whether something new exists. A new program version only shows a notice; newer resources (task data, page definitions, templates) are downloaded and applied at once, after their checksum and content were checked. No game or account data is sent, and it can be turned off in the settings.
+Release builds ask GitHub at start whether something new exists. A new program version shows as a link; clicking it downloads and installs the version and starts the program again (the settings can change this to automatic download or automatic install). Newer resources (task data, page definitions, templates) are downloaded and applied at once, after their checksum and content were checked. No game or account data is sent, and it can be turned off in the settings.
 
 ## ✦ Features
 
@@ -150,7 +150,7 @@ Run `MabaAssistantBlueArchive.exe`.
 >
 > The release package includes the .NET runtime, the Python runtime, the OCR models and the screen-recognition templates, so nothing else needs to be installed.
 >
-> Settings (selected tasks, task settings, order, profiles) and account records are stored in `%APPDATA%\MabaAssistantBlueArchive`. Unpack a new version into a new folder; the settings carry over.
+> Settings (selected tasks, task settings, order, profiles) and account records are stored in `%APPDATA%\MabaAssistantBlueArchive`. From 0.1.5 on a new version can be installed from inside the program; older versions unpack the new one into a new folder. Either way the settings carry over.
 
 ### Before Running
 

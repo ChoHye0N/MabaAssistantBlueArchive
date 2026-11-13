@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
 using System.IO;
-using System.IO.Compression;
 using System.Net.Http;
-using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -27,7 +25,6 @@ public static class ResourceUpdater
     private const string ManifestName = "resources.json";
     private const long MaxPackBytes = 64L * 1024 * 1024;
     private static readonly string[] Folders = { "config", "pages", "popups", "tasks", "strings", "assets" };
-    private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(30);
 
     // A folder holding resources.json and its pack replaces GitHub: offline installs and tests.
     private static string LocalFeed => Environment.GetEnvironmentVariable("MABA_RESOURCE_FEED") ?? "";
@@ -36,7 +33,7 @@ public static class ResourceUpdater
     // which is never changed from here.
     public static bool Supported(string dataRoot) =>
         (UpdateChecker.Repository.Length > 0 || LocalFeed.Length > 0) &&
-        SamePath(dataRoot, Path.Combine(AppContext.BaseDirectory, "data"));
+        UpdateFiles.SamePath(dataRoot, Path.Combine(AppContext.BaseDirectory, "data"));
 
     public static string InstalledVersion(string dataRoot)
     {
@@ -93,16 +90,15 @@ public static class ResourceUpdater
         try
         {
             Directory.CreateDirectory(work);
-            DeleteDirectory(staging);
-            await DownloadAsync(update, pack);
-            var bytes = new FileInfo(pack).Length;
-            if (bytes != update.Size) return $"size {bytes} is not {update.Size}";
-            if (await Sha256Async(pack) != update.Sha256) return "checksum mismatch";
-            Extract(pack, staging);
+            UpdateFiles.DeleteDirectory(staging);
+            var problem = await UpdateFiles.FetchAsync(update.Source, update.File, pack, update.Size, update.Sha256);
+            if (problem.Length > 0) return problem;
+            // Every entry has to lie inside one of the resource folders (nothing in assets-local).
+            UpdateFiles.Extract(pack, staging, parts => parts.Length >= 2 && Array.IndexOf(Folders, parts[0]) >= 0);
             var error = validate(staging);
             if (error.Length > 0) return "the new data does not load: " + error;
 
-            DeleteDirectory(previous);
+            UpdateFiles.DeleteDirectory(previous);
             Directory.CreateDirectory(previous);
             var moved = new List<string>();
             try
@@ -127,7 +123,7 @@ public static class ResourceUpdater
                     try
                     {
                         if (!Directory.Exists(old)) continue;
-                        DeleteDirectory(live);
+                        UpdateFiles.DeleteDirectory(live);
                         Directory.Move(old, live);
                     }
                     catch (Exception x) when (x is IOException or UnauthorizedAccessException)
@@ -148,7 +144,7 @@ public static class ResourceUpdater
         {
             try
             {
-                DeleteDirectory(staging);
+                UpdateFiles.DeleteDirectory(staging);
                 if (File.Exists(pack)) File.Delete(pack);
             }
             catch (Exception e) when (e is IOException or UnauthorizedAccessException)
@@ -160,12 +156,8 @@ public static class ResourceUpdater
 
     private static async Task<(string? text, string source)> ReadManifestAsync()
     {
-        if (LocalFeed.Length > 0)
-        {
-            var path = Path.Combine(LocalFeed, ManifestName);
-            return File.Exists(path) ? (await File.ReadAllTextAsync(path), LocalFeed) : (null, "");
-        }
-        using var client = NewClient();
+        if (LocalFeed.Length > 0) return (await UpdateFiles.ReadTextAsync(LocalFeed, ManifestName), LocalFeed);
+        using var client = UpdateFiles.NewClient();
         var body = await client.GetStringAsync($"https://api.github.com/repos/{UpdateChecker.Repository}/releases?per_page=30");
         Version? best = null;
         var tag = "";
@@ -181,73 +173,4 @@ public static class ResourceUpdater
         var source = $"https://github.com/{UpdateChecker.Repository}/releases/download/{tag}/";
         return (await client.GetStringAsync(source + ManifestName), source);
     }
-
-    private static async Task DownloadAsync(ResourceUpdate update, string target)
-    {
-        if (!update.Source.StartsWith("https://", StringComparison.Ordinal))
-        {
-            File.Copy(Path.Combine(update.Source, update.File), target, overwrite: true);
-            return;
-        }
-        using var client = NewClient();
-        using var response = await client.GetAsync(update.Source + update.File, HttpCompletionOption.ResponseHeadersRead);
-        response.EnsureSuccessStatusCode();
-        if (response.Content.Headers.ContentLength is long length && length != update.Size)
-            throw new InvalidDataException($"size {length} is not {update.Size}");
-        await using var file = File.Create(target);
-        await using var stream = await response.Content.ReadAsStreamAsync();
-        var buffer = new byte[81920];
-        long total = 0;
-        int read;
-        while ((read = await stream.ReadAsync(buffer)) > 0)
-        {
-            total += read;
-            if (total > update.Size) throw new InvalidDataException("the download is larger than the manifest says");
-            await file.WriteAsync(buffer.AsMemory(0, read));
-        }
-    }
-
-    // Every entry has to stay inside one of the resource folders: no absolute paths, no "..",
-    // nothing in assets-local or beside the folders.
-    private static void Extract(string pack, string staging)
-    {
-        Directory.CreateDirectory(staging);
-        var root = Path.GetFullPath(staging) + Path.DirectorySeparatorChar;
-        using var zip = ZipFile.OpenRead(pack);
-        foreach (var entry in zip.Entries)
-        {
-            if (entry.FullName.EndsWith('/')) continue;
-            var parts = entry.FullName.Split('/');
-            if (entry.FullName.Contains('\\') || entry.FullName.Contains(':') || parts.Length < 2 ||
-                Array.IndexOf(Folders, parts[0]) < 0 || parts.Any(p => p.Length == 0 || p == "." || p == ".."))
-                throw new InvalidDataException("unexpected entry in the pack: " + entry.FullName);
-            var target = Path.GetFullPath(Path.Combine(staging, Path.Combine(parts)));
-            if (!target.StartsWith(root, StringComparison.OrdinalIgnoreCase))
-                throw new InvalidDataException("unexpected entry in the pack: " + entry.FullName);
-            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
-            entry.ExtractToFile(target, overwrite: true);
-        }
-    }
-
-    private static async Task<string> Sha256Async(string path)
-    {
-        await using var stream = File.OpenRead(path);
-        return Convert.ToHexString(await SHA256.HashDataAsync(stream)).ToLowerInvariant();
-    }
-
-    private static HttpClient NewClient()
-    {
-        var client = new HttpClient { Timeout = Timeout };
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("MabaAssistantBlueArchive");
-        return client;
-    }
-
-    private static void DeleteDirectory(string path)
-    {
-        if (Directory.Exists(path)) Directory.Delete(path, recursive: true);
-    }
-
-    private static bool SamePath(string a, string b) =>
-        string.Equals(Path.GetFullPath(a).TrimEnd('\\', '/'), Path.GetFullPath(b).TrimEnd('\\', '/'),
-                      StringComparison.OrdinalIgnoreCase);
 }

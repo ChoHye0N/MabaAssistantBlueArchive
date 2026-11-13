@@ -5,8 +5,8 @@ How the program updates itself. Two things are updated apart from each other, be
 | Part | Holds | Changes | How it is installed |
 |---|---|---|---|
 | Resources | `config/`, `pages/`, `popups/`, `tasks/`, `strings/`, `assets/` under the data folder | often | by the running program, no restart |
-| Program | the executable and `bin/` | sometimes | planned: a small updater replaces the files and starts the program again |
-| OCR | `ocr/` (Python and models) | seldom | planned: with the program, only when it changed |
+| Program | the executable, `bin/`, `docs/`, `data/tools/`, licence texts | sometimes | a small updater replaces the files and starts the program again |
+| OCR | `ocr/` (Python, packages and models) | seldom | with the program, downloaded only when it changed |
 
 ## Resources (implemented)
 - **Version**: `config/resource.json` holds `version` (date and a counter, `20261113.1`) and `min_core`, the oldest program that understands the data. Raise `version` for every pack and `min_core` whenever the data starts to use a step, condition or field an older program does not know.
@@ -27,12 +27,20 @@ How the program updates itself. Two things are updated apart from each other, be
 
 There is no signature check: the pack is trusted as far as the repository's releases and HTTPS are. A checksum catches a damaged download, not a replaced release; protect the account that can publish (two-factor sign-in). A signature can be added on top later.
 
-## Program (planned)
-Observed in other tools of this kind, written down here before anything is implemented:
-- A small separate updater does the replacing, because a running program cannot replace its own files. The main program downloads and checks the package, unpacks it beside itself, writes what to move and remove, starts the updater and exits; the updater waits for it, moves the files, keeps the old ones for a rollback, starts the program again and leaves a success or failure note the program shows at its next start.
-- The updater itself is updated by the main program before it is started: a new package's updater is copied over the old one first. An updater that tries to replace itself cannot.
-- Only files whose content changed need to be replaced (compare hashes), so large folders that rarely change cost nothing.
-- Folders where players keep their own files are listed as "never remove".
-- A package that only touches resources needs no updater and no restart.
+## Program (implemented)
+A running program cannot replace its own files, so a small separate updater does it.
 
-Planned shape here: one updater built with Core (`bin/`), packages per part (program, OCR) with a manifest in the release, so an update downloads only the parts whose version changed.
+- **Packages**: `tools/build_update.py` (run by `build_package.ps1`) splits the release folder into `MABA-<version>-app.zip` (the executable, `bin/`, `docs/`, `data/tools/`, licence texts) and `MABA-<version>-ocr.zip` (`ocr/`), and writes `update.json`: the version and, per part, its version, file, size and SHA-256. The OCR part's version is a hash of what it is made of (Python runtime, installed package versions, `server.py`, `requirements.txt`), kept in `ocr/part.json`; it stays the same from release to release until one of those changes. The release workflow attaches the three files beside the full archive. Resources are in neither package.
+- **Check**: at start (the same setting as the new-version notice) the program reads `update.json` of the latest full release. Pre-releases and resource releases are never "latest", so they are never offered. Only a higher version counts (never back). A part whose version equals the installed one is not downloaded; the program part always is.
+- **Download**: each part is fetched into `update/`, its size and SHA-256 compared with the manifest, and unpacked into `update/program-new/`. Entries may only go where their part belongs (the program part: an executable or a licence text at the top, `bin/`, `docs/`, `data/tools/`; the OCR part: `ocr/`); an absolute path, `..` or anything else stops the update.
+- **Install**: the program copies the updater to `update/maba_updater.exe` (the new release's updater when it brings one, so the updater is renewed before it runs, and `bin/` is free to be replaced), writes `update/plan.json` (root, unpacked folder, backup folder, entries to swap, the executable to start, its own process id) and exits. The updater waits for that process, moves each old entry to `update/program-old/` and the new one into place, trying again for a while when a file is still in use. When one entry fails, the entries already moved are put back, so the installation is the old one or the new one, never a mix. It writes `update/status.json` and starts the program, which logs the result at that start.
+- **Kept**: settings and account records (`%APPDATA%`), the resource folders, `data/assets-local/`, and `ocr/` when that part did not change. The replaced files stay in `update/program-old/` until the next update.
+- **Never** while tasks run: the link then only says that the update waits for the run to end.
+- **Setting** "program update": notice only (default; the status-bar link asks and installs), download automatically (the link then installs without waiting), install automatically at start.
+- An installation without `bin/maba_updater.exe` (a release older than this feature, a development build) keeps the plain notice: the link opens the release page.
+- `MABA_UPDATE_FEED` (a folder with `update.json` and the packages) replaces GitHub, for tests and offline installs.
+- The portable part (reading the plan, swapping, undoing) is `core/src/update_apply.cpp` with unit tests; `core/apps/maba_updater.cpp` is the Windows program around it. It links the static C runtime and no other library.
+
+As with resources there is no signature check: the release and HTTPS are trusted, the checksum catches a damaged download.
+
+Checked 2026-11-13 with two locally built releases and a local feed: 0.1.5 installed 0.1.6 and started again in each mode, the OCR part was not downloaded, a wrong checksum was refused. Verify: the same against a published release.
