@@ -269,8 +269,17 @@ NavResult Navigator::EnterGame() {
         if (result.steps >= enter.max_taps)
             return Fail(result, "no known page after " + std::to_string(enter.max_taps) + " taps");
 
-        Log(log_, LogLevel::kInfo, "start-up screen, tapping");
-        if (!controller_.Click(enter.tap)) return Fail(result, Failed("click", controller_));
+        Point tap = enter.tap;
+        std::string where = "start-up screen";
+        for (const EnterTap& screen : enter.screens) {
+            if (matcher_.Find(obs.frame, screen.when).found) {
+                tap = screen.tap;
+                where = "start-up screen (" + screen.when.file + ")";
+                break;
+            }
+        }
+        Log(log_, LogLevel::kInfo, where + ", tapping");
+        if (!controller_.Click(tap)) return Fail(result, Failed("click", controller_));
         ++result.steps;
         clock_.Sleep(enter.interval);
     }

@@ -170,7 +170,7 @@ MABA_TEST(SelectedOrderRunsInTheGivenOrderButKeepsAfter) {
 
 MABA_TEST(RunEntersGameBeforeFirstTask) {
     NavRig rig;
-    rig.pages["main_menu"].enter = maba::EnterSpec{{640, 100}, 5, std::chrono::milliseconds{100}};
+    rig.pages["main_menu"].enter = maba::EnterSpec{{640, 100}, {}, 5, std::chrono::milliseconds{100}};
     rig.controller.scene = NavRig::kUnknownScene;
     rig.controller.clicks_to.push_back({NavRig::kUnknownScene, {640, 100}, NavRig::kMainScene});
     maba::TaskRunner runner(rig.Nav(), nullptr);

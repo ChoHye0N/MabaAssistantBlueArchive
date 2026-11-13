@@ -112,7 +112,7 @@ MABA_TEST(GoToStopsWhenCancelled) {
 
 MABA_TEST(EnterGameTapsThroughStartUpScreens) {
     NavRig rig;
-    rig.pages["main_menu"].enter = maba::EnterSpec{{640, 100}, 5, std::chrono::milliseconds{100}};
+    rig.pages["main_menu"].enter = maba::EnterSpec{{640, 100}, {}, 5, std::chrono::milliseconds{100}};
     rig.controller.scene = NavRig::kUnknownScene;  // e.g. an event splash: back does nothing
     rig.controller.clicks_to.push_back({NavRig::kUnknownScene, {640, 100}, NavRig::kMainScene});
     const maba::NavResult r = rig.Nav().EnterGame();
@@ -123,9 +123,27 @@ MABA_TEST(EnterGameTapsThroughStartUpScreens) {
     CHECK(rig.controller.backs == 0);
 }
 
+MABA_TEST(EnterGameTapsAScreenAtItsOwnPoint) {
+    NavRig rig;
+    rig.matcher.Add("title.png", {10});  // the unknown scene is a title screen
+    maba::EnterSpec enter{{640, 100}, {}, 5, std::chrono::milliseconds{100}};
+    enter.screens.push_back({maba::TemplateRef{"title.png"}, {305, 531}});
+    enter.screens.push_back({maba::TemplateRef{"never.png"}, {1, 1}});
+    rig.pages["main_menu"].enter = enter;
+    rig.controller.scene = NavRig::kUnknownScene;
+    rig.controller.clicks_to.push_back({NavRig::kUnknownScene, {305, 531}, NavRig::kMainScene});
+    const maba::NavResult r = rig.Nav().EnterGame();
+    CHECK(r.ok && r.page == "main_menu");
+    CHECK(rig.controller.clicks.size() == 1 && rig.controller.clicks[0].x == 305);
+    CHECK(maba::ParsePage(R"({"id": "p", "anchors": [{"template": "a.png"}],
+        "enter": {"tap": {"x": 1, "y": 1}, "screens": [{"when": {"template": "t.png"}, "tap": {"x": 2, "y": 3}}]}})").ok);
+    CHECK(!maba::ParsePage(R"({"id": "p", "anchors": [{"template": "a.png"}],
+        "enter": {"tap": {"x": 1, "y": 1}, "screens": [{"tap": {"x": 2, "y": 3}}]}})").ok);
+}
+
 MABA_TEST(EnterGameGivesUpAfterMaxTaps) {
     NavRig rig;
-    rig.pages["main_menu"].enter = maba::EnterSpec{{640, 100}, 5, std::chrono::milliseconds{100}};
+    rig.pages["main_menu"].enter = maba::EnterSpec{{640, 100}, {}, 5, std::chrono::milliseconds{100}};
     rig.controller.scene = NavRig::kUnknownScene;  // taps do nothing
     int failures = 0;
     rig.nav_options.on_failure = [&](const maba::Frame&, const std::string&) { ++failures; };
@@ -138,14 +156,14 @@ MABA_TEST(EnterGameGivesUpAfterMaxTaps) {
 
 MABA_TEST(EnterGameDoesNotTapOnKnownPagesOrWithoutEnter) {
     NavRig known;
-    known.pages["main_menu"].enter = maba::EnterSpec{{640, 100}, 5, std::chrono::milliseconds{100}};
+    known.pages["main_menu"].enter = maba::EnterSpec{{640, 100}, {}, 5, std::chrono::milliseconds{100}};
     known.controller.scene = NavRig::kMailScene;
     const maba::NavResult a = known.Nav().EnterGame();
     CHECK(a.ok && a.page == "mail");
     CHECK(known.controller.clicks.empty());
 
     NavRig popup;  // a popup over the home page is dismissed, not tapped through
-    popup.pages["main_menu"].enter = maba::EnterSpec{{640, 100}, 5, std::chrono::milliseconds{100}};
+    popup.pages["main_menu"].enter = maba::EnterSpec{{640, 100}, {}, 5, std::chrono::milliseconds{100}};
     popup.controller.scene = NavRig::kPopupScene;
     const maba::NavResult b = popup.Nav().EnterGame();
     CHECK(b.ok && b.page == "main_menu" && b.steps == 0);

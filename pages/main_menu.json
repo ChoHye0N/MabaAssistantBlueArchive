@@ -4,14 +4,21 @@
     "Home page of the Navigator. Capture main_menu_mail_icon.png and main_menu_mission_icon.png with tools/template_capture.py (lang common) and copy their roi here, enlarged by a margin.",
     "verify: the mail and mission buttons keep their positions on the main screen across events and UI scales.",
     "Detected only when the mail icon (top bar), the mission icon (left column) and the shop icon (bottom bar) all match.",
-    "enter: start-up screens before the main screen (title, event countdown splash, attendance board) are tapped through at a point that is only character art on the main screen. Login popups are closed by popups/ first."
+    "enter: start-up screens before the main screen (title, event countdown splash, attendance board) are tapped through at a point that is only character art on the main screen. Login popups are closed by popups/ first. On the title screen (its 'MENU' button, bottom left, outside any notice) the tap goes to the 'do not show today' box of the image notices instead: it closes a notice for the day, and without a notice it starts the game like any tap. The notices seen so far (five, to 2026-11-13) all had the same size and place."
   ],
   "anchors": [
     { "template": "main_menu_mail_icon.png", "roi": { "x": 1110, "y": 0, "w": 90, "h": 70 }, "threshold": 0.9 },
     { "template": "main_menu_mission_icon.png", "roi": { "x": 14, "y": 190, "w": 70, "h": 75 }, "threshold": 0.9 },
     { "template": "main_menu_shop_icon.png", "roi": { "x": 725, "y": 615, "w": 90, "h": 85 }, "threshold": 0.9 }
   ],
-  "enter": { "tap": { "x": 640, "y": 100 }, "max_taps": 30, "interval_ms": 2000 },
+  "enter": {
+    "tap": { "x": 640, "y": 100 },
+    "screens": [
+      { "when": { "template": "title_menu_button.png", "roi": { "x": 10, "y": 600, "w": 120, "h": 70 }, "threshold": 0.9 }, "tap": { "x": 305, "y": 531 } }
+    ],
+    "max_taps": 30,
+    "interval_ms": 2000
+  },
   "transitions": [
     { "to": "attendance", "click": { "template": "main_menu_attendance_icon.png", "roi": { "x": 170, "y": 90, "w": 110, "h": 90 }, "threshold": 0.9 } },
     { "to": "battle_pass", "click": { "template": "battle_pass_badge.png", "roi": { "x": 290, "y": 500, "w": 130, "h": 70 }, "threshold": 0.9 } },

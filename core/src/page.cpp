@@ -67,6 +67,16 @@ PageDef ParsePageJson(const json& root) {
         const std::string at = where + ".enter";
         EnterSpec enter;
         enter.tap = ParsePoint(Require(*it, "tap", at), at + ".tap");
+        if (auto s = it->find("screens"); s != it->end()) {
+            if (!s->is_array()) throw ParseError(at + ": 'screens' must be an array");
+            for (std::size_t i = 0; i < s->size(); ++i) {
+                const std::string si = at + ".screens[" + std::to_string(i) + "]";
+                const auto& entry = (*s)[i];
+                if (!entry.is_object()) throw ParseError(si + ": must be an object");
+                enter.screens.push_back({ParseTemplateRef(Require(entry, "when", si), si + ".when"),
+                                         ParsePoint(Require(entry, "tap", si), si + ".tap")});
+            }
+        }
         enter.max_taps = OptInt(*it, "max_taps", at, enter.max_taps, 1, 100);
         enter.interval = std::chrono::milliseconds{
             OptInt(*it, "interval_ms", at, static_cast<int>(enter.interval.count()), 100, 10000)};

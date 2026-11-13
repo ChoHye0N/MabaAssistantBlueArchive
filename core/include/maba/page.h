@@ -32,8 +32,16 @@ struct Transition {
 
 // Start-up screens (title, event splash, loading) have no stable anchors: tap `tap` until a known
 // page is visible. Read on the home page only.
+// A start-up screen recognized by a template, tapped at its own point instead of the default
+// (the title screen: its image notices close with "do not show today").
+struct EnterTap {
+    TemplateRef when;
+    Point tap;
+};
+
 struct EnterSpec {
     Point tap;
+    std::vector<EnterTap> screens;  // checked in order; the first match picks the point
     int max_taps = 30;
     std::chrono::milliseconds interval{2000};  // pause after each tap
 };
