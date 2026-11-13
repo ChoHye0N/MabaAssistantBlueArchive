@@ -14,6 +14,7 @@ add_executable(maba_core_tests
     smoke_tests.cpp
     steam_launch_tests.cpp
     task_tests.cpp
+    update_tests.cpp
     util_tests.cpp
     wait_tests.cpp)
 target_link_libraries(maba_core_tests PRIVATE maba_core)

@@ -29,6 +29,7 @@ add_library(maba_core STATIC
     src/task_order.cpp
     src/task_runner.cpp
     src/template_resolver.cpp
+    src/update_apply.cpp
     src/wait.cpp)
 
 if(WIN32)
@@ -78,6 +79,21 @@ if(WIN32 AND MABA_WITH_OPENCV)
     add_executable(maba_cli apps/maba_cli.cpp)
     target_link_libraries(maba_cli PRIVATE maba_platform_windows)
     target_compile_options(maba_cli PRIVATE /utf-8 /W4 /permissive-)
+endif()
+
+# The updater: replaces the program's files with an unpacked update and starts it again. It
+# links nothing but the apply logic and the static C runtime, because it runs from a copy while
+# bin/ (with every DLL) is being replaced.
+if(WIN32)
+    add_executable(maba_updater WIN32 apps/maba_updater.cpp src/update_apply.cpp)
+    target_include_directories(maba_updater PRIVATE include)
+    target_compile_features(maba_updater PRIVATE cxx_std_20)
+    target_link_libraries(maba_updater PRIVATE nlohmann_json::nlohmann_json)
+    target_compile_definitions(maba_updater PRIVATE UNICODE _UNICODE NOMINMAX WIN32_LEAN_AND_MEAN)
+    set_property(TARGET maba_updater PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    if(MSVC)
+        target_compile_options(maba_updater PRIVATE /utf-8 /W4 /permissive-)
+    endif()
 endif()
 
 # C ABI shared library consumed by the C# GUI via P/Invoke.
