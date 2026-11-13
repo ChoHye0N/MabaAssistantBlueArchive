@@ -168,6 +168,23 @@ MABA_TEST(SelectedOrderRunsInTheGivenOrderButKeepsAfter) {
     }
 }
 
+MABA_TEST(SelectedOrderDoesNotWaitForTasksThatAreNotSelected) {
+    NavRig rig;
+    std::vector<maba::TaskSpec> tasks = {
+        Task(R"({"id": "spend", "order": 10, "steps": [{"action": "goto", "page": "shop"}]})"),
+        Task(R"({"id": "mail", "order": 20, "after": ["spend"], "steps": [{"action": "goto", "page": "mail"}]})"),
+        Task(R"({"id": "cafe", "order": 30, "steps": [{"action": "goto", "page": "main_menu"}]})"),
+    };
+    maba::SortTasksByOrder(tasks);
+    maba::TaskRunner runner(rig.Nav(), nullptr);
+    const maba::RunReport report = runner.Run(tasks, {"mail", "cafe"}, true);
+    CHECK(report.ok && report.tasks.size() == 2);
+    if (report.tasks.size() == 2) {
+        CHECK(report.tasks[0].id == "mail");  // "spend" is not selected: nothing to wait for
+        CHECK(report.tasks[1].id == "cafe");
+    }
+}
+
 MABA_TEST(RunEntersGameBeforeFirstTask) {
     NavRig rig;
     rig.pages["main_menu"].enter = maba::EnterSpec{{640, 100}, {}, 5, std::chrono::milliseconds{100}};

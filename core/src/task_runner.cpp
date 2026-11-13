@@ -921,9 +921,20 @@ RunReport TaskRunner::Run(const std::vector<TaskSpec>& tasks,
     if (selected_order) {
         // ResolveOrder keeps the input order among tasks that are ready, so the selection goes first.
         std::vector<TaskDef> ordered;
+        // A task that is not selected never runs, and the rest follows the selection: waiting for
+        // it would only move its dependents behind every selected task.
+        const auto is_selected = [&](const std::string& id) {
+            return std::find(selected.begin(), selected.end(), id) != selected.end();
+        };
         for (const auto& id : selected) {
-            for (const auto& d : defs)
-                if (d.id == id) ordered.push_back(d);
+            for (const auto& d : defs) {
+                if (d.id != id) continue;
+                TaskDef def = d;
+                def.after.erase(std::remove_if(def.after.begin(), def.after.end(),
+                                               [&](const std::string& dep) { return !is_selected(dep); }),
+                                def.after.end());
+                ordered.push_back(std::move(def));
+            }
         }
         for (const auto& d : defs) {
             if (std::find(selected.begin(), selected.end(), d.id) == selected.end()) ordered.push_back(d);
