@@ -31,7 +31,7 @@ if ($LASTEXITCODE -ne 0) { throw 'dotnet publish failed' }
 Copy-Item "$publish\MabaAssistantBlueArchive.exe" $pkg
 New-Item -ItemType Directory -Force "$pkg\bin" | Out-Null
 Copy-Item "$publish\*.dll" "$pkg\bin"
-Copy-Item build/windows-msvc/core/Release/maba_cli.exe "$pkg\bin"
+Copy-Item build/windows-msvc/core/Release/maba_cli.exe, build/windows-msvc/core/Release/maba_updater.exe "$pkg\bin"
 
 # Data and tools
 $data = "$pkg\data"
@@ -61,6 +61,11 @@ Get-ChildItem ocr\.venv\Lib\site-packages |
     Where-Object { $_.Name -notmatch '^(pip|setuptools|_distutils_hack|distutils-precedence\.pth)' -and $_.Name -notlike 'pip-*' } |
     Copy-Item -Destination $site -Recurse
 Get-ChildItem $site -Recurse -Directory -Filter __pycache__ | Remove-Item -Recurse -Force
+
+# Packages per part and update.json, for the program's own updater (docs/notes/updates.md). This
+# also writes ocr\part.json, so it runs before the full archive is made.
+& ocr\.venv\Scripts\python.exe tools\build_update.py $pkg --version $Version --out $out
+if ($LASTEXITCODE -ne 0) { throw 'build_update failed' }
 
 Compress-Archive -Path "$pkg\*" -DestinationPath "$pkg.zip" -CompressionLevel Optimal
 Write-Output "package: $pkg.zip ($([math]::Round((Get-Item "$pkg.zip").Length / 1MB, 1)) MB)"

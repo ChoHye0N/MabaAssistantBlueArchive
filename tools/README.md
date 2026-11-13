@@ -42,6 +42,9 @@ Lists, per task and language, the templates the task needs (its steps including 
 ## Resource pack (`build_resources.py`)
 `python tools/build_resources.py` writes `dist/MABA-resources-<version>.zip` (config, pages, popups, tasks, strings, assets) and `dist/resources.json` (version, the program version it needs, size, SHA-256). Version and `min_core` come from `config/resource.json`. The `resources` workflow runs it when started by hand and creates a draft pre-release `resources-<version>`; a published one is installed by the program itself (`docs/notes/updates.md`). Standard library only.
 
+## Update packages (`build_update.py`)
+`python tools/build_update.py PACKAGE_DIR --version X.Y.Z --out dist` splits an unpacked release into `MABA-<version>-app.zip` and `MABA-<version>-ocr.zip` and writes `update.json` (per part: version, file, size, SHA-256) for the program's own updater (`docs/notes/updates.md`). It also writes `ocr/part.json` into the release folder. `build_package.ps1` runs it; there is seldom a reason to run it by hand.
+
 ## Release archive (`build_package.ps1`)
 `tools\build_package.ps1 -Version 0.1.0-beta.2` builds `dist\MABA-<version>-win-x64.zip` from a finished Core build and `ocr/.venv` with its models: self-contained GUI, embeddable Python, data files and templates. The archive holds one executable and the folders `bin/`, `data/`, `ocr/` and `docs/`; these tools sit in `data/tools/`, and `bin/maba_cli.exe` needs `--root ..\data`. `-Repository owner/name` turns on the new-version notice of the GUI. The `release` workflow runs it when started by hand and creates a draft.
 

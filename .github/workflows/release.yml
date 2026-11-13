@@ -61,4 +61,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: pwsh
         # A version with a suffix (0.2.0-beta.1) is a pre-release, which the new-version notice skips.
-        run: gh release create "v${{ inputs.version }}" "dist\MABA-${{ inputs.version }}-win-x64.zip" --draft --prerelease=${{ contains(inputs.version, '-') }} --target "${{ github.sha }}" --title "MABA v${{ inputs.version }}" --notes "Draft built from ${{ github.sha }}."
+        run: gh release create "v${{ inputs.version }}" "dist\MABA-${{ inputs.version }}-win-x64.zip" "dist\MABA-${{ inputs.version }}-app.zip" "dist\MABA-${{ inputs.version }}-ocr.zip" "dist\update.json" --draft --prerelease=${{ contains(inputs.version, '-') }} --target "${{ github.sha }}" --title "MABA v${{ inputs.version }}" --notes "Draft built from ${{ github.sha }}."
