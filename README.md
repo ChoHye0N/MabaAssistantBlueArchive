@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img alt="MABA" src="docs/images/logo.png" width="300" height="300" />
+<img alt="MABA" src="docs/images/logo.png" width="400" height="400" />
 
 # MABA
 
