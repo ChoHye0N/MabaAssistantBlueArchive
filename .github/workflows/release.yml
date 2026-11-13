@@ -44,6 +44,13 @@ jobs:
         with:
           path: .vcpkg-cache
           key: vcpkg-windows-${{ hashFiles('vcpkg.json') }}
+      - name: The version is the one in the source
+        shell: pwsh
+        # Core takes its version from CMakeLists.txt, the executable from the input: they must agree.
+        run: |
+          $source = (Select-String -Path CMakeLists.txt -Pattern 'project\(MabaAssistantBlueArchive VERSION (\d+\.\d+\.\d+)').Matches[0].Groups[1].Value
+          $wanted = "${{ inputs.version }}".Split('-')[0]
+          if ($source -ne $wanted) { throw "CMakeLists.txt says $source, the release asks for $wanted (tools/release.py sets both)" }
       - run: cmake --preset windows-msvc
       - run: cmake --build --preset windows-msvc
       - run: ctest --preset windows-msvc --output-on-failure

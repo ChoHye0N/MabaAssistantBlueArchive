@@ -42,6 +42,9 @@ Lists, per task and language, the templates the task needs (its steps including 
 ## Resource pack (`build_resources.py`)
 `python tools/build_resources.py` writes `dist/MABA-resources-<version>.zip` (config, pages, popups, tasks, strings, assets) and `dist/resources.json` (version, the program version it needs, size, SHA-256). Version and `min_core` come from `config/resource.json`. The `resources` workflow runs it when started by hand and creates a draft pre-release `resources-<version>`; a published one is installed by the program itself (`docs/notes/updates.md`). Standard library only.
 
+## Starting a release (`release.py`)
+`python tools/release.py program X.Y.Z` sets the program version in the three files that hold it and the resource version and `min_core` in `config/resource.json`, commits, pushes and starts the `release` and `resources` workflows. `python tools/release.py resources` does the same for task data and templates alone. `--dry-run` shows what would happen and changes nothing. Both end with drafts on GitHub and print the commands that publish them; nothing is published by the script. `min_core` is decided from whether Core changed since the last program release (`--min-core` overrides it for a resource release). Only on the maintainer's order.
+
 ## Update packages (`build_update.py`)
 `python tools/build_update.py PACKAGE_DIR --version X.Y.Z --out dist` splits an unpacked release into `MABA-<version>-app.zip` and `MABA-<version>-ocr.zip` and writes `update.json` (per part: version, file, size, SHA-256) for the program's own updater (`docs/notes/updates.md`). It also writes `ocr/part.json` into the release folder. `build_package.ps1` runs it; there is seldom a reason to run it by hand.
 

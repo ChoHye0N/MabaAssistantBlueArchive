@@ -150,7 +150,7 @@ Run `MabaAssistantBlueArchive.exe`.
 >
 > The release package includes the .NET runtime, the Python runtime, the OCR models and the screen-recognition templates, so nothing else needs to be installed.
 >
-> Settings (selected tasks, task settings, order, profiles) and account records are stored in `%APPDATA%\MabaAssistantBlueArchive`. From 0.1.5 on a new version can be installed from inside the program; older versions unpack the new one into a new folder. Either way the settings carry over.
+> Settings (selected tasks, task settings, order, profiles) and account records are stored in `%APPDATA%\MabaAssistantBlueArchive`. From 0.2.0 on a new version can be installed from inside the program; older versions unpack the new one into a new folder. Either way the settings carry over.
 
 ### Before Running
 

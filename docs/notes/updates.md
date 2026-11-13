@@ -8,6 +8,11 @@ How the program updates itself. Two things are updated apart from each other, be
 | Program | the executable, `bin/`, `docs/`, `data/tools/`, licence texts | sometimes | a small updater replaces the files and starts the program again |
 | OCR | `ocr/` (Python, packages and models) | seldom | with the program, downloaded only when it changed |
 
+## Releasing
+`tools/release.py` starts either kind of release with one command (`program X.Y.Z` or `resources`): it sets the versions, commits, pushes and starts the workflows, which end in drafts the maintainer publishes. A program release also builds a resource pack of the same commit, because a program that updates itself keeps its data folder and gets new data only as a pack; publish the program first, then the pack.
+
+`min_core` is decided there: data can only need a newer program when Core (`core/src`, `core/include`) changed since the last program release. Then it becomes the version being released; otherwise it stays, at most the last released version. A resource release while Core changed and no newer version is in the source is refused, unless `--min-core` says the data uses nothing new.
+
 ## Resources (implemented)
 - **Version**: `config/resource.json` holds `version` (date and a counter, `20261113.1`) and `min_core`, the oldest program that understands the data. Raise `version` for every pack and `min_core` whenever the data starts to use a step, condition or field an older program does not know.
 - **Pack**: `tools/build_resources.py` writes `MABA-resources-<version>.zip` and `resources.json` (version, `min_core`, file name, size, SHA-256). The archive is deterministic.
