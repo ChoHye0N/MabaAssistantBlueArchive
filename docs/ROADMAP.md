@@ -9,7 +9,7 @@ Open items first; finished ones are kept below as a record of what was verified 
 - [ ] Check a 2560 wide window
 
 ### M2
-- [ ] Attendance book campaign tabs (`attendance`): written 2026-11-11 while every tab was already claimed; claiming and the red tab dot are not verified
+- [ ] Attendance book campaign tabs (`attendance`): written 2026-11-11 while every tab was already claimed; claiming and the red tab dot verified 2026-11-13. Since then the task waits until the book is uncovered after a claim (checked on saved frames only); a claim with AP at 999 is not verified
 - [ ] A few more days without failures, then mark the tasks `ready`
 
 ### M3: OCR-dependent tasks
@@ -26,7 +26,8 @@ Open items first; finished ones are kept below as a record of what was verified 
 - [ ] Verify Steam not running or signed out; skip the animation at login too
 - [ ] Unattended runs without the GUI open (Task Scheduler entry or start with Windows, tray)
 - [ ] Check the English UI in the running GUI (text length in the settings layout); English game client support (templates, `strings/en.json`) is separate
-- [ ] Program update from inside the program: a separate updater, packages per part (`docs/notes/updates.md`)
+- [x] Program update from inside the program: a separate updater, packages per part (`docs/notes/updates.md`)
+- [ ] Program update against a published release (checked 2026-11-13 with two local builds and a local feed)
 - [ ] Resource update against a published `resources-*` release (checked 2026-11-13 with a local feed: newer pack installed, too-new pack refused, wrong checksum, entries outside the folders and data that does not load refused)
 
 ## Open questions to verify in the real game
@@ -65,7 +66,7 @@ Game facts and their **verify** marks are in `docs/notes/game-structure.md`.
 - [x] Cafe, schedule, circle, daily free package, shop, bounty, tactical challenge: steps written and run in the game on 2026-11-02 (`wip`; see the open items below)
 - [x] Commissions (Base Defense, Item Retrieval): sweeps a set number of times, before AP spending (`wip`); run in the game on 2026-11-04 with the highest stage and 2 sweeps each; picking a stage by number is not verified
 - [x] Run the tasks with tickets and rewards available, 2026-11-04: all of them with the reaction check on, bounty sweep confirmed by the owner
-- [x] Battle pass rewards (`battle_pass`): mission points claimed in the game on 2026-11-11; level rewards and the paid channel are not verified
+- [x] Battle pass rewards (`battle_pass`): mission points claimed in the game on 2026-11-11; level rewards claimed 2026-11-13; the paid channel is not verified
 - [x] Show in the result when `optional` steps failed: a target that did nothing used to end as plain succeeded
 
 ### M3: OCR-dependent tasks

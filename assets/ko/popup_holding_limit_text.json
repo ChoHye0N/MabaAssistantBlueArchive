@@ -1,0 +1,20 @@
+{
+  "task": "popup",
+  "element": "holding_limit_text",
+  "lang": "ko",
+  "roi": {
+    "x": 408,
+    "y": 290,
+    "w": 464,
+    "h": 32
+  },
+  "masks": [],
+  "source_client": "steam-pc-global",
+  "source_size": {
+    "w": 1280,
+    "h": 720
+  },
+  "game_version": "",
+  "capture_date": "2026-11-13",
+  "tool": "template_capture.py 0.1.0"
+}

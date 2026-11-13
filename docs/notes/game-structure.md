@@ -39,7 +39,7 @@ On a formation screen the Sortie button pulses and shows before the team has loa
 
 | Resource | Rule |
 |---|---|
-| AP | The regular cap grows with the account level. Rewards can pass the cap; regeneration above it: **verify**. Held AP stops at 999; the rest waits in the mailbox |
+| AP | The regular cap grows with the account level. Rewards can pass the cap; regeneration above it: **verify**. Held AP stops at 999; the rest waits in the mailbox, and a notice says so ('sent to the mailbox because of the holding limit', a confirm button; seen 2026-11-13 after cafe income, popup `holding_limit`) |
 | Schedule tickets | Limit shown in the schedule screen |
 | Bounty tickets | 6 |
 | Scrimmage tickets | 6; a sweep also costs AP |

@@ -1,0 +1,12 @@
+{
+  "id": "holding_limit",
+  "notes": [
+    "Notice after a reward that does not fit ('sent to the mailbox because of the holding limit'), for example AP at 999 after cafe income or an attendance reward. Information only; the confirm button closes it.",
+    "The notice is recognized by its own sentence: other dialogs share the 'notice' title and the blue confirm button."
+  ],
+  "priority": 15,
+  "anchors": [
+    { "template": "popup_holding_limit_text.png", "roi": { "x": 380, "y": 270, "w": 520, "h": 72 }, "threshold": 0.9 }
+  ],
+  "dismiss": { "template": "popup_confirm_button.png", "roi": { "x": 500, "y": 440, "w": 280, "h": 130 }, "threshold": 0.9 }
+}

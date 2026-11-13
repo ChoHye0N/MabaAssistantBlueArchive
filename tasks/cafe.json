@@ -14,7 +14,8 @@
     "The cafe is larger than the screen: the view is zoomed out first with the mouse wheel (5 notches reach the limit, the markers keep their size; emulators have no wheel and skip it), then dragged to the four corners, and each view is searched.",
     "Invitation: the ticket opens a list of owned students (MomoTalk). The configured names are searched with OCR while scrolling; the first one found is invited. A student that is not owned is not listed and is skipped. A student visiting the other cafe (marked with that cafe in the list) asks twice to be brought over, and another version of a visiting student asks to replace it: all are confirmed, so the configured student is invited.",
     "A ticket on cooldown shows a timer instead of 'available' and is not used.",
-    "The bottom-left buttons (edit mode, store all) must never be clicked: taps stay above y = 600 and right of the left buttons."
+    "The bottom-left buttons (edit mode, store all) must never be clicked: taps stay above y = 600 and right of the left buttons.",
+    "After claiming, the reward window and (with AP at its limit) the holding-limit notice lie over the income window for a moment. The income window is closed only once its title shows again; closing was skipped before while the notice covered the title, and the wheel and the drags then went to the windows instead of the cafe."
   ],
   "settings": [
     { "key": "tap_students", "type": "bool", "default": true, "description": "Tap students that have a yellow mark." },
@@ -45,8 +46,16 @@
       "then": [
         { "action": "click_if_present", "template": "cafe_income_claim.png", "roi": { "x": 500, "y": 480, "w": 280, "h": 100 }, "threshold": 0.9, "when": { "color": { "hsv_min": [18, 120, 180], "hsv_max": [35, 255, 255], "area": [5000, 28000], "roi": { "x": 500, "y": 480, "w": 280, "h": 100 } } }, "optional": true },
         {
-          "action": "back",
-          "when": { "present": { "template": "cafe_income_title.png", "roi": { "x": 540, "y": 110, "w": 200, "h": 80 }, "threshold": 0.9 } }
+          "action": "loop",
+          "max": 6,
+          "steps": [
+            {
+              "action": "if",
+              "when": { "present": { "template": "cafe_income_title.png", "roi": { "x": 540, "y": 110, "w": 200, "h": 80 }, "threshold": 0.9 } },
+              "then": [{ "action": "back" }, { "action": "break" }],
+              "else": [{ "action": "sleep", "sleep_ms": 1000 }]
+            }
+          ]
         },
         { "action": "wait_stable", "timeout_ms": 4000 }
       ]
