@@ -152,6 +152,12 @@ def release_exists(tag):
     return run("gh", "release", "view", tag, check=False).returncode == 0
 
 
+def to_particle(version):
+    """The Korean particle after a version read as digits: '0.2.0으로', '0.1.5로'."""
+    last = [c for c in version if c.isdigit()][-1]
+    return "으로" if last in "036" else "로"
+
+
 def write_resource(version, min_core):
     write(RESOURCE_FILE, json.dumps({"version": version, "min_core": min_core}, indent=2) + "\n")
 
@@ -197,7 +203,7 @@ def program(version, dry):
     print(f"program {released} -> {version}; resources {resource['version']} -> {res_version}, min_core {min_core}"
           f" (Core {'changed' if core_changed else 'unchanged'} since {released})")
     body = f"- 프로그램 버전 {version}\n- 리소스 버전 {res_version}, `min_core` {min_core}"
-    commit_and_push(list(VERSION_FILES.values()) + [RESOURCE_FILE], f"chore: 버전 {version}로 변경", body, dry)
+    commit_and_push(list(VERSION_FILES.values()) + [RESOURCE_FILE], f"chore: 버전 {version}{to_particle(version)} 변경", body, dry)
     start("release.yml", f"version={version}", dry=dry)
     # Players who update inside the program keep their data folder: they get the data as a pack.
     with_pack = not release_exists("resources-" + res_version)
@@ -231,7 +237,7 @@ def resources(min_core_arg, dry):
         print(f"note: players get this pack only after program {min_core} is released")
     if (version, min_core) != (resource["version"], resource.get("min_core")):
         write_resource(version, min_core)
-        commit_and_push([RESOURCE_FILE], f"chore: 리소스 버전 {version}로 변경", f"- 리소스 버전 {version}, `min_core` {min_core}", dry)
+        commit_and_push([RESOURCE_FILE], f"chore: 리소스 버전 {version}{to_particle(version)} 변경", f"- 리소스 버전 {version}, `min_core` {min_core}", dry)
     start("resources.yml", dry=dry)
     print("\nNext, when the workflow and CI are green (gh run list):")
     print(f"  gh release edit resources-{version} --draft=false --prerelease")

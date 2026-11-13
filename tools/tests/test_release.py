@@ -51,6 +51,7 @@ class Decisions(unittest.TestCase):
         self.assertEqual(rl.latest_program_version(tags), "0.1.10")
         with self.assertRaises(rl.ReleaseError):
             rl.latest_program_version(["resources-20261113.1"])
+        self.assertEqual([rl.to_particle(v) for v in ("0.2.0", "0.1.5", "20261113.1", "0.2.0-beta.3")], ["으로", "로", "로", "으로"])
         self.assertIsNone(rl.parse_version("v0.1.0"))
         self.assertEqual(rl.parse_version("0.2.0-beta.1"), (0, 2, 0))
 
