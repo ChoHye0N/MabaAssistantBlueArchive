@@ -46,6 +46,10 @@ public:
         return BlankFrame(r.width * 3 / 2, r.height * 3 / 2);
     }
     bool Click(maba::Point p) override {
+        if (refuse_clicks > 0) {  // e.g. the game window does not answer yet
+            --refuse_clicks;
+            return false;
+        }
         clicks.push_back(p);
         if (on_click) on_click(p, *this);
         return true;
@@ -58,6 +62,7 @@ public:
     bool Back() override { ++backs; return true; }
 
     int scrolled = 0;
+    int refuse_clicks = 0;
     bool can_scroll = true;
     std::vector<maba::Frame> scenes;
     std::size_t scene = 0;

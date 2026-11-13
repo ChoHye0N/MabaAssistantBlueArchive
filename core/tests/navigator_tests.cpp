@@ -141,6 +141,18 @@ MABA_TEST(EnterGameTapsAScreenAtItsOwnPoint) {
         "enter": {"tap": {"x": 1, "y": 1}, "screens": [{"tap": {"x": 2, "y": 3}}]}})").ok);
 }
 
+MABA_TEST(EnterGameTriesAgainWhenATapIsRefused) {
+    NavRig rig;
+    rig.pages["main_menu"].enter = maba::EnterSpec{{640, 100}, {}, 5, std::chrono::milliseconds{100}};
+    rig.controller.scene = NavRig::kUnknownScene;
+    rig.controller.refuse_clicks = 2;  // the game is loading and does not take input yet
+    rig.controller.clicks_to.push_back({NavRig::kUnknownScene, {640, 100}, NavRig::kMainScene});
+    const maba::NavResult r = rig.Nav().EnterGame();
+    CHECK(r.ok && r.page == "main_menu");
+    CHECK(r.steps == 3);
+    CHECK(rig.controller.clicks.size() == 1);
+}
+
 MABA_TEST(EnterGameGivesUpAfterMaxTaps) {
     NavRig rig;
     rig.pages["main_menu"].enter = maba::EnterSpec{{640, 100}, {}, 5, std::chrono::milliseconds{100}};

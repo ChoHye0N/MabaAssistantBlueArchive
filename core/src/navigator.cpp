@@ -247,6 +247,7 @@ NavResult Navigator::EnterGame() {
         return result;
     }
     const EnterSpec& enter = *home->second.enter;
+    std::string last_error;
 
     while (true) {
         bool recognized = false;
@@ -267,7 +268,8 @@ NavResult Navigator::EnterGame() {
         if (obs.frame.empty())
             return Fail(result, "capture failed" + (obs.error.empty() ? "" : " (" + obs.error + ")"));
         if (result.steps >= enter.max_taps)
-            return Fail(result, "no known page after " + std::to_string(enter.max_taps) + " taps");
+            return Fail(result, "no known page after " + std::to_string(enter.max_taps) + " taps" +
+                                    (last_error.empty() ? "" : " (" + last_error + ")"));
 
         Point tap = enter.tap;
         std::string where = "start-up screen";
@@ -279,7 +281,12 @@ NavResult Navigator::EnterGame() {
             }
         }
         Log(log_, LogLevel::kInfo, where + ", tapping");
-        if (!controller_.Click(tap)) return Fail(result, Failed("click", controller_));
+        // A game that is still loading does not answer for a while and refuses input then. Such a
+        // tap counts like one that changed nothing: the next round tries again, up to the cap.
+        if (!controller_.Click(tap)) {
+            last_error = Failed("click", controller_);
+            Log(log_, LogLevel::kInfo, "the tap was refused (" + last_error + "), trying again");
+        }
         ++result.steps;
         clock_.Sleep(enter.interval);
     }
