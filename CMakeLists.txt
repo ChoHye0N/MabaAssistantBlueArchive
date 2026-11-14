@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
 cmake_minimum_required(VERSION 3.21)
-project(MabaAssistantBlueArchive VERSION 0.2.0 LANGUAGES CXX)
+project(MabaAssistantBlueArchive VERSION 0.2.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
