@@ -20,12 +20,18 @@ public partial class TaskItemViewModel : ObservableObject
         Name = localized == "Task." + task.Id ? task.Name : localized;
         Implemented = task.Implemented;
         NeedsOcr = task.NeedsOcr;
-        After = task.After.Count == 0 ? "" : string.Join(", ", task.After);
+        // Under the title, in the display language: the tasks this one waits for.
+        Meta = task.After.Count == 0
+            ? ""
+            : Strings.Get("Tasks.After") + ": " + string.Join(", ", task.After.Select(DisplayName));
         _isSelected = selected;
         _statusText = Implemented ? "" : Strings.Get("Task.NotImplemented");
         Description = Optional("TaskInfo." + task.Id);
         Warning = Optional("TaskWarn." + task.Id);
     }
+
+    // A task's name in the display language; its id when the table has none.
+    private static string DisplayName(string id) => Strings.Get("Task." + id) is var s && s != "Task." + id ? s : id;
 
     private static string Optional(string key) => Strings.Get(key) is var s && s != key ? s : "";
 
@@ -33,7 +39,7 @@ public partial class TaskItemViewModel : ObservableObject
     public string Name { get; }
     public bool Implemented { get; }
     public bool NeedsOcr { get; }
-    public string After { get; }
+    public string Meta { get; }
     public ObservableCollection<SettingItemViewModel> Settings { get; } = new();
     public bool HasSettings => Settings.Count > 0;
     public string Description { get; }

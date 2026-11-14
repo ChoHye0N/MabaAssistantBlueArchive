@@ -22,6 +22,7 @@ public partial class SettingItemViewModel : ObservableObject
         var localized = Strings.Get($"Setting.{taskId}.{setting.Key}");
         Label = localized == $"Setting.{taskId}.{setting.Key}" ? setting.Description : localized;
         Choices = setting.Choices;
+        ChoiceItems = setting.Choices.Select(c => new Choice(c, ChoiceLabel(c))).ToArray();
         Min = setting.Min ?? 0;
         Max = setting.Max ?? 0;
         if (IsChecklist)
@@ -35,6 +36,10 @@ public partial class SettingItemViewModel : ObservableObject
     public string Key { get; }
     public string Label { get; }
     public IReadOnlyList<string> Choices { get; }
+    // The choices with their names in the display language ("highest" reads as a word, a number stays).
+    public IReadOnlyList<Choice> ChoiceItems { get; }
+
+    private static string ChoiceLabel(string value) => Strings.Get("Choice." + value) is var s && s != "Choice." + value ? s : value;
     public int Min { get; }
     public int Max { get; }
     public bool IsBool => _setting.Type == "bool";

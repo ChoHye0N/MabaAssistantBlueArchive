@@ -60,6 +60,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _steamCloseGame = settings.SteamCloseGame;
         _stopHotkey = settings.StopHotkey;
         _retryFailed = settings.RetryFailed;
+        _notifyOnFinish = settings.NotifyOnFinish;
         _afterRun = settings.AfterRun is "exit" or "shutdown" ? settings.AfterRun : "none";
         _ocrEnabled = settings.OcrEnabled;
         _checkUpdates = settings.CheckUpdates;
@@ -150,6 +151,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool _steamCloseGame;
     [ObservableProperty] private bool _stopHotkey;
     [ObservableProperty] private bool _retryFailed;
+    [ObservableProperty] private bool _notifyOnFinish;
+    // Raised when a run ended and the player wants to be told: title, text, whether something failed.
+    public event Action<string, string, bool>? RunNotice;
+    // Resources read by the first and the last task of this run (credits, pyroxene, ap, uid).
+    private Dictionary<string, long>? _resourcesBefore, _resourcesAfter;
     [ObservableProperty] private string _afterRun = "none";
     public IReadOnlyList<Choice> AfterRunActions { get; } = new[] { "none", "exit", "shutdown" }
         .Select(m => new Choice(m, Strings.Get("AfterRun." + m))).ToArray();
@@ -461,8 +467,16 @@ public partial class MainViewModel : ObservableObject, IDisposable
         Tasks.Clear();
         var profile = SelectedProfile;
         var byId = _coreTasks.ToDictionary(t => t.Id);
-        var ordered = profile.Order.Where(byId.ContainsKey).Select(id => byId[id])
-                             .Concat(_coreTasks.Where(t => !profile.Order.Contains(t.Id)));
+        var ordered = profile.Order.Where(byId.ContainsKey).Select(id => byId[id]).ToList();
+        // A task the profile does not list (added by an update) takes its place from the data's
+        // order: before the first listed task that comes after it there. At the end, a task that
+        // has to run first would run last.
+        var place = _coreTasks.Select((t, i) => (t.Id, i)).ToDictionary(x => x.Id, x => x.i);
+        foreach (var t in _coreTasks.Where(t => !profile.Order.Contains(t.Id)))
+        {
+            var at = ordered.FindIndex(o => place[o.Id] > place[t.Id]);
+            if (at < 0) ordered.Add(t); else ordered.Insert(at, t);
+        }
         foreach (var t in ordered)
             Tasks.Add(new TaskItemViewModel(t, profile.SelectedTasks.Contains(t.Id),
                                             profile.TaskSettings.GetValueOrDefault(t.Id), OnTaskSettingsChanged));
@@ -613,6 +627,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _settings.SteamCloseGame = SteamCloseGame;
         _settings.StopHotkey = StopHotkey;
         _settings.RetryFailed = RetryFailed;
+        _settings.NotifyOnFinish = NotifyOnFinish;
         _settings.AfterRun = AfterRun;
         _settings.OcrEnabled = OcrEnabled;
         _settings.CheckUpdates = CheckUpdates;
@@ -732,6 +747,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             return;
         }
         _runIsScheduled = scheduled;
+        _resourcesBefore = _resourcesAfter = null;
         IsRunning = true;
         StatusText = Strings.Get(scheduled ? "Status.RunningScheduled" : "Status.Running");
     }
@@ -789,6 +805,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             ? Strings.Get("Summary.NoRun")
             : Strings.Format(run.Cancelled ? "Summary.RunCancelledFormat" : "Summary.RunFormat",
                              run.Time.ToLocalTime().ToString("MM-dd HH:mm"), run.Succeeded, run.Failed, run.Skipped);
+        if (run is not null && ChangesText(run) is { Length: > 0 } changes) SummaryLastRun += "\n" + changes;
     }
 
     [RelayCommand]
@@ -828,6 +845,15 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 task?.SetStatus(status, message);
                 if (id is not null && status is "succeeded" or "failed" or "skipped" or "cancelled")
                 {
+                    if (status == "succeeded" && id is "account_before" or "account_info" && e["values"] is JsonObject read)
+                    {
+                        var values = new Dictionary<string, long>();
+                        foreach (var (key, value) in read)
+                        {
+                            if (value is JsonValue number && number.TryGetValue<long>(out var n)) values[key] = n;
+                        }
+                        if (id == "account_before") _resourcesBefore = values; else _resourcesAfter = values;
+                    }
                     var result = new TaskResult(DateTimeOffset.UtcNow, status, message);
                     _settings.LastResults[id] = result;
                     task?.ShowLastResult(result);
@@ -848,9 +874,17 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 StatusText = Strings.Get(cancelled ? "Status.Cancelled" : ok ? "Status.Finished" : "Status.FinishedWithErrors");
                 _settings.LastRun = new RunSummary(DateTimeOffset.UtcNow,
                     Tasks.Count(t => t.Status == "succeeded"), Tasks.Count(t => t.Status == "failed"),
-                    Tasks.Count(t => t.Status == "skipped"), cancelled);
+                    Tasks.Count(t => t.Status == "skipped"), cancelled,
+                    ResourceChange("ap"), ResourceChange("credits"), ResourceChange("pyroxene"));
+                var changes = ChangesText(_settings.LastRun);
+                if (changes.Length > 0) AddLog("info", changes);
                 Save();
                 UpdateSummary();
+                if (NotifyOnFinish && !cancelled)
+                {
+                    var counts = Strings.Format("Notice.Counts", _settings.LastRun.Succeeded, _settings.LastRun.Failed, _settings.LastRun.Skipped);
+                    RunNotice?.Invoke(StatusText, changes.Length > 0 ? counts + "\n" + changes : counts, !ok);
+                }
                 if (_runIsScheduled)
                 {
                     // A scheduled day counts as done even after failures: retrying in a loop
@@ -893,6 +927,24 @@ public partial class MainViewModel : ObservableObject, IDisposable
                     AddLog("info", Strings.Get(PowerControl.CancelShutdown() ? "AfterRun.ShutdownCancelled" : "AfterRun.ShutdownFailed"));
                 break;
         }
+    }
+
+    // What the run changed: both readings must be of the same account and hold the value.
+    private long? ResourceChange(string key)
+    {
+        if (_resourcesBefore is null || _resourcesAfter is null) return null;
+        if (!_resourcesBefore.TryGetValue("uid", out var uidBefore) || !_resourcesAfter.TryGetValue("uid", out var uidAfter) ||
+            uidBefore != uidAfter) return null;
+        return _resourcesBefore.TryGetValue(key, out var before) && _resourcesAfter.TryGetValue(key, out var after)
+            ? after - before
+            : null;
+    }
+
+    private static string ChangesText(RunSummary run)
+    {
+        if (run.ApChange is null && run.CreditsChange is null && run.PyroxeneChange is null) return "";
+        static string Signed(long? v) => v is null ? "?" : v.Value.ToString("+#,0;-#,0;0");
+        return Strings.Format("Summary.ChangesFormat", Signed(run.ApChange), Signed(run.CreditsChange), Signed(run.PyroxeneChange));
     }
 
     // The stop key, pressed in any window while a run is going.

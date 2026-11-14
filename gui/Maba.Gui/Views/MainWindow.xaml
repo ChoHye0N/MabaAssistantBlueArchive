@@ -15,6 +15,10 @@
            WindowStartupLocation="CenterScreen"
            ShowTitle="True">
     <DockPanel>
+        <!-- Tray icon: carries the notification at the end of a run; shown only while that setting is on -->
+        <hc:NotifyIcon x:Name="TrayIcon" DockPanel.Dock="Top" Text="MABA" Icon="/Resources/app.ico"
+                       Visibility="{Binding NotifyOnFinish, Converter={StaticResource Boolean2VisibilityConverter}}"
+                       MouseDoubleClick="OnTrayDoubleClick" />
         <!-- Status bar -->
         <Border DockPanel.Dock="Bottom" Padding="12,6" Background="{DynamicResource RegionBrush}"
                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
@@ -113,12 +117,9 @@
                                                        TextWrapping="Wrap" Text="{Binding Name}" />
                                         </DockPanel>
                                         <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                            <TextBlock Foreground="{DynamicResource SecondaryTextBrush}" Text="{Binding Id}" />
-                                            <TextBlock Foreground="{DynamicResource SecondaryTextBrush}" Margin="8,0,0,0"
-                                                       Visibility="{Binding After, Converter={StaticResource String2VisibilityConverter}}">
-                                                <Run Text="{DynamicResource Tasks.After}" />: <Run Text="{Binding After, Mode=OneWay}" />
-                                            </TextBlock>
-                                            <Border Margin="8,0,0,0" Padding="4,0" CornerRadius="2" Background="{DynamicResource SecondaryRegionBrush}"
+                                            <TextBlock Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,8,0" Text="{Binding Meta}"
+                                                       Visibility="{Binding Meta, Converter={StaticResource String2VisibilityConverter}}" />
+                                            <Border Padding="4,0" CornerRadius="2" Background="{DynamicResource SecondaryRegionBrush}"
                                                     Visibility="{Binding NeedsOcr, Converter={StaticResource Boolean2VisibilityConverter}}">
                                                 <TextBlock Text="{DynamicResource Tasks.Ocr}" FontSize="11" />
                                             </Border>
@@ -148,7 +149,8 @@
                                                                 <hc:NumericUpDown Value="{Binding IntValue}" Minimum="{Binding Min}" Maximum="{Binding Max}"
                                                                                   Increment="1" DecimalPlaces="0" Width="120" HorizontalAlignment="Left"
                                                                                   Visibility="{Binding IsInt, Converter={StaticResource Boolean2VisibilityConverter}}" />
-                                                                <ComboBox ItemsSource="{Binding Choices}" SelectedItem="{Binding ChoiceValue}"
+                                                                <ComboBox ItemsSource="{Binding ChoiceItems}" DisplayMemberPath="Label"
+                                                                          SelectedValuePath="Value" SelectedValue="{Binding ChoiceValue}"
                                                                           Width="160" HorizontalAlignment="Left"
                                                                           Visibility="{Binding IsChoice, Converter={StaticResource Boolean2VisibilityConverter}}" />
                                                                 <ItemsControl ItemsSource="{Binding Items}"
@@ -369,6 +371,7 @@
                                    Text="{DynamicResource Settings.Run}" Margin="0,8,0,8" />
                         <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.StopHotkey}" IsChecked="{Binding StopHotkey}" Margin="0,0,0,8" />
                         <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.RetryFailed}" IsChecked="{Binding RetryFailed}" Margin="0,0,0,8" />
+                        <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.NotifyOnFinish}" IsChecked="{Binding NotifyOnFinish}" Margin="0,0,0,8" />
                         <hc:ComboBox hc:InfoElement.Title="{DynamicResource Settings.AfterRun}"
                                      hc:InfoElement.TitlePlacement="Left" hc:InfoElement.TitleWidth="140"
                                      ItemsSource="{Binding AfterRunActions}" DisplayMemberPath="Label"
@@ -377,6 +380,8 @@
                         <TextBlock Margin="140,0,0,12" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"
                                    Text="{Binding AfterRunHint}" />
 
+                        <TextBlock Style="{StaticResource TextBlockSubTitleBold}" HorizontalAlignment="Left"
+                                   Text="{DynamicResource Settings.Updates}" Margin="0,8,0,8" />
                         <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.CheckUpdates}" IsChecked="{Binding CheckUpdates}" Margin="0,0,0,8" />
                         <hc:ComboBox hc:InfoElement.Title="{DynamicResource Settings.ProgramUpdate}"
                                      hc:InfoElement.TitlePlacement="Left" hc:InfoElement.TitleWidth="140"

@@ -21,6 +21,8 @@ public partial class MainWindow : HandyControl.Controls.Window
         {
             if (DataContext is not MainViewModel vm) return;
             vm.Log.CollectionChanged += ScrollLogToEnd;
+            vm.RunNotice += (title, text, failed) => TrayIcon.ShowBalloonTip(
+                title, text, failed ? HandyControl.Data.NotifyIconInfoType.Warning : HandyControl.Data.NotifyIconInfoType.Info);
             vm.PropertyChanged += (_, e) =>
             {
                 if (e.PropertyName is nameof(MainViewModel.IsRunning) or nameof(MainViewModel.StopHotkey)) UpdateStopHotkey();
@@ -33,6 +35,12 @@ public partial class MainWindow : HandyControl.Controls.Window
             UpdateStopHotkey();
         };
         Closed += (_, _) => ReleaseStopHotkey();
+    }
+
+    private void OnTrayDoubleClick(object sender, RoutedEventArgs e)
+    {
+        if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
+        Activate();
     }
 
     // Stop key: Ctrl+Alt+S from any window while a run is going. A run moves the real mouse and

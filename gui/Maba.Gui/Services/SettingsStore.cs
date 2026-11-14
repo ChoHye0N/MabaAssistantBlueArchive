@@ -33,6 +33,8 @@ public sealed class AppSettings
     public bool StopHotkey { get; set; } = true;
     // Failed tasks that are safe to repeat (never a purchase) run once more at the end of a run.
     public bool RetryFailed { get; set; } = true;
+    // A Windows notification when a run ends (the tray icon is shown only while this is on).
+    public bool NotifyOnFinish { get; set; } = true;
     // After a run that was not stopped by hand: "none", "exit" (close this program) or "shutdown" (turn the PC off).
     public string AfterRun { get; set; } = "none";
     public bool OcrEnabled { get; set; } = true;
@@ -61,7 +63,9 @@ public sealed class AppSettings
 
 public sealed record TaskResult(DateTimeOffset Time, string Status, string Message);
 
-public sealed record RunSummary(DateTimeOffset Time, int Succeeded, int Failed, int Skipped, bool Cancelled);
+// The changes are what the run gained or spent: read after the run minus read before it (both tasks selected).
+public sealed record RunSummary(DateTimeOffset Time, int Succeeded, int Failed, int Skipped, bool Cancelled,
+                                long? ApChange = null, long? CreditsChange = null, long? PyroxeneChange = null);
 
 // A player's set of dailies: which tasks, their settings, and the order they run in.
 public sealed partial class TaskProfile : CommunityToolkit.Mvvm.ComponentModel.ObservableObject
