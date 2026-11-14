@@ -80,7 +80,9 @@ Release builds ask GitHub at start whether something new exists. A new program v
 |:---|:---|
 | Scheduled Execution | Scheduled runs after the server reset or at a set time each day |
 | Game Launch | Starts the game (Steam or emulator) when it is off, closes it afterwards (optional) |
-| Recovery | Tries failed tasks once more at the end of a run (only tasks that are safe to repeat, such as claims); starts the game again through Steam when it closed during a run |
+| Recovery | Tries failed tasks once more at the end of a run (never after a sweep or a battle had already started); starts the game again through Steam when it closed during a run |
+| Run Summary | Reads AP, credits and pyroxene before and after a run and shows what the run gained and spent (select "Resources before the run" together with the account record) |
+| Notification | A Windows notification when a run ends |
 | Stop Key | `Ctrl+Alt+S` stops a run from any window |
 | After a Run | Closes the program or turns the PC off when a run ends (optional; turning the PC off can be cancelled for 60 seconds) |
 | Popup Handling | Login notices, attendance, reward and battle result popups, handled by one global handler |

@@ -19,6 +19,8 @@ Open items first; finished ones are kept below as a record of what was verified 
 - [ ] The HDR warning on a display with HDR on (the check answers "off" on a display without HDR), and what HDR does to the captured colours
 - [ ] "Turn the PC off" after a real run: the shutdown command and its cancelling were run by hand on 2026-11-14, the question after a run was not
 - [ ] A frozen game whose window stays (a closed game is started again, see below)
+- [ ] Second try of a sweeping task (bounty, commissions, scrimmage, event, missions; written 2026-11-14): verify in the game that a failure before the confirm click is repeated and one after it is not; whether entering an event story stage spends AP before the sortie is open
+- [ ] See the notification at the end of a run (the run that raised it ended normally on 2026-11-14; the notice itself was not looked at), and the change of resources after a run that spends (two read-only tasks gave 0, 0, 0)
 - [ ] Check the English UI in the running GUI (text length in the settings layout); English game client support (templates, `strings/en.json`) is separate
 - [x] Stop key Ctrl+Alt+S: stopped a run from the GUI with the game in front, 2026-11-14 (not tried with the game run as administrator)
 - [x] A game closed in the middle of a run: started again through Steam, and the failed task (`retry`) ran once more and succeeded, 2026-11-14 with the account record task
@@ -29,9 +31,6 @@ Open items first; finished ones are kept below as a record of what was verified 
 ### Ideas from a survey of other tools (2026-11-14, not started)
 Each needs a decision or a look at the real game first.
 - [ ] Start-up while the game downloads a patch: the taps give up after `max_taps`; keep waiting while the progress bar moves
-- [ ] Second chances for AP spending: the sweeping tasks are not marked `retry`, because a set number of sweeps would be spent again. They need to know what the first try already spent (so one hiccup in AP spending still holds the mail back for the day)
-- [ ] Resources at the start and at the end of a run, and what the run gained, in the summary
-- [ ] A notice when a run ended or failed (Windows notification; a web hook only if the player sets one)
 - [ ] A second slot a day for tasks that come back (cafe visitors change twice a day, **verify**)
 - [ ] Tactical challenge: choose the opponent by level and rank read with OCR, stop at rank 1
 - [ ] Cafe: invite by relationship rank or the starred list instead of names

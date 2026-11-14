@@ -17,7 +17,7 @@ Read `docs/ARCHITECTURE.md` first. This skill is the step-by-step for one task. 
    - `order` sets the sequence and never blocks. `after` is only for a failure that must block. Express order as data so it is easy to change.
    - Keep per-task flow in the step language (`if`, `loop`, `each`, conditions on settings, templates, colours and OCR numbers). Change the engine only when a step cannot be expressed.
    - Options the user should choose are `settings` (bool, int, choice, list). The GUI shows them from `MabaGetTasks`; `label_key` and `ui: "checklist"` cover named check lists, with the text in `strings/<lang>.json`.
-   - `"retry": true` only when a second run after a failure cannot spend twice (claims, tickets that are gone once used). Never for a set number of sweeps or crafts, never for a purchase.
+   - `"retry": true` only when a second run after a failure cannot spend twice: claims, tickets that are gone once used, or a task whose every spending step (sweep confirm, sortie) carries `"commits": true`. Never for a purchase with pyroxene.
    - Stay `wip` until the task has run on a fresh day in the real client; only then mark it `ready` (CI then requires its templates).
 2. **Add pages and anchors** in `pages/<id>.json` (the Navigator page graph). Prefer language-neutral anchors (icons, layout positions); use per-language anchors only when text is unavoidable.
 3. **Get templates**: capture them with the project capture tool from a 1280x720 screenshot (mask nickname/UID), or reuse a public source recorded in `assets/PROVENANCE.md` (see `ba-third-party-license`; unlicensed ones stay in gitignored `assets-local/`).
