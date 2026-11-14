@@ -237,4 +237,20 @@
     <sys:String x:Key="Log.ScheduledStart">Scheduled time reached; starting the dailies.</sys:String>
 
     <sys:String x:Key="About.Disclaimer">This tool only uses screen recognition and ordinary input. Using automation tools may violate the game's terms of service; the risk is yours.</sys:String>
+    <sys:String x:Key="Settings.Run">Run</sys:String>
+    <sys:String x:Key="Settings.StopHotkey">Stop a run with Ctrl+Alt+S (works from any window)</sys:String>
+    <sys:String x:Key="Settings.RetryFailed">Try failed tasks once more at the end of a run (never a task that spends pyroxene)</sys:String>
+    <sys:String x:Key="Settings.AfterRun">When a run ends</sys:String>
+    <sys:String x:Key="Settings.AfterRunHint">Nothing happens after a run you stopped yourself. Turning the PC off can be cancelled for {0} seconds.</sys:String>
+    <sys:String x:Key="AfterRun.none">Do nothing</sys:String>
+    <sys:String x:Key="AfterRun.exit">Close this program</sys:String>
+    <sys:String x:Key="AfterRun.shutdown">Turn the PC off</sys:String>
+    <sys:String x:Key="AfterRun.ShutdownLog">The run has ended: the PC turns off in {0} seconds.</sys:String>
+    <sys:String x:Key="AfterRun.ShutdownQuestion">The tasks are done. The PC turns off in {0} seconds.</sys:String>
+    <sys:String x:Key="AfterRun.ShutdownKeep">OK</sys:String>
+    <sys:String x:Key="AfterRun.ShutdownCancel">Keep the PC on</sys:String>
+    <sys:String x:Key="AfterRun.ShutdownCancelled">Turning the PC off was cancelled.</sys:String>
+    <sys:String x:Key="AfterRun.ShutdownFailed">The command that turns the PC off could not be run.</sys:String>
+    <sys:String x:Key="Log.StopHotkeyUnavailable">The stop key (Ctrl+Alt+S) is taken by another program and cannot be used.</sys:String>
+    <sys:String x:Key="Log.StoppedByHotkey">Stop requested with the stop key.</sys:String>
 </ResourceDictionary>

@@ -237,4 +237,20 @@
     <sys:String x:Key="Log.ScheduledStart">예약된 시각이 되어 숙제를 시작합니다.</sys:String>
 
     <sys:String x:Key="About.Disclaimer">이 도구는 화면 인식과 일반 입력만 사용합니다. 자동화 도구 사용은 게임 이용약관에 위반될 수 있으며, 그 위험은 사용자에게 있습니다.</sys:String>
+    <sys:String x:Key="Settings.Run">실행</sys:String>
+    <sys:String x:Key="Settings.StopHotkey">실행 중 Ctrl+Alt+S로 중지 (다른 창에서도 동작)</sys:String>
+    <sys:String x:Key="Settings.RetryFailed">실패한 숙제를 실행 끝에 한 번 더 시도 (청휘석을 쓰는 숙제는 제외)</sys:String>
+    <sys:String x:Key="Settings.AfterRun">실행이 끝나면</sys:String>
+    <sys:String x:Key="Settings.AfterRunHint">직접 중지한 실행 뒤에는 아무것도 하지 않습니다. PC 종료는 {0}초 동안 취소할 수 있습니다.</sys:String>
+    <sys:String x:Key="AfterRun.none">아무것도 하지 않음</sys:String>
+    <sys:String x:Key="AfterRun.exit">프로그램 종료</sys:String>
+    <sys:String x:Key="AfterRun.shutdown">PC 종료</sys:String>
+    <sys:String x:Key="AfterRun.ShutdownLog">실행이 끝나 {0}초 뒤 PC를 종료합니다.</sys:String>
+    <sys:String x:Key="AfterRun.ShutdownQuestion">숙제가 끝났습니다. {0}초 뒤 PC를 종료합니다.</sys:String>
+    <sys:String x:Key="AfterRun.ShutdownKeep">확인</sys:String>
+    <sys:String x:Key="AfterRun.ShutdownCancel">종료 취소</sys:String>
+    <sys:String x:Key="AfterRun.ShutdownCancelled">PC 종료를 취소했습니다.</sys:String>
+    <sys:String x:Key="AfterRun.ShutdownFailed">PC 종료 명령을 실행하지 못했습니다.</sys:String>
+    <sys:String x:Key="Log.StopHotkeyUnavailable">중지 단축키(Ctrl+Alt+S)를 다른 프로그램이 쓰고 있어 사용할 수 없습니다.</sys:String>
+    <sys:String x:Key="Log.StoppedByHotkey">단축키로 중지를 요청했습니다.</sys:String>
 </ResourceDictionary>

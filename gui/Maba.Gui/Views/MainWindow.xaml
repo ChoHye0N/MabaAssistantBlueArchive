@@ -365,6 +365,18 @@
                                        Text="{DynamicResource Settings.LaunchHint}" />
                         </StackPanel>
 
+                        <TextBlock Style="{StaticResource TextBlockSubTitleBold}" HorizontalAlignment="Left"
+                                   Text="{DynamicResource Settings.Run}" Margin="0,8,0,8" />
+                        <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.StopHotkey}" IsChecked="{Binding StopHotkey}" Margin="0,0,0,8" />
+                        <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.RetryFailed}" IsChecked="{Binding RetryFailed}" Margin="0,0,0,8" />
+                        <hc:ComboBox hc:InfoElement.Title="{DynamicResource Settings.AfterRun}"
+                                     hc:InfoElement.TitlePlacement="Left" hc:InfoElement.TitleWidth="140"
+                                     ItemsSource="{Binding AfterRunActions}" DisplayMemberPath="Label"
+                                     SelectedValuePath="Value" SelectedValue="{Binding AfterRun}"
+                                     Margin="0,0,0,4" />
+                        <TextBlock Margin="140,0,0,12" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"
+                                   Text="{Binding AfterRunHint}" />
+
                         <CheckBox HorizontalAlignment="Left" Content="{DynamicResource Settings.CheckUpdates}" IsChecked="{Binding CheckUpdates}" Margin="0,0,0,8" />
                         <hc:ComboBox hc:InfoElement.Title="{DynamicResource Settings.ProgramUpdate}"
                                      hc:InfoElement.TitlePlacement="Left" hc:InfoElement.TitleWidth="140"

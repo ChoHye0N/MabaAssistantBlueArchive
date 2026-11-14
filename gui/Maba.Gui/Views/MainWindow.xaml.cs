@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
 using System.Collections.Specialized;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Maba.Gui.ViewModels;
@@ -17,8 +19,68 @@ public partial class MainWindow : HandyControl.Controls.Window
         InitializeComponent();
         DataContextChanged += (_, _) =>
         {
-            if (DataContext is MainViewModel vm) vm.Log.CollectionChanged += ScrollLogToEnd;
+            if (DataContext is not MainViewModel vm) return;
+            vm.Log.CollectionChanged += ScrollLogToEnd;
+            vm.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName is nameof(MainViewModel.IsRunning) or nameof(MainViewModel.StopHotkey)) UpdateStopHotkey();
+            };
         };
+        SourceInitialized += (_, _) =>
+        {
+            _source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+            _source?.AddHook(OnWindowMessage);
+            UpdateStopHotkey();
+        };
+        Closed += (_, _) => ReleaseStopHotkey();
+    }
+
+    // Stop key: Ctrl+Alt+S from any window while a run is going. A run moves the real mouse and
+    // keeps the game in front, so the stop button is hard to reach. The key is held only during a
+    // run, so the combination stays free for other programs the rest of the time.
+    private const int StopHotkeyId = 0x4D42;
+    private const int WmHotkey = 0x0312;
+    private const uint ModAlt = 0x0001, ModControl = 0x0002, ModNoRepeat = 0x4000;
+    private const uint KeyS = 0x53;
+    private HwndSource? _source;
+    private bool _stopHotkeyHeld;
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+
+    private void UpdateStopHotkey()
+    {
+        if (_source is null || DataContext is not MainViewModel vm) return;
+        var wanted = vm.IsRunning && vm.StopHotkey;
+        if (wanted == _stopHotkeyHeld) return;
+        if (!wanted)
+        {
+            ReleaseStopHotkey();
+            return;
+        }
+        _stopHotkeyHeld = RegisterHotKey(_source.Handle, StopHotkeyId, ModControl | ModAlt | ModNoRepeat, KeyS);
+        if (!_stopHotkeyHeld) vm.NoteStopHotkeyUnavailable();
+    }
+
+    private void ReleaseStopHotkey()
+    {
+        if (_stopHotkeyHeld && _source is not null) UnregisterHotKey(_source.Handle, StopHotkeyId);
+        _stopHotkeyHeld = false;
+    }
+
+    private IntPtr OnWindowMessage(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        if (msg == WmHotkey && wParam.ToInt32() == StopHotkeyId)
+        {
+            (DataContext as MainViewModel)?.StopByHotkey();
+            handled = true;
+        }
+        return IntPtr.Zero;
     }
 
     // Task order: a task is dragged by its grip and dropped on another task, taking its place.

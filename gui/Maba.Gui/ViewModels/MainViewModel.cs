@@ -58,6 +58,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _closeEmulatorAfter = settings.CloseEmulatorAfter;
         _steamStartGame = settings.SteamStartGame;
         _steamCloseGame = settings.SteamCloseGame;
+        _stopHotkey = settings.StopHotkey;
+        _retryFailed = settings.RetryFailed;
+        _afterRun = settings.AfterRun is "exit" or "shutdown" ? settings.AfterRun : "none";
         _ocrEnabled = settings.OcrEnabled;
         _checkUpdates = settings.CheckUpdates;
         _autoUpdateResources = settings.AutoUpdateResources;
@@ -145,6 +148,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool _closeEmulatorAfter;
     [ObservableProperty] private bool _steamStartGame;
     [ObservableProperty] private bool _steamCloseGame;
+    [ObservableProperty] private bool _stopHotkey;
+    [ObservableProperty] private bool _retryFailed;
+    [ObservableProperty] private string _afterRun = "none";
+    public IReadOnlyList<Choice> AfterRunActions { get; } = new[] { "none", "exit", "shutdown" }
+        .Select(m => new Choice(m, Strings.Get("AfterRun." + m))).ToArray();
+    public string AfterRunHint => Strings.Format("Settings.AfterRunHint", PowerControl.ShutdownDelaySeconds);
     [ObservableProperty] private bool _ocrEnabled;
     [ObservableProperty] private bool _checkUpdates;
     [ObservableProperty] private string _updateText = "";
@@ -602,6 +611,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _settings.CloseEmulatorAfter = CloseEmulatorAfter;
         _settings.SteamStartGame = SteamStartGame;
         _settings.SteamCloseGame = SteamCloseGame;
+        _settings.StopHotkey = StopHotkey;
+        _settings.RetryFailed = RetryFailed;
+        _settings.AfterRun = AfterRun;
         _settings.OcrEnabled = OcrEnabled;
         _settings.CheckUpdates = CheckUpdates;
         _settings.AutoUpdateResources = AutoUpdateResources;
@@ -713,7 +725,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         foreach (var t in Tasks) t.SetStatus(t.IsSelected ? "pending" : "", "");
         var settings = new JsonObject();
         foreach (var t in Tasks.Where(t => t.IsSelected && t.HasSettings)) settings[t.Id] = t.SettingsJson();
-        if (!_core.Start(selected, settings, prepare))
+        if (!_core.Start(selected, settings, prepare, RetryFailed))
         {
             StatusText = Strings.Get("Status.StartFailed");
             AddLog("error", _core.LastError);
@@ -847,10 +859,52 @@ public partial class MainViewModel : ObservableObject, IDisposable
                     Save();
                 }
                 UpdateNextRun();
+                // After the handler: the question below runs its own message loop.
+                if (!cancelled && AfterRun != "none") _dispatcher.BeginInvoke(RunAfterAction);
                 break;
             }
         }
     }
+
+    // What the player chose to happen after a run. Never after a run stopped by hand.
+    private void RunAfterAction()
+    {
+        if (IsRunning) return;
+        switch (AfterRun)
+        {
+            case "exit":
+                Save();
+                System.Windows.Application.Current.Shutdown();
+                break;
+            case "shutdown":
+                // Windows counts down by itself, so the PC turns off even when nobody answers.
+                if (!PowerControl.ScheduleShutdown())
+                {
+                    AddLog("warn", Strings.Get("AfterRun.ShutdownFailed"));
+                    break;
+                }
+                AddLog("info", Strings.Format("AfterRun.ShutdownLog", PowerControl.ShutdownDelaySeconds));
+                Save();
+                var keep = Views.ConfirmDialog.Ask(
+                    Strings.Get("AfterRun.shutdown"),
+                    Strings.Format("AfterRun.ShutdownQuestion", PowerControl.ShutdownDelaySeconds),
+                    Strings.Get("AfterRun.ShutdownKeep"), Strings.Get("AfterRun.ShutdownCancel"));
+                if (!keep)
+                    AddLog("info", Strings.Get(PowerControl.CancelShutdown() ? "AfterRun.ShutdownCancelled" : "AfterRun.ShutdownFailed"));
+                break;
+        }
+    }
+
+    // The stop key, pressed in any window while a run is going.
+    public void StopByHotkey()
+    {
+        if (!IsRunning) return;
+        AddLog("info", Strings.Get("Log.StoppedByHotkey"));
+        Stop();
+    }
+
+    // The stop key could not be taken (another program holds it).
+    public void NoteStopHotkeyUnavailable() => AddLog("warn", Strings.Get("Log.StopHotkeyUnavailable"));
 
     private void AddLog(string level, string message)
     {

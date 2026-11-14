@@ -14,6 +14,7 @@
 - `ViewModels/AccountCard.cs`: one box per `accounts/<uid>.json`.
 - Task profiles (`TaskProfile` in `Services/SettingsStore.cs`): selected tasks, their settings and their order; the run passes the order to Core (`"ordered": true`), which still runs `after` dependencies first.
 - `Views/ConfirmDialog.xaml`: questions in the window's own style, without the system sound of the library's message box.
+- `Views/MainWindow.xaml.cs`: the stop key (Ctrl+Alt+S, a global key held only during a run). `Services/PowerControl.cs`: turning the PC off after a run.
 - `Services/UpdateChecker.cs`: the new-version notice; only in builds that got a repository name (`MabaRepository`).
 - `Resources/Strings.<lang>.xaml`: UI text; task display names use `Task.<task id>`.
 

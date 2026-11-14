@@ -29,6 +29,12 @@ public sealed class AppSettings
     // Steam client: open the game through Steam before a run, close it after.
     public bool SteamStartGame { get; set; }
     public bool SteamCloseGame { get; set; }
+    // Ctrl+Alt+S stops a run from any window: the run owns the mouse, so the stop button is hard to reach.
+    public bool StopHotkey { get; set; } = true;
+    // Failed tasks that are safe to repeat (never a purchase) run once more at the end of a run.
+    public bool RetryFailed { get; set; } = true;
+    // After a run that was not stopped by hand: "none", "exit" (close this program) or "shutdown" (turn the PC off).
+    public string AfterRun { get; set; } = "none";
     public bool OcrEnabled { get; set; } = true;
     public bool CheckUpdates { get; set; } = true;
     // Resources (tasks, pages, templates) newer than the installed ones are installed without asking.
