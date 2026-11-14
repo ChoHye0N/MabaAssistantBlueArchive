@@ -61,6 +61,14 @@ Default serials (all **verify**, they change with versions and instance numbers)
 - Closing: post `WM_CLOSE` to the window, wait up to 20 s for it to go away, then end the process tree of the window's process. `WM_CLOSE` only opens the quit dialog, so the kill is the normal path.
 - Not done: closing Steam itself, and Steam dialogs shown before the game (updates, cloud sync conflicts); a run then fails with the window timeout.
 
+## Stopping and what follows a run (Steam client)
+A run on the PC client uses the player's own mouse and brings the game to the front before every action, so the program's stop button is hard to reach while it works. Other tools for this game solve it with a key that is checked before every click, with an optional action after the last task (close the tool, close the game, turn the PC off), and they tell players to turn HDR off because a copied screen then has other colours.
+
+- **Stop key**: Ctrl+Alt+S, registered with Windows as a global key only while a run is going, so the combination stays free otherwise and the key is seen at once, not only at the next click. It does what the stop button does (cooperative stop, the game stays open). When another program holds the combination the log says so. Esc was not taken: the program sends Esc itself as "back". Checked 2026-11-14 with the game in front; **verify** with the game run as administrator.
+- **After a run** (setting, default nothing): close the program, or turn the PC off. Never after a run stopped by hand; a run with failed tasks counts as ended. Turning off uses the system's shutdown command with 60 s, so Windows shows its own notice and the PC turns off even when nobody answers; the program's question cancels it. The command and its cancelling were checked by hand; **verify** the question after a real run.
+- **A game that closed**: when the home page cannot be reached before a task and no game window is left, the game is started again the same way as before a run (Steam URL, wait for the window, start-up screens), at most twice a run. Only with "start the game when it is off" turned on. A game that hangs with its window still there is not ended: ending the player's game needs a surer sign than a screen that does not answer. Checked 2026-11-14 by ending the game during a task: the task failed, the game was started again before its second try, and that try succeeded.
+- **HDR**: when the display that shows the game window has HDR (advanced colour) on, connecting logs a warning. What HDR does to BitBlt and PrintWindow copies of this game is **verify**: the check is there because colour conditions (grey or yellow buttons, red dots) were all measured without HDR.
+
 ## Failure handling
 - Every adb call has a timeout. Every wait has a cap (boot timeout, game timeout) and checks the stop flag at each poll.
 - If the emulator process ended right after its start, the emulator was usually already running or the start failed; the device poll decides.

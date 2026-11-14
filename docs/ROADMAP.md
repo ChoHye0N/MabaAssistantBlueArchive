@@ -3,15 +3,6 @@
 Open items first; finished ones are kept below as a record of what was verified and when.
 
 ## Open
-### M0: first end-to-end on one platform
-- [ ] Same at 125% and 150% display scale
-- [ ] Recapture at 1920x1080 the templates still cut from the older window: battle HUD and result, story, login notices and attendance, neighbour cafe invitation
-- [ ] Check a 2560 wide window
-
-### M2
-- [ ] Attendance book campaign tabs (`attendance`): written 2026-11-11 while every tab was already claimed; claiming and the red tab dot verified 2026-11-13. With AP at 999 the game refuses every reward (seen 2026-11-14): the task now runs after AP spending and fails when a claim is refused
-- [ ] A few more days without failures, then mark the tasks `ready`
-
 ### M3: OCR-dependent tasks
 - [ ] Other languages
 - [ ] Decide how the AP collected from the mailbox is spent (owner, later)
@@ -25,10 +16,25 @@ Open items first; finished ones are kept below as a record of what was verified 
 - [ ] Verify the launch on real emulators: MuMu launcher rewrite, game activity, killing the emulator leaves no background VM
 - [ ] Verify Steam not running or signed out; skip the animation at login too
 - [ ] Unattended runs without the GUI open (Task Scheduler entry or start with Windows, tray)
+- [ ] The HDR warning on a display with HDR on (the check answers "off" on a display without HDR), and what HDR does to the captured colours
+- [ ] "Turn the PC off" after a real run: the shutdown command and its cancelling were run by hand on 2026-11-14, the question after a run was not
+- [ ] A frozen game whose window stays (a closed game is started again, see below)
 - [ ] Check the English UI in the running GUI (text length in the settings layout); English game client support (templates, `strings/en.json`) is separate
+- [x] Stop key Ctrl+Alt+S: stopped a run from the GUI with the game in front, 2026-11-14 (not tried with the game run as administrator)
+- [x] A game closed in the middle of a run: started again through Steam, and the failed task (`retry`) ran once more and succeeded, 2026-11-14 with the account record task
 - [x] Program update from inside the program: a separate updater, packages per part (`docs/notes/updates.md`)
 - [ ] Program update against a published release (checked 2026-11-13 with two local builds and a local feed)
 - [ ] Resource update against a published `resources-*` release (checked 2026-11-13 with a local feed: newer pack installed, too-new pack refused, wrong checksum, entries outside the folders and data that does not load refused)
+
+### Ideas from a survey of other tools (2026-11-14, not started)
+Each needs a decision or a look at the real game first.
+- [ ] Start-up while the game downloads a patch: the taps give up after `max_taps`; keep waiting while the progress bar moves
+- [ ] Second chances for AP spending: the sweeping tasks are not marked `retry`, because a set number of sweeps would be spent again. They need to know what the first try already spent (so one hiccup in AP spending still holds the mail back for the day)
+- [ ] Resources at the start and at the end of a run, and what the run gained, in the summary
+- [ ] A notice when a run ended or failed (Windows notification; a web hook only if the player sets one)
+- [ ] A second slot a day for tasks that come back (cafe visitors change twice a day, **verify**)
+- [ ] Tactical challenge: choose the opponent by level and rank read with OCR, stop at rank 1
+- [ ] Cafe: invite by relationship rank or the starred list instead of names
 
 ## Open questions to verify in the real game
 Game facts and their **verify** marks are in `docs/notes/game-structure.md`.

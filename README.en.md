@@ -80,6 +80,9 @@ Release builds ask GitHub at start whether something new exists. A new program v
 |:---|:---|
 | Scheduled Execution | Scheduled runs after the server reset or at a set time each day |
 | Game Launch | Starts the game (Steam or emulator) when it is off, closes it afterwards (optional) |
+| Recovery | Tries failed tasks once more at the end of a run (only tasks that are safe to repeat, such as claims); starts the game again through Steam when it closed during a run |
+| Stop Key | `Ctrl+Alt+S` stops a run from any window |
+| After a Run | Closes the program or turns the PC off when a run ends (optional; turning the PC off can be cancelled for 60 seconds) |
 | Popup Handling | Login notices, attendance, reward and battle result popups, handled by one global handler |
 | Battle Automation | Keeps AUTO and 3x speed on in battles |
 | Story Skip | Stories are only skipped, never read |
@@ -155,7 +158,8 @@ Run `MabaAssistantBlueArchive.exe`.
 ### Before Running
 
 - Run the game in a 16:9 window of at least 1280x720. A window that does not fit is changed to 1280x720 at the start of a run (can be turned off in the settings).
-- Leave the mouse alone while MABA is running. If another window covers the game, MABA stops instead of clicking.
+- Leave the mouse alone while MABA is running. If another window covers the game, MABA stops instead of clicking. Press `Ctrl+Alt+S` to stop a run.
+- Turning HDR off in the Windows display settings is recommended. With HDR on, the captured screen can have other colours and recognition may fail; the log says so when MABA connects.
 - Run the game and MABA with the same privilege level. If only the game runs as administrator, Windows blocks the input.
 - Set up teams 1-4 for quests in advance.
 - Check the tasks to run on the Tasks tab. Clicking a task shows its description and settings on the right; drag the grip to change the order.
