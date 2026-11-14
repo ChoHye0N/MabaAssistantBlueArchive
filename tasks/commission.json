@@ -5,6 +5,7 @@
   "after": [],
   "status": "wip",
   "needs_ocr": true,
+  "retry": true,
   "notes": [
     "Route: main screen -> campaign -> commissions -> request -> stage -> sweep.",
     "Base Defense gives student EXP items, Item Retrieval gives credits. Both have the same stage list and stage dialog as bounty.",
@@ -156,6 +157,7 @@
           "then": [
             {
               "action": "click",
+              "commits": true,
               "template": "dialog_ok_button.png",
               "roi": { "x": 660, "y": 440, "w": 240, "h": 120 },
               "threshold": 0.9,

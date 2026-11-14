@@ -338,6 +338,33 @@ MABA_TEST(RecoveryIsCappedAndCanDecline) {
     CHECK(declined == 3);  // asked before each task, nothing done
 }
 
+MABA_TEST(RetrySkipsATaskThatHadAlreadySpent) {
+    NavRig rig;
+    int early = 0, late = 0;
+    maba::RunnerOptions options;
+    options.retry_failed = 1;
+    options.on_task = [&](const maba::TaskRunResult& r) {
+        if (r.status != maba::TaskStatus::kRunning) return;
+        if (r.id == "early") ++early;
+        if (r.id == "late") ++late;
+    };
+    maba::TaskRunner runner(rig.Nav(), nullptr, options);
+    // "early" fails before its spending step, "late" fails after it.
+    const std::vector<maba::TaskSpec> tasks = {
+        Task(R"({"id": "early", "order": 1, "retry": true, "steps": [
+                 {"action": "wait_template", "template": "missing.png", "timeout_ms": 500},
+                 {"action": "click_if_present", "template": "main.png", "commits": true, "no_verify": true}]})"),
+        Task(R"({"id": "late", "order": 2, "retry": true, "steps": [
+                 {"action": "click_if_present", "template": "main.png", "commits": true, "no_verify": true},
+                 {"action": "wait_template", "template": "missing.png", "timeout_ms": 500}]})"),
+    };
+    const maba::RunReport report = runner.Run(tasks, {"early", "late"});
+    CHECK(!report.ok);
+    CHECK(early == 2);
+    CHECK(late == 1);
+    CHECK(report.tasks.size() == 2 && !report.tasks[0].committed && report.tasks[1].committed);
+}
+
 MABA_TEST(RunRejectsUnknownTaskAndCycles) {
     NavRig rig;
     maba::TaskRunner runner(rig.Nav(), nullptr);
@@ -392,10 +419,12 @@ MABA_TEST(RepoTaskFilesLoad) {
     CHECK(order.ok);
     // The owner's run order (docs/ROADMAP.md); a task file that breaks it fails here.
     const std::vector<std::string> expected = {
+        "account_before",  // reads the resources before anything changes them
         "cafe", "schedule", "circle", "free_package", "shop", "bounty", "commission",
         "scrimmage", "spend_event", "spend_mission",
         "attendance",  // after AP spending: at 999 AP the game refuses the book's rewards
-        "tactical_challenge", "mail_claim_all", "mission_claim_all"};
+        "tactical_challenge", "mail_claim_all", "mission_claim_all", "battle_pass",
+        "account_info"};  // last: the record, and what the run changed
     std::vector<std::string> known;
     for (const auto& id : order.order)
         if (std::find(expected.begin(), expected.end(), id) != expected.end()) known.push_back(id);

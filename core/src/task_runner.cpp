@@ -840,6 +840,7 @@ TaskRunner::Flow TaskRunner::RunSteps(const std::vector<Step>& steps, Context& c
         for (int rep = 0; rep < s.repeat; ++rep) {
             if (Cancelled()) return Flow::kCancel;
             std::string error;
+            if (s.commits) ctx.result.committed = true;  // before the action: it may spend and still fail
             const Flow flow = RunAction(s, ctx, error);
             if (Cancelled()) return Flow::kCancel;
             if (flow == Flow::kFail) {
@@ -1038,14 +1039,17 @@ RunReport TaskRunner::Run(const std::vector<TaskSpec>& tasks,
     }
 
     // Second chances, in the same order: a failed task that is safe to repeat (`retry` in its
-    // file), and a task that was only held back, once nothing it waits for is blocked any more.
+    // file, and the failed try did not reach a step that spends), and a task that was only held
+    // back, once nothing it waits for is blocked any more.
     // A failed task that may not be repeated stays failed and keeps its dependents held back.
     for (int round = 0; round < options_.retry_failed && !report.cancelled && !Cancelled(); ++round) {
         bool any = false;
         for (auto& done : report.tasks) {
             if (report.cancelled || Cancelled()) break;
             const TaskSpec& task = *by_id.at(done.id);
-            bool again = done.status == TaskStatus::kFailed && task.retry;
+            bool again = done.status == TaskStatus::kFailed && task.retry && !done.committed;
+            if (done.status == TaskStatus::kFailed && task.retry && done.committed)
+                Log(log_, LogLevel::kInfo, "task '" + done.id + "' is not run again: it had already spent");
             if (held.count(done.id)) {
                 again = std::none_of(task.after.begin(), task.after.end(),
                                      [&](const std::string& dep) { return blocked.count(dep) > 0; });

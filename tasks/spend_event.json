@@ -5,6 +5,7 @@
   "after": [],
   "status": "wip",
   "needs_ocr": true,
+  "retry": true,
   "notes": [
     "Story stages, then the highest 3-star Quest of the event banner set in 'event_banner'.",
     "Event route: main screen -> campaign -> banner at the top left. The banner rotates; swipe right until the first dot is lit (colour check), then swipe left for banner 2 or 3, then click at once.",
@@ -130,7 +131,7 @@
                       "threshold": 0.9,
                       "timeout_ms": 60000
                     },
-                    { "action": "click", "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 }, "threshold": 0.9, "expect_gone": { "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 }, "threshold": 0.9 }, "timeout_ms": 6000, "retries": 4 }
+                    { "action": "click", "commits": true, "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 }, "threshold": 0.9, "expect_gone": { "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 }, "threshold": 0.9 }, "timeout_ms": 6000, "retries": 4 }
                   ],
                   "else": [{ "action": "back", "when": { "no_color": { "hsv_min": [0, 0, 225], "hsv_max": [180, 40, 255], "area": [11000, 30000], "roi": { "x": 680, "y": 85, "w": 530, "h": 50 } } } }, { "action": "break" }]
                 }
@@ -243,6 +244,7 @@
             },
             {
               "action": "click",
+              "commits": true,
               "template": "formation_sortie.png",
               "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 },
               "threshold": 0.9,
@@ -348,6 +350,7 @@
         },
         {
           "action": "click",
+          "commits": true,
           "template": "formation_sortie.png",
           "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 },
           "threshold": 0.9,
@@ -406,6 +409,7 @@
       "then": [
         {
           "action": "click",
+          "commits": true,
           "template": "dialog_ok_button.png",
           "roi": { "x": 660, "y": 440, "w": 240, "h": 120 },
           "threshold": 0.9,

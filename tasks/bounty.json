@@ -5,6 +5,7 @@
   "after": [],
   "status": "wip",
   "needs_ocr": false,
+  "retry": true,
   "notes": [
     "Route: main screen -> campaign -> bounty -> location -> stage -> MAX -> sweep.",
     "Stage names end in a letter (A, B, ...): later letters are harder and give more. Progress differs per player, so the default is the highest stage with 3 stars; 'stage' picks a number instead.",
@@ -126,6 +127,7 @@
       "then": [
         {
           "action": "click",
+          "commits": true,
           "template": "dialog_ok_button.png",
           "roi": { "x": 660, "y": 440, "w": 240, "h": 120 },
           "threshold": 0.9,

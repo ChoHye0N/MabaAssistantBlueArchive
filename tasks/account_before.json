@@ -1,0 +1,21 @@
+{
+  "id": "account_before",
+  "name": "Resources before the run",
+  "order": 1,
+  "after": [],
+  "status": "wip",
+  "needs_ocr": true,
+  "retry": true,
+  "notes": [
+    "Runs first and only reads: the UID on the account info page and credits, pyroxene and AP from its top bar, the same regions as the account record. Nothing is saved.",
+    "With the account record (last task) also selected, the program shows what the run changed: the values read there minus the values read here, for the same UID."
+  ],
+  "steps": [
+    { "action": "goto", "page": "account" },
+    { "action": "read_number", "roi": { "x": 30, "y": 560, "w": 210, "h": 40 }, "store": "uid", "lenient": true },
+    { "action": "read_number", "roi": { "x": 705, "y": 5, "w": 140, "h": 34 }, "store": "credits" },
+    { "action": "read_number", "roi": { "x": 930, "y": 5, "w": 90, "h": 34 }, "store": "pyroxene" },
+    { "action": "read_number", "roi": { "x": 495, "y": 5, "w": 110, "h": 34 }, "store": "ap" },
+    { "action": "return_home" }
+  ]
+}

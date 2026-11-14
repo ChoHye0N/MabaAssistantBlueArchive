@@ -5,6 +5,7 @@
   "after": [],
   "status": "wip",
   "needs_ocr": true,
+  "retry": true,
   "notes": [
     "Sweeps a stage of the campaign area shown when the page opens. Missions that are not cleared are grid maps and are not played yet (roadmap).",
     "Sweeps are confirmed only on the 'run the sweep?' question; any other dialog (for example an AP purchase offer) is closed with back. AP is read with OCR; below 20 AP the task is skipped.",
@@ -230,6 +231,7 @@
                   "action": "click",
                   "x": 767,
                   "y": 585,
+                  "commits": true,
                   "require": { "template": "mission_batch_confirm_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
                   "no_verify": true
                 },
@@ -344,6 +346,7 @@
       "then": [
         {
           "action": "click",
+          "commits": true,
           "template": "dialog_ok_button.png",
           "roi": { "x": 660, "y": 440, "w": 240, "h": 120 },
           "threshold": 0.9,

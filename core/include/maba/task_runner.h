@@ -29,6 +29,7 @@ struct TaskRunResult {
     std::string message;
     std::map<std::string, long long> values;  // read_number results
     std::map<std::string, std::string> texts;  // read_text results
+    bool committed = false;  // a step marked `commits` was reached: something may have been spent
 };
 
 struct RunReport {
@@ -59,7 +60,8 @@ struct RunnerOptions {
     std::filesystem::path data_dir;    // where save steps write records; empty = saving fails
     ReactionOptions reaction;
     // Rounds of second chances at the end of a run (0..2): failed tasks whose file says `retry`
-    // run again, and so do the tasks that were only held back by them.
+    // run again, unless the failed try reached a step marked `commits`, and so do the tasks that
+    // were only held back by them.
     int retry_failed = 0;
     // Called when the home page cannot be reached before a task: true when the game was brought
     // back (it had closed and was started again), and the runner then enters the game and tries

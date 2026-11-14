@@ -158,6 +158,8 @@ struct Step {
     int sleep_ms = 0;                  // kSleep; also the pause after each repetition
     int timeout_ms = 5000;             // waits inside the step
     bool optional = false;             // a failure is reported in the result, the task continues
+    bool commits = false;              // this step spends (confirms a sweep, starts a battle): once it
+                                       // was reached, a failed task is not run a second time
     bool quiet = false;                // optional: failing here is normal, nothing to report
     bool fuzzy = false;                // kClickText: a text of 4+ characters may differ in one
     std::optional<Condition> when;     // the step runs only when this holds (kIf: the branch test)
