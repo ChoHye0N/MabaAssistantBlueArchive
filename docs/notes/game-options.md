@@ -29,6 +29,8 @@ Tabs, top to bottom: Game, Graphics, Volume, Title, Language, Controls, Story.
 | Title | Title video | 1st to 7th PV, 4.5th PV, random | None: start-up taps do not depend on the picture |
 | Graphics | FPS, V-Sync | 60 or 30; on, off | **Low.** Animation timing only |
 
+Outside the game: HDR in the Windows display settings can change the colours of a captured screen (**verify**); connecting logs a warning when it is on (`docs/notes/controllers.md`).
+
 No effect, for the record: boss restart intro, skill effect icons, EX target markers, same-name students in a team, voice subtitles, tactical challenge anonymity, cafe furniture copy, volume, voice language.
 
 ## Memorial lobby start animation

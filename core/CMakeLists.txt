@@ -67,6 +67,7 @@ endif()
 # Needs OpenCV for frame scaling.
 if(WIN32 AND MABA_WITH_OPENCV)
     add_library(maba_platform_windows STATIC
+        src/platform/windows/display_info.cpp
         src/platform/windows/gdi_capture.cpp
         src/platform/windows/send_input.cpp
         src/platform/windows/steam_controller.cpp)

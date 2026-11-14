@@ -9,6 +9,7 @@
 #include <utility>
 #include <vector>
 
+#include "display_info.h"
 #include "dpi_scope.h"
 #include "maba/coords.h"
 #include "maba/geometry.h"
@@ -63,6 +64,10 @@ bool SteamController::Connect() {
     hwnd_ = FindWindowW(cls, title);
     if (!hwnd_) return Fail("game window not found (is the Steam client running?)");
     FitWindow();
+    if (WindowOnHdrDisplay(hwnd_))
+        Log(options_.log, LogLevel::kWarn,
+            "HDR is on for the display of the game window: captured colours can differ and colour checks "
+            "may fail. Turn HDR off in the Windows display settings");
     last_error_.clear();
     return true;
 }
