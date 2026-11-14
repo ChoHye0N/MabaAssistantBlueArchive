@@ -16,8 +16,8 @@ public sealed record ProgramUpdate(string Version, string Source, IReadOnlyList<
     public long Bytes => Parts.Sum(p => p.Size);
 }
 
-// The result note the updater left for this start.
-public sealed record UpdateStatus(bool Ok, string Version, string Error);
+// The result note the updater left for this start. From: the version that was replaced ("" = unknown).
+public sealed record UpdateStatus(bool Ok, string Version, string Error, string From);
 
 // The program updates itself from its own releases (docs/notes/updates.md). A release carries
 // update.json and one package per part: "app" (the executable, bin/, docs, tools) and "ocr"
@@ -34,6 +34,7 @@ public static class ProgramUpdater
     private static string Work => Path.Combine(Root, "update");
     private static string Staging => Path.Combine(Work, "program-new");
     private static string StatusPath => Path.Combine(Work, "status.json");
+    private static string PreviousPath => Path.Combine(Work, "previous.txt");
     private static string ExeName => Path.GetFileName(Environment.ProcessPath ?? "MabaAssistantBlueArchive.exe");
 
     // A folder holding update.json and its packages replaces GitHub: offline installs and tests.
@@ -132,6 +133,8 @@ public static class ProgramUpdater
             var updater = Path.Combine(Work, "maba_updater.exe");
             File.Copy(File.Exists(fresh) ? fresh : Path.Combine(Root, "bin", "maba_updater.exe"), updater, overwrite: true);
             if (File.Exists(StatusPath)) File.Delete(StatusPath);
+            // The version being replaced, for the notes shown after the restart.
+            File.WriteAllText(PreviousPath, UpdateChecker.CurrentVersion.Split('+')[0]);
             var plan = new JsonObject
             {
                 ["root"] = Root,
@@ -166,8 +169,14 @@ public static class ProgramUpdater
             if (!File.Exists(StatusPath)) return null;
             var node = JsonNode.Parse(File.ReadAllText(StatusPath));
             File.Delete(StatusPath);
+            var from = "";
+            if (File.Exists(PreviousPath))
+            {
+                from = File.ReadAllText(PreviousPath).Trim();
+                File.Delete(PreviousPath);
+            }
             return new UpdateStatus(node?["ok"]?.GetValue<bool>() ?? false, node?["version"]?.GetValue<string>() ?? "",
-                                    node?["error"]?.GetValue<string>() ?? "");
+                                    node?["error"]?.GetValue<string>() ?? "", from);
         }
         catch (Exception e) when (e is IOException or JsonException or UnauthorizedAccessException or InvalidOperationException)
         {

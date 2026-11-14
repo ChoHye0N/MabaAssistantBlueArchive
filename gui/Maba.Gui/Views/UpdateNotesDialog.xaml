@@ -1,0 +1,30 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-only -->
+<!-- SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors -->
+<!-- What the new version brought, shown once after the program updated itself. -->
+<hc:Window x:Class="Maba.Gui.Views.UpdateNotesDialog"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:hc="https://handyorg.github.io/handycontrol"
+           Title="{DynamicResource Notes.Title}"
+           Width="560" MaxHeight="620" SizeToContent="Height" ResizeMode="NoResize" ShowInTaskbar="False"
+           WindowStartupLocation="CenterOwner" Background="{DynamicResource RegionBrush}">
+    <Grid Margin="24,18,24,18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <TextBlock x:Name="VersionText" FontSize="18" FontWeight="SemiBold" />
+            <Border Height="1" Margin="0,12,0,6" Background="{DynamicResource BorderBrush}" />
+        </StackPanel>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel x:Name="Body" Margin="0,0,12,0" />
+        </ScrollViewer>
+        <StackPanel Grid.Row="2" Margin="0,18,0,0" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="PageButton" MinWidth="120" Content="{DynamicResource Notes.OpenPage}" Click="OnOpenPage" />
+            <Button MinWidth="88" Margin="10,0,0,0" IsDefault="True" IsCancel="True" Content="{DynamicResource Notes.Close}"
+                    Style="{StaticResource ButtonPrimary}" />
+        </StackPanel>
+    </Grid>
+</hc:Window>

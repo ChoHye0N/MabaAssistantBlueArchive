@@ -227,8 +227,15 @@ public partial class MainViewModel : ObservableObject, IDisposable
         ProgramUpdatesSupported = ProgramUpdater.Supported;
         if (ProgramUpdater.TakeStatus() is { } status)
         {
-            if (status.Ok) AddLog("info", Strings.Format("Program.Updated", status.Version));
-            else AddLog("warn", Strings.Format("Program.UpdateFailed", status.Version, status.Error));
+            if (status.Ok)
+            {
+                AddLog("info", Strings.Format("Program.Updated", status.Version));
+                _ = ShowUpdateNotesAsync(status);
+            }
+            else
+            {
+                AddLog("warn", Strings.Format("Program.UpdateFailed", status.Version, status.Error));
+            }
         }
         ResourceVersion = ResourceUpdater.InstalledVersion(DataRoot);
         if (CheckUpdates) _ = CheckForUpdateAsync();
@@ -316,6 +323,18 @@ public partial class MainViewModel : ObservableObject, IDisposable
             return;
         }
         await CheckResourcesAsync(manual: true);
+    }
+
+    // Once after the program updated itself: what the new version brought, from its release notes.
+    // Without the notes (offline, no such release) the log line is all there is.
+    private async Task ShowUpdateNotesAsync(UpdateStatus status)
+    {
+        if (await ReleaseNotes.FetchAsync(status.Version) is not { } notes) return;
+        // The window opens over the main window, which may still be on its way up.
+        for (var i = 0; i < 50 && System.Windows.Application.Current.MainWindow is not { IsLoaded: true }; i++)
+            await Task.Delay(200);
+        if (IsRunning || System.Windows.Application.Current.MainWindow is not { IsLoaded: true }) return;
+        Views.UpdateNotesDialog.Show(notes, status.From);
     }
 
     // A new program version shows as a link. A release that can update itself (it has the updater

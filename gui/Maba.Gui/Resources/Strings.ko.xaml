@@ -27,6 +27,11 @@
     <sys:String x:Key="Program.UpdateTitle">프로그램 업데이트</sys:String>
     <sys:String x:Key="Program.UpdateQuestion">{0} 버전으로 업데이트합니다. 프로그램을 닫고 파일을 바꾼 뒤 다시 시작합니다.</sys:String>
     <sys:String x:Key="Program.UpdateYes">업데이트</sys:String>
+    <sys:String x:Key="Notes.Title">업데이트 안내</sys:String>
+    <sys:String x:Key="Notes.Version">{0} → {1}</sys:String>
+    <sys:String x:Key="Notes.VersionOnly">버전 {0}</sys:String>
+    <sys:String x:Key="Notes.OpenPage">릴리스 페이지 열기</sys:String>
+    <sys:String x:Key="Notes.Close">닫기</sys:String>
     <sys:String x:Key="Settings.ProgramUpdate">프로그램 업데이트</sys:String>
     <sys:String x:Key="UpdateMode.notify">알림만 (링크를 누르면 설치)</sys:String>
     <sys:String x:Key="UpdateMode.download">자동으로 내려받기 (링크를 누르면 설치)</sys:String>
