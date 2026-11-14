@@ -5,6 +5,7 @@
   "after": [],
   "status": "wip",
   "needs_ocr": false,
+  "retry": true,
   "notes": [
     "Runs last: the other tasks complete daily missions.",
     "'Claim all' is pressed until it is grey: claiming can complete further missions. The bonus for 8 daily missions (bottom bar) is claimed when its button is yellow.",

@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
 #include "maba/assistant.h"
 
+#include <algorithm>
+
 #include <system_error>
 
 #include "maba/utf8.h"
@@ -90,7 +92,8 @@ bool Assistant::Load(std::string& error) {
 RunReport Assistant::Run(const std::vector<std::string>& selected, const std::atomic<bool>* cancel,
                          std::function<void(const TaskRunResult&)> on_task,
                          std::function<void(const Frame&, const std::string&)> on_failure,
-                         const std::string& settings_json, bool selected_order) {
+                         const std::string& settings_json, bool selected_order, int retry_failed,
+                         std::function<bool()> recover) {
     RunReport report;
     if (!controller_) {
         report.error = "not connected";
@@ -120,6 +123,8 @@ RunReport Assistant::Run(const std::vector<std::string>& selected, const std::at
     runner_options.strings = strings_;
     runner_options.data_dir = config_.data_dir;
     runner_options.reaction.enabled = true;
+    runner_options.retry_failed = std::clamp(retry_failed, 0, 2);
+    runner_options.recover = std::move(recover);
     if (!ResolveSettings(tasks_, settings_json, runner_options.settings, report.error)) return report;
     TaskRunner runner(navigator, ocr_.get(), runner_options, log_);
     return runner.Run(tasks_, selected, selected_order);

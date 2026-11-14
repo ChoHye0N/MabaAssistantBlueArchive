@@ -5,6 +5,7 @@
   "after": ["spend_event", "spend_mission"],
   "status": "wip",
   "needs_ocr": false,
+  "retry": true,
   "notes": [
     "Runs after AP spending: AP above the 999 cap waits in the mailbox.",
     "The claim-all button is yellow when something can be claimed and grey otherwise (colour check).",

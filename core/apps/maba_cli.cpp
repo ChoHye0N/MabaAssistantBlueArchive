@@ -38,6 +38,7 @@
 #include "maba/types.h"
 #include "maba/utf8.h"
 #include "maba/vision.h"
+#include "display_info.h"
 #include "steam_controller.h"
 
 namespace fs = std::filesystem;
@@ -120,6 +121,8 @@ int CmdInfo() {
                         n.width, n.height, f.width, f.height);
         }
     }
+    std::printf("%-12s %s\n", "HDR",
+                maba::win::WindowOnHdrDisplay(controller.Window()) ? "on (turn it off: captured colours can differ)" : "off");
     return 0;
 }
 
@@ -312,12 +315,21 @@ int CmdRun(const Args& args) {
     }
 
     std::atomic<bool> cancel{false};
+    // As in MabaStart: with --start-game a game that closed during the run is started again.
+    std::function<bool()> recover;
+    if (steam && args.count("start-game")) {
+        recover = [&] {
+            if (game_window.FindGame() != 0) return false;
+            PrintLog(maba::LogLevel::kWarn, "the game window is gone: starting the game again");
+            return steam->EnsureGame(&cancel);
+        };
+    }
     const maba::RunReport report = assistant.Run(
         tasks, &cancel, {}, [&](const maba::Frame& frame, const std::string&) {
             if (frame.empty()) return;
             const fs::path out = root / "captures" / ("run_fail_" + Timestamp() + ".png");
             if (maba::SavePng(frame, out)) std::printf("saved failure frame to %s\n", maba::PathToUtf8(out).c_str());
-        }, settings_json, args.count("in-order") > 0);
+        }, settings_json, args.count("in-order") > 0, args.count("retry") > 0 ? 1 : 0, recover);
     if (!report.error.empty()) {
         std::fprintf(stderr, "run failed: %s\n", report.error.c_str());
         return 1;
@@ -340,7 +352,7 @@ void Usage() {
                  "  maba_cli grab [--capture bitblt|printwindow] [--out FILE] [--region x,y,w,h]\n"
                  "  maba_cli smoke [--capture bitblt|printwindow] [--lang ko] [--root DIR] [--dry-run]\n"
                  "  maba_cli devices [--adb PATH]\n"
-                 "  maba_cli run [--tasks id,id] [--in-order] [--controller steam|adb] [--capture ...]\n"
+                 "  maba_cli run [--tasks id,id] [--in-order] [--retry] [--controller steam|adb] [--capture ...]\n"
                  "               [--adb PATH] [--serial 127.0.0.1:16384] [--maatouch FILE]\n"
                  "               [--emulator EXE] [--emulator-args \"-v 0\"] [--start-game]\n"
                  "               [--close-game] [--close-emulator]  (adb: start/stop around the run;\n"

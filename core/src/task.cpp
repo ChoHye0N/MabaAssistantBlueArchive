@@ -490,6 +490,7 @@ TaskSpec ParseTaskJson(const json& root) {
     t.order = OptInt(root, "order", where, kDefaultTaskOrder, 0, 100000);
     t.status = OptString(root, "status", where, "todo");
     t.needs_ocr = OptBool(root, "needs_ocr", where, false);
+    t.retry = OptBool(root, "retry", where, false);
     if (auto it = root.find("keep_popups"); it != root.end() && !it->is_null()) {
         if (!it->is_array()) throw ParseError(where + ": 'keep_popups' must be a list of popup ids");
         for (const auto& id : *it) {

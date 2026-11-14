@@ -16,7 +16,7 @@ namespace {
 using nlohmann::json;
 
 MABA_TEST(ApiVersion) {
-    CHECK(MabaApiVersion() == 5);
+    CHECK(MabaApiVersion() == 6);
     CHECK(std::strlen(MabaGetVersion()) > 0);
 }
 

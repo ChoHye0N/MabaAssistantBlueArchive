@@ -967,9 +967,17 @@ RunReport TaskRunner::Run(const std::vector<TaskSpec>& tasks,
     // Selected tasks that ran and did not pass. "Not implemented" skips do not block dependents:
     // they did nothing, so the game state is as if they were not selected.
     std::set<std::string> blocked;
-    report.ok = true;
-    for (const auto& id : order.order) {
-        if (!wanted.count(id)) continue;
+    std::set<std::string> held;  // skipped because a dependency did not pass
+    int recoveries = 0;
+    const auto recovered = [&] {
+        if (!options_.recover || recoveries >= options_.max_recoveries || Cancelled()) return false;
+        if (!options_.recover()) return false;
+        ++recoveries;
+        const NavResult entered = nav_.EnterGame();
+        if (!entered.ok && !entered.cancelled) Log(log_, LogLevel::kWarn, "could not enter the game: " + entered.error);
+        return true;
+    };
+    const auto run_one = [&](const std::string& id) {
         const TaskSpec& task = *by_id.at(id);
         TaskRunResult r;
         bool held_back = false;
@@ -998,7 +1006,8 @@ RunReport TaskRunner::Run(const std::vector<TaskSpec>& tasks,
             Notify(r);
             Log(log_, LogLevel::kInfo, "task '" + id + "' started");
             if (options_.return_home_between_tasks && !task.steps.empty()) {
-                const NavResult home = nav_.ReturnHome();
+                NavResult home = nav_.ReturnHome();
+                if (!home.ok && !home.cancelled && recovered()) home = nav_.ReturnHome();
                 if (!home.ok) {
                     r.status = home.cancelled ? TaskStatus::kCancelled : TaskStatus::kFailed;
                     r.message = "could not return home: " + home.error;
@@ -1017,15 +1026,38 @@ RunReport TaskRunner::Run(const std::vector<TaskSpec>& tasks,
         // dependency skips and failures fail the run.
         const bool passed = r.status == TaskStatus::kSucceeded ||
                             (r.status == TaskStatus::kSkipped && !held_back);
-        if (!passed) {
-            report.ok = false;
-            blocked.insert(id);
-        }
+        if (passed) blocked.erase(id); else blocked.insert(id);
+        if (held_back) held.insert(id); else held.erase(id);
         Log(log_, r.status == TaskStatus::kFailed ? LogLevel::kWarn : LogLevel::kInfo,
             "task '" + id + "' " + ToString(r.status) + (r.message.empty() ? "" : ": " + r.message));
         Notify(r);
-        report.tasks.push_back(std::move(r));
+        return r;
+    };
+    for (const auto& id : order.order) {
+        if (wanted.count(id)) report.tasks.push_back(run_one(id));
     }
+
+    // Second chances, in the same order: a failed task that is safe to repeat (`retry` in its
+    // file), and a task that was only held back, once nothing it waits for is blocked any more.
+    // A failed task that may not be repeated stays failed and keeps its dependents held back.
+    for (int round = 0; round < options_.retry_failed && !report.cancelled && !Cancelled(); ++round) {
+        bool any = false;
+        for (auto& done : report.tasks) {
+            if (report.cancelled || Cancelled()) break;
+            const TaskSpec& task = *by_id.at(done.id);
+            bool again = done.status == TaskStatus::kFailed && task.retry;
+            if (held.count(done.id)) {
+                again = std::none_of(task.after.begin(), task.after.end(),
+                                     [&](const std::string& dep) { return blocked.count(dep) > 0; });
+            }
+            if (!again) continue;
+            Log(log_, LogLevel::kInfo, "task '" + done.id + "' runs once more");
+            done = run_one(done.id);
+            any = true;
+        }
+        if (!any) break;
+    }
+    report.ok = blocked.empty();
     return report;
 }
 

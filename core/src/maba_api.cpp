@@ -223,7 +223,7 @@ extern "C" {
 
 MABA_API const char* MABA_CALL MabaGetVersion(void) { return MABA_VERSION_STRING; }
 
-MABA_API int MABA_CALL MabaApiVersion(void) { return 5; }
+MABA_API int MABA_CALL MabaApiVersion(void) { return 6; }
 
 MABA_API MabaHandle MABA_CALL MabaCreate(const char* config_json, MabaEventCallback callback,
                                          void* user_data) {
@@ -401,8 +401,17 @@ MABA_API int MABA_CALL MabaStart(MabaHandle h, const char* json_text) {
     h->running = true;
     h->last_error.clear();
     const bool prepare = !launch.is_null();
-    const bool ordered = args.value("ordered", false);
+    bool ordered = false;
+    int retry_failed = 0;
+    try {
+        ordered = args.value("ordered", false);
+        retry_failed = args.value("retry_failed", 0);
+    } catch (const json::exception& e) {
+        return Fail(h, std::string("ordered/retry_failed: ") + e.what());
+    }
+    if (retry_failed < 0 || retry_failed > 2) return Fail(h, "retry_failed must be 0..2");
     h->worker = std::thread([h, tasks, settings_json, connect, emulator, steam, prepare, start_game, close_game, ordered,
+                             retry_failed,
                              close_emulator] {
         h->Emit({{"type", "run"}, {"status", "started"}, {"tasks", tasks}});
         auto on_task = [h](const maba::TaskRunResult& r) {
@@ -452,7 +461,18 @@ MABA_API int MABA_CALL MabaStart(MabaHandle h, const char* json_text) {
             if (ready && h->cancel) {
                 report.cancelled = true;
             } else if (ready) {
-                report = h->assistant->Run(tasks, &h->cancel, on_task, on_failure, settings_json, ordered);
+                // A game that closed in the middle of a run is started again, when the player lets
+                // the program start the game. A window that is still there is left alone.
+                std::function<bool()> recover;
+                if (steam_session && start_game) {
+                    recover = [&] {
+                        if (window.FindGame() != 0) return false;
+                        log(maba::LogLevel::kWarn, "the game window is gone: starting the game again");
+                        return steam_session->EnsureGame(&h->cancel);
+                    };
+                }
+                report = h->assistant->Run(tasks, &h->cancel, on_task, on_failure, settings_json, ordered, retry_failed,
+                                           recover);
             }
             report.cancelled = report.cancelled || h->cancel.load();
             // A run stopped by the user leaves the game and the emulator as they are.

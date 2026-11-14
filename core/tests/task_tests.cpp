@@ -225,6 +225,119 @@ MABA_TEST(ATaskSkippingItselfDoesNotBlockTheNext) {
     CHECK(report.tasks.size() == 2 && report.tasks[1].status == maba::TaskStatus::kSucceeded);
 }
 
+MABA_TEST(RetryRunsARepeatableFailureAgainAndThenWhatItHeldBack) {
+    NavRig rig;
+    std::vector<std::string> finished;
+    maba::RunnerOptions options;
+    options.retry_failed = 1;
+    options.on_task = [&](const maba::TaskRunResult& r) {
+        if (r.status == maba::TaskStatus::kRunning) return;
+        finished.push_back(r.id + ":" + maba::ToString(r.status));
+        // The button shows up after the first failure, as after a hiccup of the game.
+        if (r.id == "spend" && r.status == maba::TaskStatus::kFailed) rig.matcher.Add("late.png", {11});
+    };
+    maba::TaskRunner runner(rig.Nav(), nullptr, options);
+    const std::vector<maba::TaskSpec> tasks = {
+        Task(R"({"id": "spend", "order": 1, "retry": true,
+                 "steps": [{"action": "wait_template", "template": "late.png", "timeout_ms": 500}]})"),
+        Task(R"({"id": "mail", "order": 2, "after": ["spend"], "steps": [{"action": "goto", "page": "mail"}]})"),
+        Task(R"({"id": "shop", "order": 3, "steps": [{"action": "goto", "page": "shop"}]})"),
+    };
+    const maba::RunReport report = runner.Run(tasks, {"spend", "mail", "shop"});
+    CHECK(report.ok);
+    CHECK(report.tasks.size() == 3);
+    for (const auto& t : report.tasks) CHECK(t.status == maba::TaskStatus::kSucceeded);
+    const std::vector<std::string> expected = {"spend:failed", "mail:skipped", "shop:succeeded", "spend:succeeded",
+                                               "mail:succeeded"};
+    CHECK(finished == expected);
+}
+
+MABA_TEST(RetryLeavesTasksThatMayNotBeRepeated) {
+    NavRig rig;
+    int spend_runs = 0, claim_runs = 0;
+    maba::RunnerOptions options;
+    options.retry_failed = 2;
+    options.on_task = [&](const maba::TaskRunResult& r) {
+        if (r.status != maba::TaskStatus::kRunning) return;
+        if (r.id == "spend") ++spend_runs;
+        if (r.id == "claim") ++claim_runs;
+    };
+    maba::TaskRunner runner(rig.Nav(), nullptr, options);
+    const std::vector<maba::TaskSpec> tasks = {
+        Task(R"({"id": "spend", "order": 1,
+                 "steps": [{"action": "wait_template", "template": "missing.png", "timeout_ms": 500}]})"),
+        Task(R"({"id": "mail", "order": 2, "after": ["spend"], "steps": [{"action": "goto", "page": "mail"}]})"),
+        Task(R"({"id": "claim", "order": 3, "retry": true,
+                 "steps": [{"action": "wait_template", "template": "missing.png", "timeout_ms": 500}]})"),
+    };
+    const maba::RunReport report = runner.Run(tasks, {"spend", "mail", "claim"});
+    CHECK(!report.ok);
+    CHECK(spend_runs == 1);   // not marked: a second run could spend twice
+    CHECK(claim_runs == 3);   // the first run and both rounds
+    CHECK(report.tasks.size() == 3);
+    if (report.tasks.size() == 3) {
+        CHECK(report.tasks[0].status == maba::TaskStatus::kFailed);
+        CHECK(report.tasks[1].status == maba::TaskStatus::kSkipped);  // still held back
+        CHECK(report.tasks[2].status == maba::TaskStatus::kFailed);
+    }
+}
+
+MABA_TEST(AGameThatClosedIsBroughtBackBeforeTheTask) {
+    const std::vector<maba::TaskSpec> tasks = {Task(R"({"id": "mail", "steps": [{"action": "goto", "page": "mail"}]})")};
+    {
+        NavRig rig;
+        rig.controller.scene = NavRig::kUnknownScene;  // no way home from here
+        maba::TaskRunner runner(rig.Nav(), nullptr);
+        CHECK(!runner.Run(tasks, {"mail"}).ok);
+    }
+    NavRig rig;
+    rig.controller.scene = NavRig::kUnknownScene;
+    int calls = 0;
+    maba::RunnerOptions options;
+    options.recover = [&] {
+        ++calls;
+        rig.controller.scene = NavRig::kMainScene;  // the game is back on its main screen
+        return true;
+    };
+    maba::TaskRunner runner(rig.Nav(), nullptr, options);
+    const maba::RunReport report = runner.Run(tasks, {"mail"});
+    CHECK(report.ok);
+    CHECK(calls == 1);
+}
+
+MABA_TEST(RecoveryIsCappedAndCanDecline) {
+    const std::vector<maba::TaskSpec> tasks = {
+        Task(R"({"id": "a", "order": 1, "steps": [{"action": "goto", "page": "mail"}]})"),
+        Task(R"({"id": "b", "order": 2, "steps": [{"action": "goto", "page": "mail"}]})"),
+        Task(R"({"id": "c", "order": 3, "steps": [{"action": "goto", "page": "mail"}]})"),
+    };
+    NavRig rig;
+    rig.controller.scene = NavRig::kUnknownScene;
+    int calls = 0;
+    maba::RunnerOptions options;
+    options.max_recoveries = 2;
+    options.recover = [&] {
+        ++calls;
+        return true;  // says the game is back, but the screen stays unknown
+    };
+    maba::TaskRunner runner(rig.Nav(), nullptr, options);
+    const maba::RunReport report = runner.Run(tasks, {"a", "b", "c"});
+    CHECK(!report.ok);
+    CHECK(calls == 2);
+
+    NavRig rig2;
+    rig2.controller.scene = NavRig::kUnknownScene;
+    int declined = 0;
+    maba::RunnerOptions options2;
+    options2.recover = [&] {
+        ++declined;
+        return false;  // the game window is still there
+    };
+    maba::TaskRunner runner2(rig2.Nav(), nullptr, options2);
+    CHECK(!runner2.Run(tasks, {"a", "b", "c"}).ok);
+    CHECK(declined == 3);  // asked before each task, nothing done
+}
+
 MABA_TEST(RunRejectsUnknownTaskAndCycles) {
     NavRig rig;
     maba::TaskRunner runner(rig.Nav(), nullptr);

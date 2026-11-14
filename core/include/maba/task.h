@@ -185,6 +185,7 @@ struct TaskSpec {
     std::string status;   // todo | wip | ready (informational)
     bool needs_ocr = false;
     std::vector<std::string> keep_popups;  // popups this task works in itself (not dismissed)
+    bool retry = false;   // safe to run again after a failure: a second run cannot spend twice
     std::vector<SettingDef> settings;
     std::vector<Step> steps;  // empty = not implemented yet (the runner skips it)
 

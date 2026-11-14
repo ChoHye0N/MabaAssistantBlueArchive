@@ -5,6 +5,7 @@
   "after": [],
   "status": "wip",
   "needs_ocr": true,
+  "retry": true,
   "notes": [
     "Route: main screen bottom bar -> schedule (location list) -> a location -> 'all schedules' list -> room -> 'start schedule'.",
     "Only the first chosen location is found in the list by its name (OCR, strings schedule.location.*). From there the arrow on the right of a location moves to the next location in list order and comes round to the first again, so the list is never scrolled again.",

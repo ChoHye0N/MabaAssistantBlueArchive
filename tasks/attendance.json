@@ -5,6 +5,7 @@
   "after": ["spend_event", "spend_mission"],
   "status": "wip",
   "needs_ocr": false,
+  "retry": true,
   "notes": [
     "The daily attendance book (first tab) is claimed at login by the attendance popups. The other tabs are campaign attendance books; their number changes with the season.",
     "`after` the AP spending tasks, like mail, so that a run order saved before this rule cannot put the book first again; a spending task that is not selected is not waited for, one that failed blocks the book.",

@@ -5,6 +5,7 @@
   "after": [],
   "status": "wip",
   "needs_ocr": false,
+  "retry": true,
   "notes": [
     "Runs after the other tasks: most battle pass missions are completed by them.",
     "The battle pass exists only during a season: without its badge on the main screen the task is skipped.",

@@ -5,6 +5,7 @@
   "after": [],
   "status": "wip",
   "needs_ocr": false,
+  "retry": true,
   "notes": [
     "Only for circle members: without the member list tab the task ends as skipped.",
     "The first visit of the day shows the circle attendance reward (10 AP, delivered to the mailbox); popups/circle_attendance.json closes it.",

@@ -58,6 +58,14 @@ struct RunnerOptions {
     StringTable strings;               // compared UI text of the language (click_text text_key)
     std::filesystem::path data_dir;    // where save steps write records; empty = saving fails
     ReactionOptions reaction;
+    // Rounds of second chances at the end of a run (0..2): failed tasks whose file says `retry`
+    // run again, and so do the tasks that were only held back by them.
+    int retry_failed = 0;
+    // Called when the home page cannot be reached before a task: true when the game was brought
+    // back (it had closed and was started again), and the runner then enters the game and tries
+    // once more. At most `max_recoveries` times a run.
+    std::function<bool()> recover;
+    int max_recoveries = 2;
     // Game day number for `each` with `rotate_setting`; the default counts days from the server
     // reset at 19:00 UTC (04:00 KST).
     std::function<long long()> game_day;

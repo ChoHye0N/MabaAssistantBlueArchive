@@ -5,6 +5,7 @@
   "after": [],
   "status": "wip",
   "needs_ocr": true,
+  "retry": true,
   "notes": [
     "Run order (owner): cafe, schedule, circle, free package, shop, bounty, commissions, scrimmage, event, missions, tactical challenge, mail, daily missions. 'order' fixes it without blocking.",
     "Cafe income includes AP (646/740 seen on 2026-11-02); one claim covers both cafes.",

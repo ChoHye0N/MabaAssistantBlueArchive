@@ -27,7 +27,7 @@ internal static partial class NativeMethods
     private static partial bool SetDllDirectoryW(string path);
 
     // Must match MabaApiVersion() in the native library.
-    public const int ExpectedApiVersion = 5;
+    public const int ExpectedApiVersion = 6;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void EventCallback(IntPtr eventJson, IntPtr userData);

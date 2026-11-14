@@ -5,6 +5,7 @@
   "after": [],
   "status": "wip",
   "needs_ocr": true,
+  "retry": true,
   "notes": [
     "Runs last. Several accounts are told apart by the UID on the account info page; each gets its own record (accounts/<uid>.json in the data directory: the GUI's profile folder, or local-data/ for the CLI; never in the repository).",
     "Credits, pyroxene and AP are read from the top bar with OCR and appended to the record's history.",

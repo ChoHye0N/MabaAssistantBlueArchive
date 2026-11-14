@@ -5,6 +5,7 @@
   "after": [],
   "status": "wip",
   "needs_ocr": false,
+  "retry": true,
   "notes": [
     "Route since the 2026-11-10 update: main screen -> 'cash shop' (left) opens the full screen cash shop -> 'general' (left, 4th) -> 'daily' -> 'daily free package'.",
     "Safety: the shop sells real-money items. The button is pressed only while the card's title and its 'free' label are both seen, and the purchase is confirmed only when the question's price row says 'free'.",

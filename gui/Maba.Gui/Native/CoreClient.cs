@@ -91,13 +91,15 @@ public sealed class CoreClient : IDisposable
     // `prepare` (optional) adds "connect", "launch" and "finish": Core connects on its worker,
     // after starting the emulator and the game.
     // The tasks run in the given order (dependencies still first).
-    public bool Start(IEnumerable<string> taskIds, JsonObject settings, JsonObject? prepare = null)
+    // `retryFailed`: failed tasks that are safe to repeat run once more at the end of the run.
+    public bool Start(IEnumerable<string> taskIds, JsonObject settings, JsonObject? prepare = null, bool retryFailed = false)
     {
         var args = new JsonObject
         {
             ["tasks"] = new JsonArray(taskIds.Select(t => (JsonNode?)t).ToArray()),
             ["settings"] = settings,
             ["ordered"] = true,
+            ["retry_failed"] = retryFailed ? 1 : 0,
         };
         if (prepare is not null)
         {

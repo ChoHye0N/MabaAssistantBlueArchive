@@ -57,10 +57,13 @@ public:
     // Runs the selected tasks. Needs a controller; creates the OpenCV matcher when none is set
     // (fails without OpenCV). The OCR is optional (read_number steps fail without it).
     // `settings_json` overrides task settings: {"<task id>": {"<key>": value}} (see ResolveSettings).
+    // `retry_failed`: rounds of second chances for failed tasks that may be repeated (RunnerOptions).
+    // `recover`: brings a game that closed back, see RunnerOptions.
     RunReport Run(const std::vector<std::string>& selected, const std::atomic<bool>* cancel,
                   std::function<void(const TaskRunResult&)> on_task = {},
                   std::function<void(const Frame&, const std::string&)> on_failure = {},
-                  const std::string& settings_json = {}, bool selected_order = false);
+                  const std::string& settings_json = {}, bool selected_order = false, int retry_failed = 0,
+                  std::function<bool()> recover = {});
 
 private:
     AssistantConfig config_;
