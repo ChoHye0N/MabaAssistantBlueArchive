@@ -1,16 +1,17 @@
 {
   "id": "attendance",
   "name": "Attendance book: campaign rewards",
-  "order": 15,
-  "after": [],
+  "order": 77,
+  "after": ["spend_event", "spend_mission"],
   "status": "wip",
   "needs_ocr": false,
   "notes": [
     "The daily attendance book (first tab) is claimed at login by the attendance popups. The other tabs are campaign attendance books; their number changes with the season.",
-    "Runs early: the rewards can include AP.",
+    "`after` the AP spending tasks, like mail, so that a run order saved before this rule cannot put the book first again; a spending task that is not selected is not waited for, one that failed blocks the book.",
+    "Runs after AP spending: while AP is at 999 the game refuses every reward of the book, also one without AP ('the inventory of the item above is full', popup `inventory_full`), and nothing is received.",
     "Tabs are taken by position (second to sixth slot). A tab is opened only while it shows the red reward dot, and 'claim' is pressed only while it is yellow.",
-    "After a claim the task waits until the book is uncovered again (the white top bar is bright), and only then looks at the next tab: under a window that darkens the screen the red dots do not match, and the remaining tabs were skipped without an error. A window that stays (a notice the popups do not know, such as AP at its limit) is closed with back, which is pressed only while the book is covered.",
-    "verify: the notice shown when AP is at 999 (not seen yet; closing it with back is assumed)."
+    "After a claim the task waits until the book is uncovered again (the white top bar is bright), and only then looks on: under a window that darkens the screen the red dots do not match. A window that stays is closed with back, which is pressed only while the book is covered.",
+    "A claim that went through greys the button. When it is still yellow after a second try the reward was refused, and the task fails with that message instead of reporting success."
   ],
   "steps": [
     { "action": "goto", "page": "attendance" },
@@ -22,9 +23,37 @@
         { "action": "click", "x": 130, "y": 222, "on_page": "attendance", "no_verify": true, "sleep_ms": 2000 },
         { "action": "wait_stable", "timeout_ms": 4000 },
         {
-          "action": "loop",
-          "max": 2,
-          "steps": [
+          "action": "if",
+          "when": {
+            "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [3000, 20000], "roi": { "x": 1030, "y": 640, "w": 235, "h": 70 } }
+          },
+          "then": [
+            { "action": "click", "x": 1145, "y": 675, "on_page": "attendance", "no_verify": true, "sleep_ms": 3000 },
+            {
+              "action": "loop",
+              "max": 6,
+              "until": { "color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } } },
+              "steps": [{ "action": "sleep", "sleep_ms": 1500 }]
+            },
+            {
+              "action": "back",
+              "when": {
+                "no_color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } }
+              }
+            },
+            {
+              "action": "loop",
+              "max": 4,
+              "until": { "color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } } },
+              "steps": [{ "action": "sleep", "sleep_ms": 1500 }]
+            },
+            {
+              "action": "if",
+              "when": {
+                "no_color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } }
+              },
+              "then": [{ "action": "fail", "message": "the attendance book stayed covered after claiming" }]
+            },
             {
               "action": "if",
               "when": {
@@ -60,9 +89,15 @@
                     "no_color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } }
                   },
                   "then": [{ "action": "fail", "message": "the attendance book stayed covered after claiming" }]
+                },
+                {
+                  "action": "if",
+                  "when": {
+                    "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [3000, 20000], "roi": { "x": 1030, "y": 640, "w": 235, "h": 70 } }
+                  },
+                  "then": [{ "action": "fail", "message": "the reward was not received: an item is at its holding limit (AP at 999?); spend AP first" }]
                 }
-              ],
-              "else": [{ "action": "break" }]
+              ]
             }
           ]
         }
@@ -75,9 +110,37 @@
         { "action": "click", "x": 130, "y": 297, "on_page": "attendance", "no_verify": true, "sleep_ms": 2000 },
         { "action": "wait_stable", "timeout_ms": 4000 },
         {
-          "action": "loop",
-          "max": 2,
-          "steps": [
+          "action": "if",
+          "when": {
+            "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [3000, 20000], "roi": { "x": 1030, "y": 640, "w": 235, "h": 70 } }
+          },
+          "then": [
+            { "action": "click", "x": 1145, "y": 675, "on_page": "attendance", "no_verify": true, "sleep_ms": 3000 },
+            {
+              "action": "loop",
+              "max": 6,
+              "until": { "color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } } },
+              "steps": [{ "action": "sleep", "sleep_ms": 1500 }]
+            },
+            {
+              "action": "back",
+              "when": {
+                "no_color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } }
+              }
+            },
+            {
+              "action": "loop",
+              "max": 4,
+              "until": { "color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } } },
+              "steps": [{ "action": "sleep", "sleep_ms": 1500 }]
+            },
+            {
+              "action": "if",
+              "when": {
+                "no_color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } }
+              },
+              "then": [{ "action": "fail", "message": "the attendance book stayed covered after claiming" }]
+            },
             {
               "action": "if",
               "when": {
@@ -113,9 +176,15 @@
                     "no_color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } }
                   },
                   "then": [{ "action": "fail", "message": "the attendance book stayed covered after claiming" }]
+                },
+                {
+                  "action": "if",
+                  "when": {
+                    "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [3000, 20000], "roi": { "x": 1030, "y": 640, "w": 235, "h": 70 } }
+                  },
+                  "then": [{ "action": "fail", "message": "the reward was not received: an item is at its holding limit (AP at 999?); spend AP first" }]
                 }
-              ],
-              "else": [{ "action": "break" }]
+              ]
             }
           ]
         }
@@ -128,9 +197,37 @@
         { "action": "click", "x": 130, "y": 375, "on_page": "attendance", "no_verify": true, "sleep_ms": 2000 },
         { "action": "wait_stable", "timeout_ms": 4000 },
         {
-          "action": "loop",
-          "max": 2,
-          "steps": [
+          "action": "if",
+          "when": {
+            "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [3000, 20000], "roi": { "x": 1030, "y": 640, "w": 235, "h": 70 } }
+          },
+          "then": [
+            { "action": "click", "x": 1145, "y": 675, "on_page": "attendance", "no_verify": true, "sleep_ms": 3000 },
+            {
+              "action": "loop",
+              "max": 6,
+              "until": { "color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } } },
+              "steps": [{ "action": "sleep", "sleep_ms": 1500 }]
+            },
+            {
+              "action": "back",
+              "when": {
+                "no_color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } }
+              }
+            },
+            {
+              "action": "loop",
+              "max": 4,
+              "until": { "color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } } },
+              "steps": [{ "action": "sleep", "sleep_ms": 1500 }]
+            },
+            {
+              "action": "if",
+              "when": {
+                "no_color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } }
+              },
+              "then": [{ "action": "fail", "message": "the attendance book stayed covered after claiming" }]
+            },
             {
               "action": "if",
               "when": {
@@ -166,9 +263,15 @@
                     "no_color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } }
                   },
                   "then": [{ "action": "fail", "message": "the attendance book stayed covered after claiming" }]
+                },
+                {
+                  "action": "if",
+                  "when": {
+                    "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [3000, 20000], "roi": { "x": 1030, "y": 640, "w": 235, "h": 70 } }
+                  },
+                  "then": [{ "action": "fail", "message": "the reward was not received: an item is at its holding limit (AP at 999?); spend AP first" }]
                 }
-              ],
-              "else": [{ "action": "break" }]
+              ]
             }
           ]
         }
@@ -181,9 +284,37 @@
         { "action": "click", "x": 130, "y": 452, "on_page": "attendance", "no_verify": true, "sleep_ms": 2000 },
         { "action": "wait_stable", "timeout_ms": 4000 },
         {
-          "action": "loop",
-          "max": 2,
-          "steps": [
+          "action": "if",
+          "when": {
+            "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [3000, 20000], "roi": { "x": 1030, "y": 640, "w": 235, "h": 70 } }
+          },
+          "then": [
+            { "action": "click", "x": 1145, "y": 675, "on_page": "attendance", "no_verify": true, "sleep_ms": 3000 },
+            {
+              "action": "loop",
+              "max": 6,
+              "until": { "color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } } },
+              "steps": [{ "action": "sleep", "sleep_ms": 1500 }]
+            },
+            {
+              "action": "back",
+              "when": {
+                "no_color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } }
+              }
+            },
+            {
+              "action": "loop",
+              "max": 4,
+              "until": { "color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } } },
+              "steps": [{ "action": "sleep", "sleep_ms": 1500 }]
+            },
+            {
+              "action": "if",
+              "when": {
+                "no_color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } }
+              },
+              "then": [{ "action": "fail", "message": "the attendance book stayed covered after claiming" }]
+            },
             {
               "action": "if",
               "when": {
@@ -219,9 +350,15 @@
                     "no_color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } }
                   },
                   "then": [{ "action": "fail", "message": "the attendance book stayed covered after claiming" }]
+                },
+                {
+                  "action": "if",
+                  "when": {
+                    "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [3000, 20000], "roi": { "x": 1030, "y": 640, "w": 235, "h": 70 } }
+                  },
+                  "then": [{ "action": "fail", "message": "the reward was not received: an item is at its holding limit (AP at 999?); spend AP first" }]
                 }
-              ],
-              "else": [{ "action": "break" }]
+              ]
             }
           ]
         }
@@ -234,9 +371,37 @@
         { "action": "click", "x": 130, "y": 530, "on_page": "attendance", "no_verify": true, "sleep_ms": 2000 },
         { "action": "wait_stable", "timeout_ms": 4000 },
         {
-          "action": "loop",
-          "max": 2,
-          "steps": [
+          "action": "if",
+          "when": {
+            "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [3000, 20000], "roi": { "x": 1030, "y": 640, "w": 235, "h": 70 } }
+          },
+          "then": [
+            { "action": "click", "x": 1145, "y": 675, "on_page": "attendance", "no_verify": true, "sleep_ms": 3000 },
+            {
+              "action": "loop",
+              "max": 6,
+              "until": { "color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } } },
+              "steps": [{ "action": "sleep", "sleep_ms": 1500 }]
+            },
+            {
+              "action": "back",
+              "when": {
+                "no_color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } }
+              }
+            },
+            {
+              "action": "loop",
+              "max": 4,
+              "until": { "color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } } },
+              "steps": [{ "action": "sleep", "sleep_ms": 1500 }]
+            },
+            {
+              "action": "if",
+              "when": {
+                "no_color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } }
+              },
+              "then": [{ "action": "fail", "message": "the attendance book stayed covered after claiming" }]
+            },
             {
               "action": "if",
               "when": {
@@ -272,9 +437,15 @@
                     "no_color": { "hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255], "area": [5000, 7600], "roi": { "x": 300, "y": 8, "w": 250, "h": 30 } }
                   },
                   "then": [{ "action": "fail", "message": "the attendance book stayed covered after claiming" }]
+                },
+                {
+                  "action": "if",
+                  "when": {
+                    "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [3000, 20000], "roi": { "x": 1030, "y": 640, "w": 235, "h": 70 } }
+                  },
+                  "then": [{ "action": "fail", "message": "the reward was not received: an item is at its holding limit (AP at 999?); spend AP first" }]
                 }
-              ],
-              "else": [{ "action": "break" }]
+              ]
             }
           ]
         }

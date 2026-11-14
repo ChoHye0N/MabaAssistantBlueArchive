@@ -281,6 +281,7 @@ MABA_TEST(RepoTaskFilesLoad) {
     const std::vector<std::string> expected = {
         "cafe", "schedule", "circle", "free_package", "shop", "bounty", "commission",
         "scrimmage", "spend_event", "spend_mission",
+        "attendance",  // after AP spending: at 999 AP the game refuses the book's rewards
         "tactical_challenge", "mail_claim_all", "mission_claim_all"};
     std::vector<std::string> known;
     for (const auto& id : order.order)

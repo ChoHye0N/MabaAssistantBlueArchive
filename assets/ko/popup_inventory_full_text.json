@@ -1,0 +1,20 @@
+{
+  "task": "popup",
+  "element": "inventory_full_text",
+  "lang": "ko",
+  "roi": {
+    "x": 450,
+    "y": 395,
+    "w": 380,
+    "h": 30
+  },
+  "masks": [],
+  "source_client": "steam-pc-global",
+  "source_size": {
+    "w": 1280,
+    "h": 720
+  },
+  "game_version": "",
+  "capture_date": "2026-11-14",
+  "tool": "template_capture.py 0.1.0"
+}

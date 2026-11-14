@@ -1,0 +1,12 @@
+{
+  "id": "inventory_full",
+  "notes": [
+    "Notice when a reward is refused because its item is at the holding limit ('the inventory of the item above is full'), for example any attendance book reward while AP is at 999. Nothing was received; the confirm button closes it.",
+    "The notice is recognized by its own sentence: other dialogs share the 'notice' title and the blue confirm button. A task that claims has to check afterwards that the claim went through."
+  ],
+  "priority": 15,
+  "anchors": [
+    { "template": "popup_inventory_full_text.png", "roi": { "x": 420, "y": 375, "w": 440, "h": 70 }, "threshold": 0.9 }
+  ],
+  "dismiss": { "template": "popup_confirm_button.png", "roi": { "x": 500, "y": 470, "w": 280, "h": 120 }, "threshold": 0.9 }
+}

@@ -9,7 +9,7 @@ Open items first; finished ones are kept below as a record of what was verified 
 - [ ] Check a 2560 wide window
 
 ### M2
-- [ ] Attendance book campaign tabs (`attendance`): written 2026-11-11 while every tab was already claimed; claiming and the red tab dot verified 2026-11-13. Since then the task waits until the book is uncovered after a claim (checked on saved frames only); a claim with AP at 999 is not verified
+- [ ] Attendance book campaign tabs (`attendance`): written 2026-11-11 while every tab was already claimed; claiming and the red tab dot verified 2026-11-13. With AP at 999 the game refuses every reward (seen 2026-11-14): the task now runs after AP spending and fails when a claim is refused
 - [ ] A few more days without failures, then mark the tasks `ready`
 
 ### M3: OCR-dependent tasks
