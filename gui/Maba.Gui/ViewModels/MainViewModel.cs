@@ -75,6 +75,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _scheduleMinute = settings.ScheduleMinute;
         _dataRoot = SettingsStore.ResolveDataRoot(settings.DataRoot);
         _uiLanguage = App.UiLanguages.Contains(settings.UiLanguage) ? settings.UiLanguage : "";
+        _gameLanguage = string.IsNullOrEmpty(settings.Language) ? "ko" : settings.Language;
+        GameLanguageChoices = ReadGameLanguages(_dataRoot, _gameLanguage);
         if (settings.Profiles.Count == 0) settings.Profiles.Add(new TaskProfile { Name = Strings.Get("Profile.Default") });
         foreach (var p in settings.Profiles) AddProfileItem(p);
         _selectedProfile = settings.Profiles[Math.Clamp(settings.ActiveProfile, 0, settings.Profiles.Count - 1)];
@@ -186,6 +188,36 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private string _scheduleWarning = "";
     [ObservableProperty] private string _dataRoot;
     [ObservableProperty] private string _uiLanguage;
+    // The game client's language: templates, OCR and compared text. Offered when the data has
+    // templates for it (the baseline language always). A run that sees another language says so.
+    [ObservableProperty] private string _gameLanguage;
+    public IReadOnlyList<Choice> GameLanguageChoices { get; }
+
+    private static IReadOnlyList<Choice> ReadGameLanguages(string dataRoot, string current)
+    {
+        var choices = new List<Choice>();
+        try
+        {
+            var root = System.Text.Json.Nodes.JsonNode.Parse(System.IO.File.ReadAllText(
+                System.IO.Path.Combine(dataRoot, "config", "languages.json")));
+            var primary = root?["primary"]?.GetValue<string>() ?? "ko";
+            foreach (var l in root?["languages"]?.AsArray() ?? new JsonArray())
+            {
+                var code = l?["code"]?.GetValue<string>() ?? "";
+                if (code.Length == 0) continue;
+                var hasTemplates = new[] { "assets", "assets-local" }.Any(d =>
+                    System.IO.Directory.Exists(System.IO.Path.Combine(dataRoot, d, code)) &&
+                    System.IO.Directory.EnumerateFiles(System.IO.Path.Combine(dataRoot, d, code), "*.png").Any());
+                if (code == primary || code == current || hasTemplates)
+                    choices.Add(new Choice(code, l?["name"]?.GetValue<string>() ?? code));
+            }
+        }
+        catch (Exception e) when (e is System.IO.IOException or UnauthorizedAccessException or System.Text.Json.JsonException or InvalidOperationException)
+        {
+        }
+        if (choices.Count == 0) choices.Add(new Choice(current, current));
+        return choices;
+    }
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(StartCommand), nameof(StopCommand), nameof(RefreshDevicesCommand))]
@@ -642,9 +674,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _settings.ScheduleMinute = Math.Clamp(ScheduleMinute, 0, 59);
         _settings.DataRoot = DataRoot;
         _settings.UiLanguage = UiLanguage;
+        _settings.Language = GameLanguage;
         Save();
         _connected = false;  // connection settings may have changed: reconnect on the next start
-        if (e.PropertyName is nameof(OcrEnabled) or nameof(DataRoot) && !IsRunning) CreateCore();
+        if (e.PropertyName is nameof(OcrEnabled) or nameof(DataRoot) or nameof(GameLanguage) && !IsRunning) CreateCore();
         UpdateNextRun();
     }
 

@@ -238,6 +238,8 @@
 
     <sys:String x:Key="About.Disclaimer">이 도구는 화면 인식과 일반 입력만 사용합니다. 자동화 도구 사용은 게임 이용약관에 위반될 수 있으며, 그 위험은 사용자에게 있습니다.</sys:String>
     <sys:String x:Key="Settings.Updates">업데이트</sys:String>
+    <sys:String x:Key="Settings.GameLanguage">게임 언어</sys:String>
+    <sys:String x:Key="Settings.GameLanguageHint">게임 클라이언트의 언어와 같게 맞춥니다. 다르면 실행할 때 로그로 알려 줍니다.</sys:String>
     <sys:String x:Key="Settings.Run">실행</sys:String>
     <sys:String x:Key="Settings.StopHotkey">Ctrl+Alt+S로 실행 중지</sys:String>
     <sys:String x:Key="Settings.RetryFailed">실패한 숙제 한 번 더 시도</sys:String>

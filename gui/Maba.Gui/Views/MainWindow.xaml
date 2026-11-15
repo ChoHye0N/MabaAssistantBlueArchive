@@ -284,6 +284,12 @@
                                      SelectedValuePath="Value" SelectedValue="{Binding UiLanguage}" />
                         <TextBlock Margin="140,4,0,16" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"
                                    Text="{DynamicResource Settings.UiLanguageHint}" />
+                        <hc:ComboBox hc:InfoElement.Title="{DynamicResource Settings.GameLanguage}"
+                                     hc:InfoElement.TitlePlacement="Left" hc:InfoElement.TitleWidth="140"
+                                     ItemsSource="{Binding GameLanguageChoices}" DisplayMemberPath="Label"
+                                     SelectedValuePath="Value" SelectedValue="{Binding GameLanguage}" />
+                        <TextBlock Margin="140,4,0,16" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryTextBrush}"
+                                   Text="{DynamicResource Settings.GameLanguageHint}" />
 
                         <TextBlock Style="{StaticResource TextBlockSubTitleBold}" HorizontalAlignment="Left"
                                    Text="{DynamicResource Settings.Connection}" Margin="0,0,0,8" />

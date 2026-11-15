@@ -238,6 +238,8 @@
 
     <sys:String x:Key="About.Disclaimer">This tool only uses screen recognition and ordinary input. Using automation tools may violate the game's terms of service; the risk is yours.</sys:String>
     <sys:String x:Key="Settings.Updates">Updates</sys:String>
+    <sys:String x:Key="Settings.GameLanguage">Game language</sys:String>
+    <sys:String x:Key="Settings.GameLanguageHint">Set it to the game client's language. A run tells you in the log when they differ.</sys:String>
     <sys:String x:Key="Settings.Run">Run</sys:String>
     <sys:String x:Key="Settings.StopHotkey">Stop a run with Ctrl+Alt+S</sys:String>
     <sys:String x:Key="Settings.RetryFailed">Try failed tasks once more</sys:String>
