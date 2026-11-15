@@ -90,7 +90,7 @@
     <sys:String x:Key="TaskInfo.scrimmage">학원교류회를 티켓으로 소탕합니다.</sys:String>
     <sys:String x:Key="TaskInfo.spend_event">이벤트 스토리를 넘기고, 퀘스트를 진행한 뒤 남은 AP로 소탕합니다.</sys:String>
     <sys:String x:Key="TaskInfo.spend_mission">일괄 소탕 프리셋을 먼저 쓰고, 남은 AP로 임무를 소탕합니다.</sys:String>
-    <sys:String x:Key="TaskInfo.tactical_challenge">보상을 받고 도전권을 씁니다.</sys:String>
+    <sys:String x:Key="TaskInfo.tactical_challenge">보상을 받고 티켓을 씁니다.</sys:String>
     <sys:String x:Key="TaskInfo.mail_claim_all">우편함 보상을 모두 받습니다.</sys:String>
     <sys:String x:Key="TaskInfo.mission_claim_all">일일 미션 보상을 모두 받습니다.</sys:String>
     <sys:String x:Key="TaskInfo.account_info">닉네임, 레벨, AP, 크레딧, 청휘석을 이 PC에 기록합니다.</sys:String>
