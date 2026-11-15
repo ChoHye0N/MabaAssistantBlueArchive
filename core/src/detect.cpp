@@ -44,4 +44,21 @@ CurrentPage DetectCurrentPage(IMatcher& matcher, const Frame& frame,
     return best;
 }
 
+std::optional<LanguageGuess> GuessGameLanguage(
+    IMatcher& current, const std::vector<std::pair<std::string, IMatcher*>>& others, const Frame& frame,
+    const std::map<std::string, PageDef>& pages,
+    const std::function<bool(const std::string& language, const std::string& file)>& own_template) {
+    if (frame.empty() || !DetectCurrentPage(current, frame, pages).id.empty()) return std::nullopt;
+    for (const auto& [language, matcher] : others) {
+        if (!matcher) continue;
+        for (const auto& [id, page] : pages) {
+            const bool specific = std::any_of(page.anchors.begin(), page.anchors.end(), [&](const TemplateRef& a) {
+                return own_template(language, a.file);
+            });
+            if (specific && DetectPage(*matcher, frame, page).detected) return LanguageGuess{language, id};
+        }
+    }
+    return std::nullopt;
+}
+
 }  // namespace maba

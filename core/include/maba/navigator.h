@@ -62,6 +62,8 @@ struct NavigatorOptions {
     const std::atomic<bool>* cancel = nullptr;
     // Called with the last frame when GoTo fails (e.g. save it under captures/).
     std::function<void(const Frame&, const std::string& reason)> on_failure;
+    // Called with the frame of a screen no page matches, before back is pressed there.
+    std::function<void(const Frame&)> on_unknown;
 };
 
 struct Observation {

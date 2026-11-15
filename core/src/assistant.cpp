@@ -3,9 +3,11 @@
 #include "maba/assistant.h"
 
 #include <algorithm>
-
+#include <memory>
 #include <system_error>
 
+#include "maba/detect.h"
+#include "maba/template_resolver.h"
 #include "maba/utf8.h"
 
 #if defined(MABA_WITH_OPENCV)
@@ -114,6 +116,12 @@ RunReport Assistant::Run(const std::vector<std::string>& selected, const std::at
     NavigatorOptions nav_options = config_.navigator;
     nav_options.cancel = cancel;
     nav_options.on_failure = on_failure;
+    // An unknown screen also asks whether the game shows another language than the one set: the
+    // pages are then unknown and every task fails the same way. Reported once a run.
+    bool language_reported = false;
+    nav_options.on_unknown = [&](const Frame& frame) {
+        if (!language_reported) language_reported = CheckGameLanguage(frame);
+    };
     nav_options.settle.enabled = true;
     Navigator navigator(*controller_, *matcher_, pages_, popups, clock, nav_options, log_);
     RunnerOptions runner_options;
@@ -128,6 +136,36 @@ RunReport Assistant::Run(const std::vector<std::string>& selected, const std::at
     if (!ResolveSettings(tasks_, settings_json, runner_options.settings, report.error)) return report;
     TaskRunner runner(navigator, ocr_.get(), runner_options, log_);
     return runner.Run(tasks_, selected, selected_order);
+}
+
+bool Assistant::CheckGameLanguage(const Frame& frame) {
+#if defined(MABA_WITH_OPENCV)
+    // Kept between calls, so each template is read once.
+    std::vector<std::pair<std::string, IMatcher*>> others;
+    for (const auto& l : languages_.languages) {
+        if (l.code == config_.language) continue;
+        auto& m = other_matchers_[l.code];
+        if (!m) m = std::make_unique<OpenCvMatcher>(config_.root, l.code);
+        others.emplace_back(l.code, m.get());
+    }
+    // A template of that language itself, not one shared by all languages (assets/common).
+    const auto own_template = [&](const std::string& language, const std::string& file) {
+        const fs::path found = ResolveTemplate(config_.root, language, file);
+        return !found.empty() && found.parent_path().filename() == PathFromUtf8(language);
+    };
+    if (const auto guess = GuessGameLanguage(*matcher_, others, frame, pages_, own_template)) {
+        const Language* l = languages_.Find(guess->language);
+        Log(log_, LogLevel::kWarn,
+            "the game seems to be in " + (l ? l->name : guess->language) + " ('" + guess->language +
+                "', page '" + guess->page + "'), but the game language set here is '" + config_.language +
+                "': change the game language in the settings");
+        return true;
+    }
+    return false;
+#else
+    (void)frame;
+    return false;
+#endif
 }
 
 }  // namespace maba

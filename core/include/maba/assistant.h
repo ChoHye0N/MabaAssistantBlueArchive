@@ -66,6 +66,9 @@ public:
                   std::function<bool()> recover = {});
 
 private:
+    // Logs a warning when the frame shows a page in another game language than the one set; true then.
+    bool CheckGameLanguage(const Frame& frame);
+
     AssistantConfig config_;
     LogFn log_;
     std::map<std::string, PageDef> pages_;
@@ -75,6 +78,7 @@ private:
     StringTable strings_;
     std::unique_ptr<IController> controller_;
     std::unique_ptr<IMatcher> matcher_;
+    std::map<std::string, std::unique_ptr<IMatcher>> other_matchers_;  // CheckGameLanguage
     std::unique_ptr<IOcr> ocr_;
 };
 

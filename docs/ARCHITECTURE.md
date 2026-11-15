@@ -114,6 +114,8 @@ Updates: `Services/ResourceUpdater.cs` installs newer resources (task data and t
 - Korean (`ko`) is the baseline for behavior and design; other languages are added later. UI text that logic compares lives in `strings/<lang>.json` by key, never as literals in code.
 - `config/languages.json` lists languages and their OCR model codes; confirmed for the Steam global client: Korean, English, Traditional Chinese, Thai. Japanese is unverified.
 - Template lookup: `assets/<lang>/` then `assets/common/`. Language-neutral anchors (icons, layout) go to common.
+- The game language is a setting (GUI "game language", offered for languages the data has templates for); the program does not read the game's files to find it. When the Navigator meets a screen no page matches, the Assistant tries the templates of the other languages on it (`GuessGameLanguage` in `detect.h`); a page found through a template of another language, not through a shared one, logs once a run that the game seems to be in that language.
+- A longer text in another language may need a wider search area (`roi`) than the Korean template; widening is checked on saved Korean frames so the Korean result stays the same.
 - `tools/check_templates.py` prints the task x language matrix (templates each task needs, including the pages on its route and all popups); CI fails if a task marked `ready` misses a template in a confirmed language.
 
 ## Platforms and testing

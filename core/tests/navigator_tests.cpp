@@ -7,6 +7,7 @@
 #include <string>
 
 #include "fakes.h"
+#include "maba/detect.h"
 #include "maba/navigator.h"
 #include "maba/popup.h"
 #include "nav_rig.h"
@@ -219,6 +220,32 @@ MABA_TEST(PopupParseRejectsBadDismiss) {
     const auto ok = maba::ParsePopup(
         R"({"id": "a", "priority": 5, "anchors": [{"template": "x.png"}], "dismiss": {"template": "close.png"}})");
     CHECK(ok.ok && ok.popup.priority == 5 && ok.popup.click_template.has_value());
+}
+
+MABA_TEST(GameLanguageGuessNeedsAPageOfThatLanguage) {
+    std::map<std::string, maba::PageDef> pages;
+    for (const char* json : {R"({"id": "main_menu", "anchors": [{"template": "home_icon.png"}]})",
+                             R"({"id": "mail", "anchors": [{"template": "mail_title.png"}]})"}) {
+        const auto p = maba::ParsePage(json);
+        CHECK(p.ok);
+        pages[p.page.id] = p.page;
+    }
+    const maba::Frame home = maba_test::BlankFrame(maba::kNormWidth, maba::kNormHeight, 1);
+    const maba::Frame mail = maba_test::BlankFrame(maba::kNormWidth, maba::kNormHeight, 2);
+    maba_test::SceneMatcher korean, english;
+    korean.Add("home_icon.png", {1});   // shared by every language
+    english.Add("home_icon.png", {1});
+    korean.Add("mail_title.png", {});   // the Korean title is not on this English screen
+    english.Add("mail_title.png", {2});
+    // mail_title.png exists for English; home_icon.png only in the shared folder.
+    const auto own = [](const std::string& lang, const std::string& file) { return lang == "en" && file == "mail_title.png"; };
+    const std::vector<std::pair<std::string, maba::IMatcher*>> others = {{"en", &english}};
+
+    const auto guess = maba::GuessGameLanguage(korean, others, mail, pages, own);
+    CHECK(guess && guess->language == "en" && guess->page == "mail");
+    // A page the set language sees, or one found only through shared templates, proves nothing.
+    CHECK(!maba::GuessGameLanguage(korean, others, home, pages, own));
+    CHECK(!maba::GuessGameLanguage(korean, others, maba_test::BlankFrame(maba::kNormWidth, maba::kNormHeight, 9), pages, own));
 }
 
 }  // namespace

@@ -196,6 +196,7 @@ NavResult Navigator::GoTo(const std::string& target) {
             Log(log_, LogLevel::kInfo,
                 recognized ? "no route from '" + obs.page + "', pressing back"
                            : "unknown screen, pressing back");
+            if (!recognized && options_.on_unknown) options_.on_unknown(obs.frame);
             if (!controller_.Back()) return Fail(result, Failed("back", controller_));
             ++backs;
             ++result.steps;
