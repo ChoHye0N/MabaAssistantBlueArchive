@@ -45,7 +45,7 @@
   ],
   "steps": [
     { "action": "goto", "page": "schedule" },
-    { "action": "read_number", "roi": { "x": 60, "y": 80, "w": 190, "h": 44 }, "store": "tickets", "lenient": true, "optional": true },
+    { "action": "read_number", "roi": { "x": 60, "y": 80, "w": 230, "h": 44 }, "store": "tickets", "lenient": true, "optional": true },
     {
       "action": "if",
       "when": { "value": "tickets", "lt": 1 },

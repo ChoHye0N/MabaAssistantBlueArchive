@@ -5,6 +5,6 @@
     "The dialog shows the nickname at the top: never capture it."
   ],
   "priority": 5,
-  "anchors": [{ "template": "popup_sweep_result.png", "roi": { "x": 540, "y": 55, "w": 200, "h": 90 }, "threshold": 0.9 }],
+  "anchors": [{ "template": "popup_sweep_result.png", "roi": { "x": 500, "y": 55, "w": 280, "h": 90 }, "threshold": 0.9 }],
   "dismiss": "back"
 }

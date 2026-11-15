@@ -149,7 +149,7 @@
                   "x": 1221,
                   "y": 99,
                   "require": { "template": "mission_batch_title.png", "roi": { "x": 520, "y": 70, "w": 240, "h": 70 }, "threshold": 0.9 },
-                  "expect": { "template": "mission_area_title.png", "roi": { "x": 80, "y": 0, "w": 110, "h": 55 }, "threshold": 0.95 },
+                  "expect": { "template": "mission_area_title.png", "roi": { "x": 80, "y": 0, "w": 150, "h": 55 }, "threshold": 0.95 },
                   "timeout_ms": 5000
                 },
                 { "action": "fail", "message": "the batch sweep preset could not be selected" }
@@ -258,7 +258,7 @@
           "x": 1221,
           "y": 99,
           "require": { "template": "mission_batch_title.png", "roi": { "x": 520, "y": 70, "w": 240, "h": 70 }, "threshold": 0.9 },
-          "expect": { "template": "mission_area_title.png", "roi": { "x": 80, "y": 0, "w": 110, "h": 55 }, "threshold": 0.95 },
+          "expect": { "template": "mission_area_title.png", "roi": { "x": 80, "y": 0, "w": 150, "h": 55 }, "threshold": 0.95 },
           "timeout_ms": 5000
         },
         { "action": "wait_stable", "timeout_ms": 3000 },

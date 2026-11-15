@@ -20,7 +20,7 @@
       "action": "click",
       "x": 130,
       "y": 317,
-      "require": { "template": "cash_shop_title.png", "roi": { "x": 90, "y": 0, "w": 110, "h": 50 }, "threshold": 0.9 },
+      "require": { "template": "cash_shop_title.png", "roi": { "x": 90, "y": 0, "w": 210, "h": 50 }, "threshold": 0.9 },
       "no_verify": true
     },
     { "action": "wait_stable", "timeout_ms": 4000 },
@@ -28,7 +28,7 @@
       "action": "click",
       "x": 888,
       "y": 99,
-      "require": { "template": "cash_shop_title.png", "roi": { "x": 90, "y": 0, "w": 110, "h": 50 }, "threshold": 0.9 },
+      "require": { "template": "cash_shop_title.png", "roi": { "x": 90, "y": 0, "w": 210, "h": 50 }, "threshold": 0.9 },
       "no_verify": true
     },
     { "action": "wait_stable", "timeout_ms": 4000 },
