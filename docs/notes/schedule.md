@@ -21,6 +21,8 @@ How the schedule task spends its tickets (`tasks/schedule.json`, step `schedule_
 4. Go round once more and run the kept rooms where they are. Nothing is looked up again: a kept room that does not open is skipped and its ticket stays.
 5. Without the setting: one lap, the rooms of the chosen locations in list order until the tickets are gone.
 
+After a lesson a relationship rank-up, a reward window (for example a title at rank 20) and the report come one after another, and some show up late. The next room is clicked only once the list is shown **and uncovered**: its title is bright (the title template still matches under the dark layer of a window, which made a click land on a late window and cost a planned room on 2026-11-15). Known popups are closed while waiting; a window that is not one gets a tap at a harmless point at the top edge, at most twice, and a list that closed is opened again. A list that stays covered fails the task with the screen saved. A room that does not open is tried once more; tickets left over with rooms that did not open are reported in the result.
+
 Popups are dismissed before each arrow press, and a press after which the location did not change is repeated once. The plan is kept by location name, so a missed press cannot shift it.
 
 ## Ideas seen elsewhere, not taken

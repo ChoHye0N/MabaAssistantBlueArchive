@@ -1143,6 +1143,38 @@ bool TaskRunner::RunScheduleRooms(const Step& s, Context& ctx, std::string& erro
         Settle();
         return closed;
     };
+    // The room list, shown and not covered by a window (a result, a rank-up, a reward).
+    const auto list_clear = [&](const Frame& frame) {
+        if (!nav_.Matcher().Find(frame, sp.list).found) return false;
+        return !sp.clear || !FindColorBlobs(frame, *sp.clear, 1).empty();
+    };
+    // Waits until the list is uncovered. Known popups are closed while waiting (each look settles
+    // them, also those that show up late); a window that is not a known popup gets a tap at a
+    // harmless point, at most twice. A list that closed meanwhile is opened again. False with
+    // `why` when it stays covered: the task then fails with the screen saved, so the window can
+    // be added to popups/.
+    const auto ready_list = [&](std::string& why) {
+        bool shown = false;
+        for (int round = 0; round < 3 && !Cancelled(); ++round) {
+            WaitUntil([&] {
+                const Observation obs = nav_.Observe();
+                shown = obs.ok && list_clear(obs.frame);
+                return shown;
+            }, StepWait(round == 0 ? 8000 : 4000, options_.cancel), nav_.Clock());
+            if (shown) return true;
+            const Frame frame = controller.Screenshot();
+            if (!nav_.Matcher().Find(frame, sp.list).found && !nav_.Matcher().Find(frame, sp.info).found) {
+                if (open_list(why)) continue;  // the list closed: open it again
+            }
+            if (!sp.tap_clear || round == 2) break;
+            Log(log_, LogLevel::kInfo, "schedule: the room list is covered, tapping a free spot");
+            if (!controller.Click(*sp.tap_clear)) break;
+            Settle();
+        }
+        if (Cancelled()) return false;
+        why = "the room list stayed covered by a window that is not a known popup";
+        return false;
+    };
     struct Room {
         int lap;
         std::string key;
@@ -1151,6 +1183,8 @@ bool TaskRunner::RunScheduleRooms(const Step& s, Context& ctx, std::string& erro
     };
     // Rooms of the open list that exist and are not done today, in list order.
     const auto rooms_now = [&](int lap, const std::string& key, std::vector<Room>& out) {
+        std::string why;
+        if (!ready_list(why)) return false;
         const Observation obs = nav_.Observe();
         if (!obs.ok) return false;
         for (std::size_t i = 0; i < sp.rooms.size(); ++i) {
@@ -1167,7 +1201,10 @@ bool TaskRunner::RunScheduleRooms(const Step& s, Context& ctx, std::string& erro
         return true;
     };
     // Runs one room of the open list; false when its dialog did not open (nothing spent).
+    std::string covered;  // set when a window that is not a known popup stays over the list
+    std::vector<std::string> missed;  // planned rooms that did not open
     const auto run_room = [&](const Room& room) {
+        if (!ready_list(covered)) return false;
         Step click;
         click.action = StepAction::kClick;
         click.point = sp.rooms[room.index];
@@ -1182,7 +1219,17 @@ bool TaskRunner::RunScheduleRooms(const Step& s, Context& ctx, std::string& erro
             }, "a room", why)) {
             Log(log_, LogLevel::kInfo, "room " + std::to_string(room.index + 1) + " did not open: " + why);
             if (nav_.Matcher().Find(controller.Screenshot(), sp.info).found) controller.Back();
-            return false;
+            // Once more after the popups had their time: a late window may have taken the click.
+            if (!ready_list(covered)) return false;
+            if (!CheckedAction(click, ctx, [&](std::string& w) {
+                    if (controller.Click(sp.rooms[room.index])) return true;
+                    w = Failed("click", controller);
+                    return false;
+                }, "a room", why)) {
+                if (nav_.Matcher().Find(controller.Screenshot(), sp.info).found) controller.Back();
+                missed.push_back(room.key + " #" + std::to_string(room.index + 1));
+                return false;
+            }
         }
         Step start;
         start.action = StepAction::kClick;
@@ -1198,8 +1245,7 @@ bool TaskRunner::RunScheduleRooms(const Step& s, Context& ctx, std::string& erro
         const bool done = WaitUntil(
             [&] {
                 const Observation obs = nav_.Observe();
-                return obs.ok && !nav_.Matcher().Find(obs.frame, sp.info).found &&
-                       nav_.Matcher().Find(obs.frame, sp.list).found;
+                return obs.ok && !nav_.Matcher().Find(obs.frame, sp.info).found && list_clear(obs.frame);
             },
             StepWait(static_cast<int>(kRoomTimeout.count()), options_.cancel), nav_.Clock()).ok;
         Settle();
@@ -1266,7 +1312,7 @@ bool TaskRunner::RunScheduleRooms(const Step& s, Context& ctx, std::string& erro
     std::size_t planned = 0;
     for (const auto& [where, rooms] : plan) planned += rooms.size();
     std::set<std::string> visited;
-    return lap_round([&](int lap, const std::string& key) {
+    const bool ran = lap_round([&](int lap, const std::string& key) {
         if (tickets <= 0) return false;
         if (!visited.insert(key).second) return true;
         if (prefer && !plan.count(key)) return true;
@@ -1282,13 +1328,24 @@ bool TaskRunner::RunScheduleRooms(const Step& s, Context& ctx, std::string& erro
             rooms_now(lap, key, rooms);
         }
         for (const auto& room : rooms) {
-            if (tickets <= 0 || Cancelled()) break;
+            if (tickets <= 0 || Cancelled() || !covered.empty()) break;
             run_room(room);
             if (prefer) --planned;
         }
+        if (!covered.empty()) return false;  // stop the lap; reported below
         close_list();
         return tickets > 0 && (!prefer || planned > 0);
     });
+    if (!covered.empty()) {
+        error = "schedule: " + covered;
+        return false;
+    }
+    if (ran && tickets > 0 && !missed.empty()) {
+        // Reported in the result instead of a plain "succeeded".
+        ctx.skipped.push_back("schedule: " + std::to_string(tickets) + " ticket(s) left, rooms that did not open:" +
+                              [&] { std::string s; for (const auto& m : missed) s += " " + m; return s; }());
+    }
+    return ran;
 }
 
 

@@ -331,6 +331,8 @@ Step ParseStep(const json& obj, const std::string& where, int depth) {
             sp.card = ParseColor(Require(obj, "card", where), where + ".card");
             sp.owned = ParseColor(Require(obj, "owned", where), where + ".owned");
             sp.done = ParseColor(Require(obj, "done", where), where + ".done");
+            if (obj.contains("clear")) sp.clear = ParseColor(obj.at("clear"), where + ".clear");
+            if (obj.contains("tap_clear")) sp.tap_clear = ParsePoint(obj.at("tap_clear"), where + ".tap_clear");
             s.schedule = std::move(sp);
             break;
         }

@@ -114,6 +114,10 @@ struct ScheduleSpec {
     std::vector<Point> rooms;             // click points, list order
     std::vector<Rect> card_rois, owned_rois, done_rois;  // per room, same order
     ColorSpec card, owned, done;          // a room exists / an owned student / done today
+    // The room list is uncovered: bright pixels of its title (template matching ignores the dark
+    // layer of a window over it). Empty = not checked.
+    std::optional<ColorSpec> clear;
+    std::optional<Point> tap_clear;       // a harmless point: closes windows that go on with a tap
 };
 
 // Which match a template click uses when several are visible.

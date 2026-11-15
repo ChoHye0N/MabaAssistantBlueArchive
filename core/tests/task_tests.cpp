@@ -403,6 +403,12 @@ MABA_TEST(ScheduleRoomsStepIsParsed) {
     const auto ok = maba::ParseTask(head + R"("done_rois": [{"x": 1, "y": 1, "w": 5, "h": 5}, {"x": 1, "y": 1, "w": 5, "h": 5}]}]})");
     CHECK(ok.ok);
     CHECK(ok.ok && ok.task.steps[0].schedule && ok.task.steps[0].schedule->rooms.size() == 2);
+    CHECK(ok.ok && !ok.task.steps[0].schedule->clear && !ok.task.steps[0].schedule->tap_clear);
+    const auto with_clear = maba::ParseTask(head + R"("clear": {"hsv_min": [0, 0, 235], "hsv_max": [180, 25, 255]},
+        "tap_clear": {"x": 300, "y": 2},
+        "done_rois": [{"x": 1, "y": 1, "w": 5, "h": 5}, {"x": 1, "y": 1, "w": 5, "h": 5}]}]})");
+    CHECK(with_clear.ok && with_clear.task.steps[0].schedule->clear && with_clear.task.steps[0].schedule->tap_clear &&
+          with_clear.task.steps[0].schedule->tap_clear->x == 300);
     // one area per room
     CHECK(!maba::ParseTask(head + R"("done_rois": [{"x": 1, "y": 1, "w": 5, "h": 5}]}]})").ok);
     CHECK(!maba::ParseTask(R"({"id": "s", "steps": [{"action": "schedule_rooms"}]})").ok);
