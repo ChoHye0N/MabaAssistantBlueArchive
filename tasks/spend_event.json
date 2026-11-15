@@ -121,9 +121,9 @@
               "else": [
                 {
                   "action": "if",
-                  "when": { "present": { "template": "stage_mission_start.png", "roi": { "x": 780, "y": 490, "w": 260, "h": 90 }, "threshold": 0.9 } },
+                  "when": { "present": { "template": "stage_mission_start.png", "roi": { "x": 780, "y": 490, "w": 280, "h": 90 }, "threshold": 0.9 } },
                   "then": [
-                    { "action": "click", "template": "stage_mission_start.png", "roi": { "x": 780, "y": 490, "w": 260, "h": 90 }, "threshold": 0.9 },
+                    { "action": "click", "template": "stage_mission_start.png", "roi": { "x": 780, "y": 490, "w": 280, "h": 90 }, "threshold": 0.9 },
                     {
                       "action": "wait_template",
                       "template": "formation_sortie.png",
@@ -204,7 +204,7 @@
             {
               "action": "click",
               "template": "stage_mission_start.png",
-              "roi": { "x": 780, "y": 490, "w": 260, "h": 90 },
+              "roi": { "x": 780, "y": 490, "w": 280, "h": 90 },
               "threshold": 0.9,
               "expect": { "template": "formation_title.png", "roi": { "x": 80, "y": 0, "w": 120, "h": 55 }, "threshold": 0.9 },
               "timeout_ms": 10000
@@ -310,7 +310,7 @@
         {
           "action": "click",
           "template": "stage_mission_start.png",
-          "roi": { "x": 780, "y": 490, "w": 260, "h": 90 },
+          "roi": { "x": 780, "y": 490, "w": 280, "h": 90 },
           "threshold": 0.9,
           "expect": { "template": "formation_title.png", "roi": { "x": 80, "y": 0, "w": 120, "h": 55 }, "threshold": 0.9 },
           "timeout_ms": 10000

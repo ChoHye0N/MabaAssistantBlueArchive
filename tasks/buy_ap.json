@@ -29,7 +29,7 @@
           "x": 630,
           "y": 36,
           "on_page": "main_menu",
-          "expect": { "template": "ap_purchase_title.png", "roi": { "x": 560, "y": 140, "w": 160, "h": 70 }, "threshold": 0.9 },
+          "expect": { "template": "ap_purchase_title.png", "roi": { "x": 530, "y": 140, "w": 220, "h": 70 }, "threshold": 0.9 },
           "timeout_ms": 5000
         },
         { "action": "wait_stable", "timeout_ms": 3000 },
@@ -43,7 +43,7 @@
               "action": "click",
               "x": 515,
               "y": 505,
-              "require": { "template": "ap_purchase_title.png", "roi": { "x": 560, "y": 140, "w": 160, "h": 70 }, "threshold": 0.9 },
+              "require": { "template": "ap_purchase_title.png", "roi": { "x": 530, "y": 140, "w": 220, "h": 70 }, "threshold": 0.9 },
               "no_verify": true
             },
             { "action": "end", "status": "skipped", "message": "no purchases left today" }
@@ -57,7 +57,7 @@
               "action": "click",
               "x": 515,
               "y": 505,
-              "require": { "template": "ap_purchase_title.png", "roi": { "x": 560, "y": 140, "w": 160, "h": 70 }, "threshold": 0.9 },
+              "require": { "template": "ap_purchase_title.png", "roi": { "x": 530, "y": 140, "w": 220, "h": 70 }, "threshold": 0.9 },
               "no_verify": true
             },
             { "action": "end", "status": "succeeded", "message": "price above the limit" }
@@ -67,7 +67,7 @@
           "action": "click",
           "x": 767,
           "y": 505,
-          "require": { "template": "ap_purchase_title.png", "roi": { "x": 560, "y": 140, "w": 160, "h": 70 }, "threshold": 0.9 },
+          "require": { "template": "ap_purchase_title.png", "roi": { "x": 530, "y": 140, "w": 220, "h": 70 }, "threshold": 0.9 },
           "no_verify": true
         },
         { "action": "wait_stable", "timeout_ms": 4000 },

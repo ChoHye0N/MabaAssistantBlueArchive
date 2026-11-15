@@ -1,0 +1,26 @@
+{
+  "language": "en",
+  "strings": {
+    "commission.request.exp": "Base Defense",
+    "commission.request.credit": "Item Retrieval",
+    "mission.batch_preset.1": "1 (leftmost)",
+    "mission.batch_preset.2": "2",
+    "mission.batch_preset.3": "3",
+    "mission.batch_preset.4": "4",
+    "mission.batch_preset.5": "5",
+    "mission.batch_preset.6": "6",
+    "mission.batch_preset.7": "7",
+    "schedule.location.schale_office": "Schale Office",
+    "schedule.location.schale_residence": "Schale Residence Hall",
+    "schedule.location.gehenna_central": "Gehenna Hub",
+    "schedule.location.abydos_main": "Abydos Main Building",
+    "schedule.location.millennium_science": "Millennium Study Center",
+    "schedule.location.trinity_square": "Trinity Plaza Area",
+    "schedule.location.red_winter": "Red Winter Federal Academy",
+    "schedule.location.hyakkiyako_center": "Hyakkiyako Central Area",
+    "schedule.location.du_shiratori": "D.U. Shiratori City",
+    "schedule.location.shanhaijing_center": "Shanhaijing Main Special Zone",
+    "schedule.location.haruhabara": "Haruhabara Electric Town",
+    "schedule.location.wildhunt_arts": "Wildhunt Integrated Arts District"
+  }
+}

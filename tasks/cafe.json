@@ -36,14 +36,14 @@
       "action": "click",
       "x": 1175,
       "y": 668,
-      "expect": { "template": "cafe_income_title.png", "roi": { "x": 540, "y": 110, "w": 200, "h": 80 }, "threshold": 0.9 },
+      "expect": { "template": "cafe_income_title.png", "roi": { "x": 520, "y": 110, "w": 240, "h": 80 }, "threshold": 0.9 },
       "retries": 3,
       "timeout_ms": 4000,
       "optional": true
     },
     {
       "action": "if",
-      "when": { "present": { "template": "cafe_income_title.png", "roi": { "x": 540, "y": 110, "w": 200, "h": 80 }, "threshold": 0.9 } },
+      "when": { "present": { "template": "cafe_income_title.png", "roi": { "x": 520, "y": 110, "w": 240, "h": 80 }, "threshold": 0.9 } },
       "then": [
         { "action": "click_if_present", "template": "cafe_income_claim.png", "roi": { "x": 500, "y": 480, "w": 280, "h": 100 }, "threshold": 0.9, "when": { "color": { "hsv_min": [18, 120, 180], "hsv_max": [35, 255, 255], "area": [5000, 28000], "roi": { "x": 500, "y": 480, "w": 280, "h": 100 } } }, "optional": true },
         {
@@ -52,7 +52,7 @@
           "steps": [
             {
               "action": "if",
-              "when": { "present": { "template": "cafe_income_title.png", "roi": { "x": 540, "y": 110, "w": 200, "h": 80 }, "threshold": 0.9 } },
+              "when": { "present": { "template": "cafe_income_title.png", "roi": { "x": 520, "y": 110, "w": 240, "h": 80 }, "threshold": 0.9 } },
               "then": [{ "action": "back" }, { "action": "break" }],
               "else": [{ "action": "sleep", "sleep_ms": 1000 }]
             }

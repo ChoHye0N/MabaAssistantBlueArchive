@@ -57,7 +57,7 @@
       "steps": [
         {
           "action": "if",
-          "when": { "absent": { "template": "schedule_select_title.png", "roi": { "x": 80, "y": 0, "w": 180, "h": 55 }, "threshold": 0.9 } },
+          "when": { "absent": { "template": "schedule_select_title.png", "roi": { "x": 80, "y": 0, "w": 240, "h": 55 }, "threshold": 0.9 } },
           "then": [
             { "action": "goto", "page": "schedule" },
             {
@@ -72,7 +72,7 @@
               "action": "click_text",
               "text_key": "schedule.location.{value}",
               "fuzzy": true,
-              "roi": { "x": 740, "y": 135, "w": 300, "h": 550 },
+              "roi": { "x": 740, "y": 135, "w": 360, "h": 550 },
               "max_scrolls": 3,
               "duration_ms": 500,
               "optional": true,
@@ -85,7 +85,7 @@
     },
     {
       "action": "if",
-      "when": { "absent": { "template": "schedule_select_title.png", "roi": { "x": 80, "y": 0, "w": 180, "h": 55 }, "threshold": 0.9 } },
+      "when": { "absent": { "template": "schedule_select_title.png", "roi": { "x": 80, "y": 0, "w": 240, "h": 55 }, "threshold": 0.9 } },
       "then": [{ "action": "return_home" }, { "action": "fail", "message": "no chosen location could be opened" }]
     },
     { "action": "wait_stable", "timeout_ms": 4000 },
@@ -98,8 +98,8 @@
       "name_roi": { "x": 925, "y": 95, "w": 330, "h": 37 },
       "next": { "x": 1250, "y": 362 },
       "open": { "template": "schedule_all_button.png", "roi": { "x": 1060, "y": 620, "w": 220, "h": 100 }, "threshold": 0.9 },
-      "list": { "template": "schedule_all_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 80 }, "threshold": 0.9 },
-      "info": { "template": "schedule_info_title.png", "roi": { "x": 540, "y": 90, "w": 200, "h": 70 }, "threshold": 0.9 },
+      "list": { "template": "schedule_all_title.png", "roi": { "x": 520, "y": 70, "w": 240, "h": 80 }, "threshold": 0.9 },
+      "info": { "template": "schedule_info_title.png", "roi": { "x": 520, "y": 90, "w": 240, "h": 70 }, "threshold": 0.9 },
       "start": { "template": "schedule_start.png", "roi": { "x": 530, "y": 510, "w": 220, "h": 80 }, "threshold": 0.9 },
       "ticket_roi": { "x": 665, "y": 138, "w": 48, "h": 28 },
       "rooms": [

@@ -100,14 +100,14 @@
           "steps": [
             {
               "action": "if",
-              "when": { "absent": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 } },
+              "when": { "absent": { "template": "mission_batch_title.png", "roi": { "x": 520, "y": 70, "w": 240, "h": 70 }, "threshold": 0.9 } },
               "then": [
                 {
                   "action": "click",
                   "x": 535,
                   "y": 588,
                   "on_page": "mission_area",
-                  "expect": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
+                  "expect": { "template": "mission_batch_title.png", "roi": { "x": 520, "y": 70, "w": 240, "h": 70 }, "threshold": 0.9 },
                   "timeout_ms": 5000
                 },
                 { "action": "wait_stable", "timeout_ms": 3000 }
@@ -125,7 +125,7 @@
                 { "x": 1077, "y": 163 }
               ],
               "point_by": "value",
-              "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
+              "require": { "template": "mission_batch_title.png", "roi": { "x": 520, "y": 70, "w": 240, "h": 70 }, "threshold": 0.9 },
               "no_verify": true
             },
             { "action": "wait_stable", "timeout_ms": 3000 },
@@ -148,7 +148,7 @@
                   "action": "click",
                   "x": 1221,
                   "y": 99,
-                  "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
+                  "require": { "template": "mission_batch_title.png", "roi": { "x": 520, "y": 70, "w": 240, "h": 70 }, "threshold": 0.9 },
                   "expect": { "template": "mission_area_title.png", "roi": { "x": 80, "y": 0, "w": 110, "h": 55 }, "threshold": 0.95 },
                   "timeout_ms": 5000
                 },
@@ -163,7 +163,7 @@
                   "action": "click",
                   "x": 818,
                   "y": 592,
-                  "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
+                  "require": { "template": "mission_batch_title.png", "roi": { "x": 520, "y": 70, "w": 240, "h": 70 }, "threshold": 0.9 },
                   "no_verify": true
                 }
               ],
@@ -172,7 +172,7 @@
                   "action": "click",
                   "x": 530,
                   "y": 591,
-                  "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
+                  "require": { "template": "mission_batch_title.png", "roi": { "x": 520, "y": 70, "w": 240, "h": 70 }, "threshold": 0.9 },
                   "no_verify": true
                 }
               ]
@@ -186,7 +186,7 @@
                   "action": "click",
                   "x": 751,
                   "y": 592,
-                  "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
+                  "require": { "template": "mission_batch_title.png", "roi": { "x": 520, "y": 70, "w": 240, "h": 70 }, "threshold": 0.9 },
                   "no_verify": true
                 }
               ]
@@ -199,7 +199,7 @@
                   "action": "click",
                   "x": 751,
                   "y": 592,
-                  "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
+                  "require": { "template": "mission_batch_title.png", "roi": { "x": 520, "y": 70, "w": 240, "h": 70 }, "threshold": 0.9 },
                   "no_verify": true
                 },
                 { "action": "sleep", "sleep_ms": 400 },
@@ -207,7 +207,7 @@
                   "action": "click",
                   "x": 751,
                   "y": 592,
-                  "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
+                  "require": { "template": "mission_batch_title.png", "roi": { "x": 520, "y": 70, "w": 240, "h": 70 }, "threshold": 0.9 },
                   "no_verify": true
                 }
               ]
@@ -223,7 +223,7 @@
                   "action": "click",
                   "x": 1112,
                   "y": 592,
-                  "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
+                  "require": { "template": "mission_batch_title.png", "roi": { "x": 520, "y": 70, "w": 240, "h": 70 }, "threshold": 0.9 },
                   "expect": { "template": "mission_batch_confirm_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
                   "timeout_ms": 5000
                 },
@@ -239,7 +239,7 @@
                 {
                   "action": "loop",
                   "max": 20,
-                  "until": { "present": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 } },
+                  "until": { "present": { "template": "mission_batch_title.png", "roi": { "x": 520, "y": 70, "w": 240, "h": 70 }, "threshold": 0.9 } },
                   "steps": [{ "action": "sleep", "sleep_ms": 2000 }]
                 },
                 { "action": "wait_stable", "timeout_ms": 4000 }
@@ -251,13 +251,13 @@
     },
     {
       "action": "if",
-      "when": { "present": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 } },
+      "when": { "present": { "template": "mission_batch_title.png", "roi": { "x": 520, "y": 70, "w": 240, "h": 70 }, "threshold": 0.9 } },
       "then": [
         {
           "action": "click",
           "x": 1221,
           "y": 99,
-          "require": { "template": "mission_batch_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
+          "require": { "template": "mission_batch_title.png", "roi": { "x": 520, "y": 70, "w": 240, "h": 70 }, "threshold": 0.9 },
           "expect": { "template": "mission_area_title.png", "roi": { "x": 80, "y": 0, "w": 110, "h": 55 }, "threshold": 0.95 },
           "timeout_ms": 5000
         },

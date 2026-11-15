@@ -5,6 +5,8 @@ What is known about the game itself, seen in the Korean Steam client unless note
 ## Client
 Window class `UnityWndClass`, title `Blue Archive`, 16:9 client area. BitBlt, PrintWindow and `SendInput` mouse input all work. Input right after a page change can be ignored.
 
+The client language is chosen in the game's options and changes every text, also on the title screen (the Korean client writes `MENU`, the English one `Menu`). Image notices, the main screen icons and the "tap to continue" line of reward windows look the same in both.
+
 ## Screens
 
 **Main screen.** Top bar: level and nickname, AP, credits, pyroxene, friends, mail, menu collection. Left: notice, MomoTalk, attendance, missions, cash shop (labelled "pyroxene purchase" before the 2026-11-10 update). Bottom bar: cafe, schedule, students, formation, social, crafting, shop, recruitment. Bottom right: campaign hub.

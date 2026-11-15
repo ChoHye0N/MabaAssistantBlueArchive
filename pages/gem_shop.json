@@ -7,12 +7,7 @@
   "anchors": [
     {
       "template": "cash_shop_title.png",
-      "roi": {
-        "x": 90,
-        "y": 0,
-        "w": 110,
-        "h": 50
-      },
+      "roi": { "x": 90, "y": 0, "w": 210, "h": 50 },
       "threshold": 0.9
     }
   ],

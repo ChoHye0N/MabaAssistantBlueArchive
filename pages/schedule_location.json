@@ -4,7 +4,7 @@
     "Inside one schedule location ('schedule select'): the room map and the 'all schedules' button. Back (top left) returns to the location list."
   ],
   "anchors": [
-    { "template": "schedule_select_title.png", "roi": { "x": 80, "y": 0, "w": 180, "h": 55 }, "threshold": 0.9 }
+    { "template": "schedule_select_title.png", "roi": { "x": 80, "y": 0, "w": 240, "h": 55 }, "threshold": 0.9 }
   ],
   "transitions": [
     { "to": "schedule", "click": { "x": 56, "y": 38 } },

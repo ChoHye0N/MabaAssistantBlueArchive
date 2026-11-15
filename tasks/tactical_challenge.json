@@ -54,7 +54,7 @@
           "action": "click",
           "x": 640,
           "y": 250,
-          "expect": { "template": "tactical_opponent_title.png", "roi": { "x": 540, "y": 60, "w": 200, "h": 80 }, "threshold": 0.9 },
+          "expect": { "template": "tactical_opponent_title.png", "roi": { "x": 500, "y": 60, "w": 280, "h": 80 }, "threshold": 0.9 },
           "timeout_ms": 5000,
           "when": { "setting": "opponent", "equals": "1" }
         },
@@ -62,7 +62,7 @@
           "action": "click",
           "x": 640,
           "y": 410,
-          "expect": { "template": "tactical_opponent_title.png", "roi": { "x": 540, "y": 60, "w": 200, "h": 80 }, "threshold": 0.9 },
+          "expect": { "template": "tactical_opponent_title.png", "roi": { "x": 500, "y": 60, "w": 280, "h": 80 }, "threshold": 0.9 },
           "timeout_ms": 5000,
           "when": { "setting": "opponent", "equals": "2" }
         },
@@ -70,14 +70,14 @@
           "action": "click",
           "x": 640,
           "y": 570,
-          "expect": { "template": "tactical_opponent_title.png", "roi": { "x": 540, "y": 60, "w": 200, "h": 80 }, "threshold": 0.9 },
+          "expect": { "template": "tactical_opponent_title.png", "roi": { "x": 500, "y": 60, "w": 280, "h": 80 }, "threshold": 0.9 },
           "timeout_ms": 5000,
           "when": { "setting": "opponent", "equals": "3" }
         },
         {
           "action": "click",
           "template": "tactical_attack_formation.png",
-          "roi": { "x": 540, "y": 530, "w": 200, "h": 80 },
+          "roi": { "x": 520, "y": 530, "w": 240, "h": 80 },
           "threshold": 0.9,
           "expect": { "template": "tactical_formation_title.png", "roi": { "x": 80, "y": 0, "w": 160, "h": 55 }, "threshold": 0.9 },
           "timeout_ms": 8000

@@ -6,12 +6,7 @@
   "anchors": [
     {
       "template": "craft_title.png",
-      "roi": {
-        "x": 90,
-        "y": 0,
-        "w": 90,
-        "h": 50
-      },
+      "roi": { "x": 90, "y": 0, "w": 210, "h": 50 },
       "threshold": 0.9
     }
   ],

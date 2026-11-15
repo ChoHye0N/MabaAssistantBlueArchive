@@ -3,7 +3,7 @@
 # SPDX-FileCopyrightText: 2026 MabaAssistantBlueArchive contributors
 """Run a short list of steps in the real game from a temporary copy of the data, and record the screen.
 
-  live_tour.py STEPS.json [--out captures/tour] [--seconds 120] [--ocr] [--page FILE ...] [--template FILE ...]
+  live_tour.py STEPS.json [--out captures/tour] [--seconds 120] [--ocr] [--lang ko] [--page FILE ...] [--template FILE ...]
 
 STEPS.json is a list of task steps (docs/PAGE_FORMAT.md). The repository data is copied to a temporary
 root, so pages, popups and templates under test can be added with --page / --template without touching
@@ -101,6 +101,7 @@ def main(argv=None):
     ap.add_argument("--ocr", action="store_true", help="start the OCR sidecar (off by default)")
     ap.add_argument("--page", action="append", default=[], help="extra page or popup JSON for the temporary root")
     ap.add_argument("--template", action="append", default=[], help="extra template; its parent folder name picks the language")
+    ap.add_argument("--lang", default="ko", help="game client language: templates and OCR (default ko)")
     ap.add_argument("--cli", help="maba_cli path (default: the newest build)")
     args = ap.parse_args(argv)
 
@@ -125,7 +126,7 @@ def main(argv=None):
         make_root(Path(tmp), steps, args.page, args.template)
         if args.ocr:
             link_ocr(Path(tmp))
-        cmd = [str(cli), "run", "--tasks", TASK_ID, "--root", tmp] + ([] if args.ocr else ["--no-ocr"])
+        cmd = [str(cli), "run", "--tasks", TASK_ID, "--root", tmp, "--lang", args.lang] + ([] if args.ocr else ["--no-ocr"])
         try:
             code = subprocess.run(cmd, cwd=ROOT, stdin=subprocess.DEVNULL, timeout=args.seconds).returncode
         except subprocess.TimeoutExpired:
