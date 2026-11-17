@@ -61,6 +61,10 @@ PageDef ParsePageJson(const json& root) {
     }
 
     page.wait = std::chrono::milliseconds{OptInt(root, "wait_ms", where, 0, 0, 1800000)};
+    if (auto it = root.find("clear"); it != root.end() && !it->is_null()) {
+        page.clear = ParseColor(*it, where + ".clear");
+        page.clear_tap = ParsePoint(Require(root, "clear_tap", where), where + ".clear_tap");
+    }
 
     if (auto it = root.find("enter"); it != root.end() && !it->is_null()) {
         if (!it->is_object()) throw ParseError(where + ": 'enter' must be an object");

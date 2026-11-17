@@ -5,6 +5,8 @@
     "Also holds bounty, commissions, scrimmage, total assault, joint firing drill, grand assault and limit-release showdown. Top row since 2026-11-10: missions (narrower), a locked virtual aptitude test (beta), story."
   ],
   "anchors": [{ "template": "campaign_title.png", "roi": { "x": 80, "y": 0, "w": 220, "h": 55 }, "threshold": 0.9 }],
+  "clear": { "hsv_min": [90, 80, 150], "hsv_max": [110, 255, 255], "area": [15, 2000], "roi": { "x": 600, "y": 8, "w": 510, "h": 34 } },
+  "clear_tap": { "x": 300, "y": 2 },
   "transitions": [
     { "to": "main_menu", "click": { "template": "common_home_button.png", "roi": { "x": 1195, "y": 0, "w": 85, "h": 55 }, "threshold": 0.9 } },
     { "to": "bounty", "click": { "x": 725, "y": 400 } },

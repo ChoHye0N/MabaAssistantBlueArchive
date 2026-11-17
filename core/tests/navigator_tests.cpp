@@ -249,3 +249,69 @@ MABA_TEST(GameLanguageGuessNeedsAPageOfThatLanguage) {
 }
 
 }  // namespace
+
+// A window that is not a known popup over the home page: the page still matches under it, and a
+// bright spot of the page tells it apart. Navigation taps a free spot, then presses back.
+namespace {
+struct CoveredRig {
+    enum : std::size_t { kCovered = 0, kClear = 1, kMail = 2 };
+    CoveredRig() : controller({40, 250, 12}) {
+        matcher.Add("main.png", {40, 250});
+        matcher.Add("mail_button.png", {40, 250}, {1100, 40, 60, 50});  // center (1130, 65)
+        matcher.Add("mail_title.png", {12});
+        auto main = maba::ParsePage(R"({"id": "main_menu", "anchors": [{"template": "main.png"}],
+            "clear": {"hsv_min": [0, 0, 200], "hsv_max": [180, 60, 255], "roi": {"x": 296, "y": 0, "w": 9, "h": 5}},
+            "clear_tap": {"x": 300, "y": 2},
+            "transitions": [{"to": "mail", "click": {"template": "mail_button.png"}}]})");
+        auto mail = maba::ParsePage(R"({"id": "mail", "anchors": [{"template": "mail_title.png"}],
+            "transitions": [{"to": "main_menu", "click": {"x": 40, "y": 40}}]})");
+        CHECK(main.ok && mail.ok);
+        pages[main.page.id] = main.page;
+        pages[mail.page.id] = mail.page;
+        controller.clicks_to = {{kClear, {1130, 65}, kMail}, {kCovered, {1130, 65}, kCovered}};
+        controller.scene = kCovered;
+        nav_options.after_back = std::chrono::milliseconds{100};
+    }
+    maba::Navigator& Nav() {
+        handler = std::make_unique<maba::PopupHandler>(matcher, popups, popup_options);
+        nav = std::make_unique<maba::Navigator>(controller, matcher, pages, *handler, clock, nav_options);
+        return *nav;
+    }
+    maba_test::SceneController controller;
+    maba_test::SceneMatcher matcher;
+    maba_test::ManualClock clock;
+    std::map<std::string, maba::PageDef> pages;
+    std::vector<maba::PopupDef> popups;
+    maba::PopupOptions popup_options;
+    maba::NavigatorOptions nav_options;
+    std::unique_ptr<maba::PopupHandler> handler;
+    std::unique_ptr<maba::Navigator> nav;
+};
+}  // namespace
+
+MABA_TEST(CoveredPageIsClearedByATapBeforeNavigating) {
+    CoveredRig rig;
+    rig.controller.clicks_to.push_back({CoveredRig::kCovered, {300, 2}, CoveredRig::kClear});
+    const auto r = rig.Nav().GoTo("mail");
+    CHECK(r.ok);
+    CHECK(rig.controller.clicks.size() == 2);
+    CHECK(rig.controller.clicks.size() == 2 && rig.controller.clicks[0].x == 300 && rig.controller.clicks[0].y == 2);
+    CHECK(rig.controller.backs == 0);
+}
+
+MABA_TEST(CoveredPageFallsBackToBackAndIsBounded) {
+    CoveredRig rig;
+    rig.controller.back_to[CoveredRig::kCovered] = CoveredRig::kClear;  // a dialog that only back closes
+    const auto r = rig.Nav().GoTo("mail");
+    CHECK(r.ok);
+    CHECK(rig.controller.backs == 1);
+    CHECK(rig.controller.clicks.size() == 3);  // two taps, then the mail button
+    // A window nothing closes: four tries, then navigation goes on as before (and fails here).
+    CoveredRig stuck;
+    const auto s = stuck.Nav().GoTo("mail");
+    CHECK(!s.ok);
+    CHECK(stuck.controller.backs >= 2);
+    std::size_t taps = 0;
+    for (const auto& c : stuck.controller.clicks) taps += c.x == 300 && c.y == 2;
+    CHECK(taps == 2);
+}

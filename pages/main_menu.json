@@ -11,6 +11,8 @@
     { "template": "main_menu_mission_icon.png", "roi": { "x": 14, "y": 190, "w": 70, "h": 75 }, "threshold": 0.9 },
     { "template": "main_menu_shop_icon.png", "roi": { "x": 725, "y": 615, "w": 90, "h": 85 }, "threshold": 0.9 }
   ],
+  "clear": { "hsv_min": [95, 180, 95], "hsv_max": [115, 255, 255], "area": [20, 200], "roi": { "x": 4, "y": 22, "w": 9, "h": 9 } },
+  "clear_tap": { "x": 300, "y": 2 },
   "enter": {
     "tap": { "x": 640, "y": 100 },
     "screens": [

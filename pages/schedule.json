@@ -8,6 +8,8 @@
     { "template": "schedule_title.png", "roi": { "x": 80, "y": 0, "w": 130, "h": 55 }, "threshold": 0.9 },
     { "template": "schedule_location_select.png", "roi": { "x": 630, "y": 75, "w": 280, "h": 65 }, "threshold": 0.9 }
   ],
+  "clear": { "hsv_min": [90, 80, 150], "hsv_max": [110, 255, 255], "area": [15, 2000], "roi": { "x": 600, "y": 8, "w": 510, "h": 34 } },
+  "clear_tap": { "x": 300, "y": 2 },
   "transitions": [
     { "to": "main_menu", "click": { "template": "common_home_button.png", "roi": { "x": 1195, "y": 0, "w": 85, "h": 55 }, "threshold": 0.9 } }
   ]

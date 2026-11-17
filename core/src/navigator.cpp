@@ -9,9 +9,15 @@
 #include <set>
 #include <utility>
 
+#include "maba/color.h"
 #include "maba/detect.h"
 
 namespace maba {
+
+namespace {
+constexpr int kMaxClears = 4;    // per GoTo: two taps at a free spot, then two back presses
+constexpr int kMaxDimLooks = 8;  // per GoTo: second looks at a page that looked covered
+}  // namespace
 
 std::vector<std::string> FindPath(const std::map<std::string, PageDef>& pages,
                                   const std::string& from, const std::string& to) {
@@ -144,6 +150,8 @@ NavResult Navigator::GoTo(const std::string& target) {
     NavResult result;
     if (!pages_.count(target)) return Fail(result, "unknown page: " + target);
     int backs = 0;
+    int clears = 0;      // taps and back presses spent on windows over a known page
+    int dim_looks = 0;   // second looks at a page that looked covered
     std::chrono::milliseconds waited{0};
 
     while (true) {
@@ -155,6 +163,40 @@ NavResult Navigator::GoTo(const std::string& target) {
             return Fail(result, "cancelled");
         }
         if (recognized) result.page = obs.page;
+
+        // A window that is not a known popup over a known page (a notice, an expiry warning): the
+        // page still matches under its dark layer, so a click meant for the page would hit the
+        // window. Tap a free spot twice, then press back twice; after that go on as before. A page
+        // that fades in looks dim for a moment, so the page must still be dim a moment later.
+        if (recognized && clears < kMaxClears && dim_looks < kMaxDimLooks) {
+            const PageDef& here = pages_.at(obs.page);
+            const auto covered = [&](const Frame& frame) {
+                return here.clear && here.clear_tap && FindColorBlobs(frame, *here.clear, 1).empty();
+            };
+            bool still = covered(obs.frame);
+            if (still) {
+                ++dim_looks;
+                clock_.Sleep(options_.after_back);
+                const Observation again = Observe();
+                if (again.cancelled) {
+                    result.cancelled = true;
+                    return Fail(result, "cancelled");
+                }
+                still = again.ok && again.page == obs.page && covered(again.frame);
+                if (!still) continue;  // look again from the top
+            }
+            if (still) {
+                const bool tap = clears < kMaxClears / 2;
+                Log(log_, LogLevel::kInfo, "page '" + obs.page + "' is covered by a window, " +
+                                               (tap ? std::string("tapping a free spot") : std::string("pressing back")));
+                if (!(tap ? controller_.Click(*here.clear_tap) : controller_.Back()))
+                    return Fail(result, Failed(tap ? "click" : "back", controller_));
+                ++clears;
+                clock_.Sleep(options_.after_back);
+                if (options_.settle.enabled) WaitSettled(options_.settle.timeout);
+                continue;
+            }
+        }
 
         if (recognized && obs.page == target) {
             if (result.steps > 0) {

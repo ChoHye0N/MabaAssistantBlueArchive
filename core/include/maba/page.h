@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 
+#include "maba/color.h"
 #include "maba/types.h"
 
 namespace maba {
@@ -55,6 +56,12 @@ struct PageDef {
     // Above 0: the screen ends by itself (a battle). Navigation waits this long and never presses
     // back here, because back opens the pause menu and can give the battle up.
     std::chrono::milliseconds wait{0};
+    // The page is uncovered while this colour is visible (a bright spot that any window over the
+    // page darkens; template matching does not see the dark layer). When navigation finds the page
+    // covered, it taps `clear_tap` (windows that go on with a tap) and then presses back (dialogs),
+    // a few times, before it goes on. Tasks' own windows are left alone: only navigation does this.
+    std::optional<ColorSpec> clear;
+    std::optional<Point> clear_tap;
 
     const Transition* FindTransition(const std::string& to) const;
 };
