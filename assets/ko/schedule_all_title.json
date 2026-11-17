@@ -4,9 +4,9 @@
   "lang": "ko",
   "roi": {
     "x": 560,
-    "y": 80,
+    "y": 93,
     "w": 160,
-    "h": 50
+    "h": 36
   },
   "masks": [],
   "source_client": "steam-pc-global",
@@ -15,7 +15,8 @@
     "h": 720
   },
   "game_version": "453174",
-  "capture_date": "2026-11-02",
+  "capture_date": "2026-11-13",
   "tool": "template_capture.py 0.1.0",
-  "source": "steam client 1920x1080, core-normalized to 1280x720"
+  "source": "steam client 1920x1080, core-normalized to 1280x720",
+  "notes": "Lower part of the title and its underline: a mission progress banner can cover the title top down to y 91."
 }
