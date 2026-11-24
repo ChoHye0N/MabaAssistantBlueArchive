@@ -224,7 +224,7 @@
                   "x": 1112,
                   "y": 592,
                   "require": { "template": "mission_batch_title.png", "roi": { "x": 520, "y": 70, "w": 240, "h": 70 }, "threshold": 0.9 },
-                  "expect": { "template": "mission_batch_confirm_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
+                  "expect": { "template": "mission_batch_confirm_title.png", "roi": { "x": 510, "y": 70, "w": 260, "h": 70 }, "threshold": 0.9 },
                   "timeout_ms": 5000
                 },
                 {
@@ -232,7 +232,7 @@
                   "x": 767,
                   "y": 585,
                   "commits": true,
-                  "require": { "template": "mission_batch_confirm_title.png", "roi": { "x": 550, "y": 70, "w": 180, "h": 70 }, "threshold": 0.9 },
+                  "require": { "template": "mission_batch_confirm_title.png", "roi": { "x": 510, "y": 70, "w": 260, "h": 70 }, "threshold": 0.9 },
                   "no_verify": true
                 },
                 { "action": "sleep", "sleep_ms": 3000 },
