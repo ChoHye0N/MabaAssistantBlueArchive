@@ -291,6 +291,8 @@ NavResult Navigator::EnterGame() {
     }
     const EnterSpec& enter = *home->second.enter;
     std::string last_error;
+    std::chrono::milliseconds loading{0};  // time spent on loading screens, outside the tap count
+    bool loading_logged = false;
 
     while (true) {
         bool recognized = false;
@@ -313,6 +315,19 @@ NavResult Navigator::EnterGame() {
         if (result.steps >= enter.max_taps)
             return Fail(result, "no known page after " + std::to_string(enter.max_taps) + " taps" +
                                     (last_error.empty() ? "" : " (" + last_error + ")"));
+
+        const bool is_loading = std::any_of(enter.loading.begin(), enter.loading.end(),
+                                            [&](const TemplateRef& ref) { return matcher_.Find(obs.frame, ref).found; });
+        if (is_loading) {
+            if (loading >= enter.max_loading)
+                return Fail(result, "still loading after " + std::to_string(loading.count() / 1000) + " s");
+            if (!loading_logged) Log(log_, LogLevel::kInfo, "the game is loading, waiting");
+            loading_logged = true;
+            clock_.Sleep(enter.interval);
+            loading += enter.interval;
+            continue;
+        }
+        loading_logged = false;
 
         Point tap = enter.tap;
         std::string where = "start-up screen";

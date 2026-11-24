@@ -81,6 +81,13 @@ PageDef ParsePageJson(const json& root) {
                                          ParsePoint(Require(entry, "tap", si), si + ".tap")});
             }
         }
+        if (auto l = it->find("loading"); l != it->end()) {
+            if (!l->is_array()) throw ParseError(at + ": 'loading' must be an array");
+            for (std::size_t i = 0; i < l->size(); ++i)
+                enter.loading.push_back(ParseTemplateRef((*l)[i], at + ".loading[" + std::to_string(i) + "]"));
+        }
+        enter.max_loading = std::chrono::milliseconds{
+            OptInt(*it, "max_loading_ms", at, static_cast<int>(enter.max_loading.count()), 0, 3600000)};
         enter.max_taps = OptInt(*it, "max_taps", at, enter.max_taps, 1, 100);
         enter.interval = std::chrono::milliseconds{
             OptInt(*it, "interval_ms", at, static_cast<int>(enter.interval.count()), 100, 10000)};

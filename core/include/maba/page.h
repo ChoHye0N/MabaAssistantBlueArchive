@@ -45,6 +45,10 @@ struct EnterSpec {
     std::vector<EnterTap> screens;  // checked in order; the first match picks the point
     int max_taps = 30;
     std::chrono::milliseconds interval{2000};  // pause after each tap
+    // Loading or downloading screens: while one shows, nothing is tapped and the round does not
+    // count against `max_taps` (a long patch download), but all such waiting is capped.
+    std::vector<TemplateRef> loading;
+    std::chrono::milliseconds max_loading{900000};
 };
 
 struct PageDef {

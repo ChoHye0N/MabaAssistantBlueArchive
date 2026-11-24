@@ -1,0 +1,23 @@
+{
+  "task": "main_menu",
+  "element": "loading_text",
+  "lang": "common",
+  "roi": {
+    "x": 921,
+    "y": 648,
+    "w": 198,
+    "h": 34
+  },
+  "masks": [
+    "alpha: the text only (the background differs per screen)"
+  ],
+  "source_client": "steam-pc-global",
+  "source_size": {
+    "w": 1280,
+    "h": 720
+  },
+  "game_version": "",
+  "capture_date": "2026-11-24",
+  "tool": "template_capture.py 0.1.0",
+  "notes": "'Now Loading' without the dots and the animated mascot; the same in the Korean and English clients."
+}

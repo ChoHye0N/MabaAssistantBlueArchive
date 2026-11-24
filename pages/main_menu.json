@@ -18,6 +18,8 @@
     "screens": [
       { "when": { "template": "title_menu_button.png", "roi": { "x": 10, "y": 600, "w": 120, "h": 70 }, "threshold": 0.9 }, "tap": { "x": 305, "y": 531 } }
     ],
+    "loading": [{ "template": "loading_text.png", "roi": { "x": 880, "y": 620, "w": 320, "h": 90 }, "threshold": 0.8 }],
+    "max_loading_ms": 900000,
     "max_taps": 30,
     "interval_ms": 2000
   },

@@ -142,6 +142,24 @@ MABA_TEST(EnterGameTapsAScreenAtItsOwnPoint) {
         "enter": {"tap": {"x": 1, "y": 1}, "screens": [{"tap": {"x": 2, "y": 3}}]}})").ok);
 }
 
+MABA_TEST(EnterGameWaitsOnLoadingScreensWithoutTapping) {
+    NavRig rig;
+    rig.matcher.Add("loading.png", {10});  // the unknown scene shows the loading text
+    maba::EnterSpec enter{{640, 100}, {}, 2, std::chrono::milliseconds{100}};
+    enter.loading.push_back(maba::TemplateRef{"loading.png"});
+    enter.max_loading = std::chrono::milliseconds{500};
+    rig.pages["main_menu"].enter = enter;
+    rig.controller.scene = NavRig::kUnknownScene;
+    const maba::NavResult r = rig.Nav().EnterGame();
+    CHECK(!r.ok);
+    CHECK(r.error.find("still loading") != std::string::npos);
+    CHECK(rig.controller.clicks.empty());  // loading rounds neither tap nor use up max_taps
+    CHECK(maba::ParsePage(R"({"id": "p", "anchors": [{"template": "a.png"}],
+        "enter": {"tap": {"x": 1, "y": 1}, "loading": [{"template": "l.png"}], "max_loading_ms": 60000}})").ok);
+    CHECK(!maba::ParsePage(R"({"id": "p", "anchors": [{"template": "a.png"}],
+        "enter": {"tap": {"x": 1, "y": 1}, "loading": {"template": "l.png"}}})").ok);
+}
+
 MABA_TEST(EnterGameTriesAgainWhenATapIsRefused) {
     NavRig rig;
     rig.pages["main_menu"].enter = maba::EnterSpec{{640, 100}, {}, 5, std::chrono::milliseconds{100}};
