@@ -7,13 +7,14 @@
   "needs_ocr": true,
   "retry": true,
   "notes": [
+    "A story episode with a battle can skip the formation screen and fight with a fixed team (seen 2026-11-24): the sortie wait is optional and the later wait for the event page covers that battle.",
     "Story stages, then the highest 3-star Quest of the event banner set in 'event_banner'.",
     "Event route: main screen -> campaign -> banner at the top left. The banner rotates; swipe right until the first dot is lit (colour check), then swipe left for banner 2 or 3, then click at once.",
     "An event without Story and Quest tabs (a settlement event) has no stages here: the target is skipped.",
     "An event whose play period ended still opens ('the event period has ended'): it is skipped.",
     "Uncleared event quests (grey stars) are played with the 'quest_team' team before the highest 3-star quest is swept. Campaign missions that are not cleared are grid maps and are not played yet (roadmap).",
     "Story stages are taken from the top 'Story' tag (cleared stages lose the tag). Story scenes are skipped like the owner's earlier project does: back opens the skip confirmation, which is confirmed (popups/story_*.json). Battles use the event's preset team with AUTO.",
-    "After a story stage the event page shows for a moment, then the reward result opens over it; the event title and the story tags still match through its dark overlay. The next stage is picked only once the Story/Quest tab bar is bright white again (no overlay).",
+    "After a story stage the event page shows for a moment, then the reward result opens over it; the event title and the story tags still match through its dark overlay. The next stage is picked only once the Story/Quest tab bar is bright white again (no overlay); one white tab of at least 5000 pixels is enough, because some events draw a divider that splits the white tabs into two blobs of about 8000 (2026-11-24).",
     "Every player's progress differs, so stages are chosen on screen: 'highest' takes the highest stage with 3 stars; a number picks that stage (found with OCR while scrolling). Event bonuses depend on the students in the team, so the farmed quest and the team are settings.",
     "Sweeps are confirmed only on the 'run the sweep?' question; any other dialog (for example an AP purchase offer) is closed with back. AP is read with OCR; below 20 AP the task is skipped."
   ],
@@ -129,11 +130,12 @@
                       "template": "formation_sortie.png",
                       "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 },
                       "threshold": 0.9,
-                      "timeout_ms": 60000
+                      "timeout_ms": 60000,
+                      "optional": true
                     },
-                    { "action": "click", "commits": true, "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 }, "threshold": 0.9, "expect_gone": { "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 }, "threshold": 0.9 }, "timeout_ms": 6000, "retries": 4 }
+                    { "action": "click", "commits": true, "when": { "present": { "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 }, "threshold": 0.9 } }, "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 }, "threshold": 0.9, "expect_gone": { "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 }, "threshold": 0.9 }, "timeout_ms": 6000, "retries": 4 }
                   ],
-                  "else": [{ "action": "back", "when": { "no_color": { "hsv_min": [0, 0, 225], "hsv_max": [180, 40, 255], "area": [11000, 30000], "roi": { "x": 680, "y": 85, "w": 530, "h": 50 } } } }, { "action": "break" }]
+                  "else": [{ "action": "back", "when": { "no_color": { "hsv_min": [0, 0, 225], "hsv_max": [180, 40, 255], "area": [5000, 30000], "roi": { "x": 680, "y": 85, "w": 530, "h": 50 } } } }, { "action": "break" }]
                 }
               ]
             },
@@ -147,7 +149,7 @@
             {
               "action": "loop",
               "max": 15,
-              "until": { "color": { "hsv_min": [0, 0, 225], "hsv_max": [180, 40, 255], "area": [11000, 30000], "roi": { "x": 680, "y": 85, "w": 530, "h": 50 } } },
+              "until": { "color": { "hsv_min": [0, 0, 225], "hsv_max": [180, 40, 255], "area": [5000, 30000], "roi": { "x": 680, "y": 85, "w": 530, "h": 50 } } },
               "steps": [{ "action": "sleep", "sleep_ms": 2000 }]
             },
             { "action": "click", "x": 766, "y": 110, "on_page": "event", "no_verify": true }
