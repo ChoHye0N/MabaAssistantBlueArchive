@@ -310,7 +310,7 @@ MABA_TEST(LoopCountAdjustedBySetting) {
     };
     CHECK(clicks("{}") == 0);  // default 1: the stepper already shows 1
     CHECK(clicks(R"({"t": {"n": 3}})") == 2);
-    CHECK(!maba::ParseTask(R"({"id": "t", "steps": [{"action": "loop", "max": 1, "max_adjust": 99, "steps": []}]})").ok);
+    CHECK(!maba::ParseTask(R"({"id": "t", "steps": [{"action": "loop", "max": 1, "max_adjust": 999, "steps": []}]})").ok);
 }
 
 // Scenes far enough apart for ChangedShare, with the reaction check on.

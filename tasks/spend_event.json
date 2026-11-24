@@ -139,11 +139,11 @@
             },
             {
               "action": "loop",
-              "max": 25,
+              "max": 150,
               "until": { "present": { "template": "event_title.png", "roi": { "x": 80, "y": 0, "w": 130, "h": 55 }, "threshold": 0.9 } },
-              "steps": [{ "action": "sleep", "sleep_ms": 8000 }]
+              "steps": [{ "action": "sleep", "sleep_ms": 2000 }]
             },
-            { "action": "sleep", "sleep_ms": 3000 },
+            { "action": "sleep", "sleep_ms": 1500 },
             {
               "action": "loop",
               "max": 15,
@@ -253,9 +253,9 @@
             },
             {
               "action": "loop",
-              "max": 30,
+              "max": 150,
               "until": { "present": { "template": "event_title.png", "roi": { "x": 80, "y": 0, "w": 130, "h": 55 }, "threshold": 0.9 } },
-              "steps": [{ "action": "sleep", "sleep_ms": 8000 }]
+              "steps": [{ "action": "sleep", "sleep_ms": 2000 }]
             },
             { "action": "click", "when": { "absent": { "template": "event_quest_tab_active.png", "roi": { "x": 680, "y": 75, "w": 540, "h": 70 }, "threshold": 0.9 } }, "template": "event_quest_tab.png", "roi": { "x": 680, "y": 75, "w": 540, "h": 70 }, "threshold": 0.9, "on_page": "event", "no_verify": true, "optional": true, "quiet": true }
           ]
@@ -359,9 +359,9 @@
         },
         {
           "action": "loop",
-          "max": 30,
+          "max": 150,
           "until": { "present": { "template": "event_title.png", "roi": { "x": 80, "y": 0, "w": 130, "h": 55 }, "threshold": 0.9 } },
-          "steps": [{ "action": "sleep", "sleep_ms": 8000 }]
+          "steps": [{ "action": "sleep", "sleep_ms": 2000 }]
         },
         { "action": "click", "when": { "absent": { "template": "event_quest_tab_active.png", "roi": { "x": 680, "y": 75, "w": 540, "h": 70 }, "threshold": 0.9 } }, "template": "event_quest_tab.png", "roi": { "x": 680, "y": 75, "w": 540, "h": 70 }, "threshold": 0.9, "on_page": "event", "no_verify": true, "optional": true, "quiet": true },
         { "action": "return_home" },

@@ -101,9 +101,9 @@
         },
         {
           "action": "loop",
-          "max": 20,
+          "max": 40,
           "until": { "absent": { "template": "popup_battle_result.png", "roi": { "x": 540, "y": 100, "w": 200, "h": 170 }, "threshold": 0.9 } },
-          "steps": [{"action": "sleep", "sleep_ms": 3000}]
+          "steps": [{ "action": "sleep", "sleep_ms": 1500 }]
         },
         {
           "action": "wait_template",

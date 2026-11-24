@@ -49,7 +49,7 @@ const char* ToString(StepAction action);
 inline constexpr int kMaxStepRepeat = 50;
 inline constexpr int kMaxSleepMs = 10000;
 inline constexpr int kMaxStepTimeoutMs = 60000;
-inline constexpr int kMaxLoop = 50;
+inline constexpr int kMaxLoop = 200;
 inline constexpr int kMaxClickRetries = 5;
 inline constexpr int kMaxStepDepth = 8;
 
