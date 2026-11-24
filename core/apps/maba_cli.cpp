@@ -35,6 +35,7 @@
 #include "maba/page.h"
 #include "maba/process.h"
 #include "maba/smoke.h"
+#include "maba/file_limits.h"
 #include "maba/types.h"
 #include "maba/utf8.h"
 #include "maba/vision.h"
@@ -328,7 +329,9 @@ int CmdRun(const Args& args) {
         tasks, &cancel, {}, [&](const maba::Frame& frame, const std::string&) {
             if (frame.empty()) return;
             const fs::path out = root / "captures" / ("run_fail_" + Timestamp() + ".png");
-            if (maba::SavePng(frame, out)) std::printf("saved failure frame to %s\n", maba::PathToUtf8(out).c_str());
+            if (!maba::SavePng(frame, out)) return;
+            maba::PruneOldFiles(out.parent_path(), "run_fail_", ".png", maba::kMaxFailureFrames);
+            std::printf("saved failure frame to %s\n", maba::PathToUtf8(out).c_str());
         }, settings_json, args.count("in-order") > 0, args.count("retry") > 0 ? 1 : 0, recover);
     if (!report.error.empty()) {
         std::fprintf(stderr, "run failed: %s\n", report.error.c_str());

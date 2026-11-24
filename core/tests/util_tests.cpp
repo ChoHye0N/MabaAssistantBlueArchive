@@ -4,7 +4,11 @@
 #include <chrono>
 #include <string>
 
+#include <filesystem>
+#include <fstream>
+
 #include "fakes.h"
+#include "maba/file_limits.h"
 #include "maba/languages.h"
 #include "maba/ocr_text.h"
 #include "maba/process.h"
@@ -172,3 +176,23 @@ MABA_TEST(SystemLauncherTalksLines) {
 }
 
 }  // namespace
+
+MABA_TEST(PruneOldFilesKeepsTheNewestMatchingOnes) {
+    namespace fs = std::filesystem;
+    const fs::path dir = fs::temp_directory_path() / "maba_prune_test";
+    fs::remove_all(dir);
+    fs::create_directories(dir);
+    for (const char* name : {"fail_20261101_1.png", "fail_20261102_1.png", "fail_20261103_1.png",
+                             "fail_20261104_1.png", "fail_x.txt", "other_20261101.png"})
+        std::ofstream(dir / name) << "x";
+    CHECK(maba::PruneOldFiles(dir, "fail_", ".png", 2) == 2);
+    CHECK(!fs::exists(dir / "fail_20261101_1.png"));
+    CHECK(!fs::exists(dir / "fail_20261102_1.png"));
+    CHECK(fs::exists(dir / "fail_20261103_1.png"));
+    CHECK(fs::exists(dir / "fail_20261104_1.png"));
+    CHECK(fs::exists(dir / "fail_x.txt"));          // other suffix
+    CHECK(fs::exists(dir / "other_20261101.png"));  // other prefix
+    CHECK(maba::PruneOldFiles(dir, "fail_", ".png", 2) == 0);
+    CHECK(maba::PruneOldFiles(dir / "missing", "fail_", ".png", 0) == 0);
+    fs::remove_all(dir);
+}

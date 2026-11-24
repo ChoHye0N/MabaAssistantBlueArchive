@@ -17,6 +17,7 @@
 #include "maba/adb.h"
 #include "maba/assistant.h"
 #include "maba/emulator.h"
+#include "maba/file_limits.h"
 #include "maba/ocr_sidecar.h"
 #include "maba/process.h"
 #include "maba/schedule.h"
@@ -429,8 +430,10 @@ MABA_API int MABA_CALL MabaStart(MabaHandle h, const char* json_text) {
             // Failure frames stay under captures/ (gitignored): they may show personal data.
             const fs::path out =
                 h->assistant->Config().root / "captures" / ("fail_" + Timestamp() + ".png");
-            if (maba::SavePng(frame, out))
+            if (maba::SavePng(frame, out)) {
+                maba::PruneOldFiles(out.parent_path(), "fail_", ".png", maba::kMaxFailureFrames);
                 h->Emit({{"type", "failure_frame"}, {"path", maba::PathToUtf8(out)}, {"reason", reason}});
+            }
 #else
             (void)frame;
             (void)reason;

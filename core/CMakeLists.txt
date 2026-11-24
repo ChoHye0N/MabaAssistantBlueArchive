@@ -12,6 +12,7 @@ add_library(maba_core STATIC
     src/detect.cpp
     src/emulator.cpp
     src/geometry.cpp
+    src/file_limits.cpp
     src/json_util.cpp
     src/languages.cpp
     src/navigator.cpp
