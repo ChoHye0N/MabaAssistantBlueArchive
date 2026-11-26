@@ -24,6 +24,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <cstdlib>
 #include <memory>
 
 #include "maba/adb.h"
@@ -211,7 +212,19 @@ std::vector<std::string> SplitComma(const std::string& s) {
 }
 
 void PrintLog(maba::LogLevel level, const std::string& msg) {
-    std::printf("[%s] %s\n", maba::ToString(level), msg.c_str());
+    // MABA_LOG_TIME=1 prefixes the seconds since start, for finding where a run spends its time.
+    static const bool with_time = [] {
+        const char* v = std::getenv("MABA_LOG_TIME");
+        return v && *v && *v != '0';
+    }();
+    static const auto start = std::chrono::steady_clock::now();
+    if (with_time) {
+        const double t = std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
+        std::printf("%9.3f [%s] %s\n", t, maba::ToString(level), msg.c_str());
+        std::fflush(stdout);
+    } else {
+        std::printf("[%s] %s\n", maba::ToString(level), msg.c_str());
+    }
 }
 
 int CmdDevices(const Args& args) {
