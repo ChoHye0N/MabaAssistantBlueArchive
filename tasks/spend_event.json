@@ -305,9 +305,10 @@
       "when": { "absent": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 110 }, "threshold": 0.9 } },
       "then": [{ "action": "return_home" }, { "action": "end", "status": "skipped", "message": "nothing to sweep here" }]
     },
+    { "action": "wait_stable", "timeout_ms": 3000 },
     {
       "action": "if",
-      "when": { "present": { "template": "stage_sweep_locked.png", "roi": { "x": 840, "y": 290, "w": 230, "h": 100 }, "threshold": 0.9 } },
+      "when": { "color": { "hsv_min": [90, 100, 50], "hsv_max": [105, 255, 125], "area": [15000, 40000], "roi": { "x": 770, "y": 370, "w": 330, "h": 100 } } },
       "then": [
         {
           "action": "click",

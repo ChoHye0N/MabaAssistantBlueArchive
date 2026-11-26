@@ -30,16 +30,14 @@
       "then": [
         {
           "action": "click_if_present",
-          "template": "tactical_claim.png",
-          "roi": { "x": 290, "y": 350, "w": 130, "h": 80 },
-          "threshold": 0.9,
+          "on_page": "tactical",
+          "button": { "hsv_min": [18, 120, 180], "hsv_max": [35, 255, 255], "area": [3000, 12000], "roi": { "x": 290, "y": 350, "w": 130, "h": 80 } },
           "timeout_ms": 1500
         },
         {
           "action": "click_if_present",
-          "template": "tactical_claim.png",
-          "roi": { "x": 290, "y": 430, "w": 130, "h": 80 },
-          "threshold": 0.9,
+          "on_page": "tactical",
+          "button": { "hsv_min": [18, 120, 180], "hsv_max": [35, 255, 255], "area": [3000, 12000], "roi": { "x": 290, "y": 430, "w": 130, "h": 80 } },
           "timeout_ms": 1500
         }
       ]
@@ -76,9 +74,7 @@
         },
         {
           "action": "click",
-          "template": "tactical_attack_formation.png",
-          "roi": { "x": 520, "y": 530, "w": 240, "h": 80 },
-          "threshold": 0.9,
+          "button": { "hsv_min": [18, 120, 180], "hsv_max": [35, 255, 255], "area": [8000, 25000], "roi": { "x": 520, "y": 530, "w": 240, "h": 80 } },
           "expect": { "template": "tactical_formation_title.png", "roi": { "x": 80, "y": 0, "w": 280, "h": 55 }, "threshold": 0.9 },
           "timeout_ms": 8000
         },
@@ -94,9 +90,8 @@
         },
         {
           "action": "click",
-          "template": "tactical_sortie.png",
-          "roi": { "x": 1080, "y": 620, "w": 190, "h": 90 },
-          "threshold": 0.9,
+          "button": { "hsv_min": [18, 120, 180], "hsv_max": [35, 255, 255], "area": [6000, 20000], "roi": { "x": 1080, "y": 620, "w": 190, "h": 90 } },
+          "require": { "template": "tactical_formation_title.png", "roi": { "x": 80, "y": 0, "w": 280, "h": 55 }, "threshold": 0.9 },
           "sleep_ms": 5000
         },
         {

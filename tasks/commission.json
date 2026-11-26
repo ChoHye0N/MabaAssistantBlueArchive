@@ -47,7 +47,7 @@
         { "action": "wait_stable", "timeout_ms": 3000 },
         {
           "action": "if",
-          "when": { "absent": { "template": "campaign_bonus_tag.png", "roi": { "x": 650, "y": 415, "w": 200, "h": 65 }, "threshold": 0.8 } },
+          "when": { "no_color": { "hsv_min": [140, 60, 110], "hsv_max": [160, 255, 255], "area": [600, 20000], "roi": { "x": 650, "y": 415, "w": 200, "h": 65 } } },
           "then": [{ "action": "return_home" }, { "action": "end", "status": "skipped", "message": "no campaign bonus now" }]
         }
       ]
@@ -113,9 +113,10 @@
           "when": { "absent": { "template": "popup_stage_info_title.png", "roi": { "x": 540, "y": 70, "w": 200, "h": 110 }, "threshold": 0.9 } },
           "then": [{"action": "back"}, {"action": "wait_stable", "timeout_ms": 4000}, {"action": "break"}]
         },
+        { "action": "wait_stable", "timeout_ms": 3000 },
         {
           "action": "if",
-          "when": { "present": { "template": "stage_sweep_locked.png", "roi": { "x": 840, "y": 290, "w": 230, "h": 100 }, "threshold": 0.9 } },
+          "when": { "color": { "hsv_min": [90, 100, 50], "hsv_max": [105, 255, 125], "area": [15000, 40000], "roi": { "x": 770, "y": 370, "w": 330, "h": 100 } } },
           "then": [
             { "action": "back" },
             { "action": "wait_stable", "timeout_ms": 4000 },

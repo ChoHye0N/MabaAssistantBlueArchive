@@ -45,7 +45,7 @@
       "action": "if",
       "when": { "present": { "template": "cafe_income_title.png", "roi": { "x": 520, "y": 110, "w": 240, "h": 80 }, "threshold": 0.9 } },
       "then": [
-        { "action": "click_if_present", "template": "cafe_income_claim.png", "roi": { "x": 500, "y": 480, "w": 280, "h": 100 }, "threshold": 0.9, "when": { "color": { "hsv_min": [18, 120, 180], "hsv_max": [35, 255, 255], "area": [5000, 28000], "roi": { "x": 500, "y": 480, "w": 280, "h": 100 } } }, "optional": true },
+        { "action": "click_if_present", "button": { "hsv_min": [18, 120, 180], "hsv_max": [35, 255, 255], "area": [5000, 28000], "roi": { "x": 500, "y": 480, "w": 280, "h": 100 } }, "when": { "color": { "hsv_min": [18, 120, 180], "hsv_max": [35, 255, 255], "area": [5000, 28000], "roi": { "x": 500, "y": 480, "w": 280, "h": 100 } } }, "optional": true },
         {
           "action": "loop",
           "max": 6,
@@ -68,7 +68,7 @@
         {
           "action": "if",
           "when": {
-            "present": { "template": "cafe_ticket_available.png", "roi": { "x": 820, "y": 560, "w": 140, "h": 70 }, "threshold": 0.9 },
+            "color": { "hsv_min": [160, 50, 150], "hsv_max": [180, 255, 255], "area": [40, 2000], "roi": { "x": 845, "y": 615, "w": 75, "h": 65 } },
             "timeout_ms": 3000
           },
           "then": [
@@ -258,7 +258,7 @@
             {
               "action": "if",
               "when": {
-                "present": { "template": "cafe_ticket_available.png", "roi": { "x": 820, "y": 560, "w": 140, "h": 70 }, "threshold": 0.9 },
+                "color": { "hsv_min": [160, 50, 150], "hsv_max": [180, 255, 255], "area": [40, 2000], "roi": { "x": 845, "y": 615, "w": 75, "h": 65 } },
                 "timeout_ms": 3000
               },
               "then": [
