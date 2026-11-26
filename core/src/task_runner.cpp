@@ -441,6 +441,37 @@ bool TaskRunner::ClickTemplate(const Step& s, Context& ctx, std::string& error) 
         "clicking " + ref.file, error);
 }
 
+bool TaskRunner::ClickButton(const Step& s, Context& ctx, std::string& error) {
+    IController& controller = nav_.Controller();
+    std::optional<Rect> box;
+    WaitUntil(
+        [&] {
+            const Observation obs = nav_.Observe();
+            if (!obs.ok) return false;
+            for (const Rect& r : FindColorBlobs(obs.frame, *s.button, 16))
+                if (!box || r.width * r.height > box->width * box->height) box = r;
+            return box.has_value();
+        },
+        StepWait(s.timeout_ms, options_.cancel), nav_.Clock());
+    if (!box) {
+        if (s.action == StepAction::kClickIfPresent) {
+            Log(log_, LogLevel::kDebug, "button colour not present, skipped");
+            return true;
+        }
+        error = "the button colour was not found";
+        return false;
+    }
+    const Point target = Offset(Point{box->x + box->width / 2, box->y + box->height / 2}, s.offset);
+    return CheckedAction(
+        s, ctx,
+        [&](std::string& why) {
+            if (controller.Click(target)) return true;
+            why = Failed("click", controller);
+            return false;
+        },
+        "the button at " + std::to_string(target.x) + "," + std::to_string(target.y), error);
+}
+
 bool TaskRunner::RunStep(const Step& s, Context& ctx, std::string& error) {
     IController& controller = nav_.Controller();
     TaskRunResult& result = ctx.result;
@@ -466,6 +497,7 @@ bool TaskRunner::RunStep(const Step& s, Context& ctx, std::string& error) {
         case StepAction::kClickIfPresent: {
             if (!CheckPrecondition(s, ctx, error)) return false;
             if (s.templ) return ClickTemplate(s, ctx, error);
+            if (s.button) return ClickButton(s, ctx, error);
             Point target;
             if (s.point) {
                 target = *s.point;

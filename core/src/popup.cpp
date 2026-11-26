@@ -52,10 +52,12 @@ PopupDef ParsePopupJson(const json& root) {
         p.dismiss = DismissKind::kClick;
         if (dismiss.contains("template")) {
             p.click_template = ParseTemplateRef(dismiss, where + ".dismiss");
+        } else if (dismiss.contains("button")) {
+            p.click_button = ParseColor(dismiss.at("button"), where + ".dismiss.button");
         } else if (dismiss.contains("x") || dismiss.contains("y")) {
             p.click_point = ParsePoint(dismiss, where + ".dismiss");
         } else {
-            throw ParseError(where + ".dismiss: needs 'template' or 'x'/'y'");
+            throw ParseError(where + ".dismiss: needs 'template', 'button' or 'x'/'y'");
         }
     } else {
         throw ParseError(where + ": 'dismiss' must be \"back\" or a click object");
@@ -147,6 +149,15 @@ bool PopupHandler::Dismiss(IController& controller, const Frame& frame, const Po
             return false;
         }
         target = m.center;
+    } else if (popup.click_button) {
+        std::optional<Rect> box;
+        for (const Rect& r : FindColorBlobs(frame, *popup.click_button, 16))
+            if (!box || r.width * r.height > box->width * box->height) box = r;
+        if (!box) {
+            error = "popup '" + popup.id + "': dismiss button colour not found";
+            return false;
+        }
+        target = Point{box->x + box->width / 2, box->y + box->height / 2};
     } else {
         target = *popup.click_point;
     }

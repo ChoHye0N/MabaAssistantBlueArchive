@@ -671,6 +671,28 @@ MABA_TEST(ClickColorRetriesOnceThenSkips) {
     }
 }
 
+MABA_TEST(ClickButtonClicksTheLargestBlobOfItsColour) {
+    NavRig rig;
+    // Two buttons of the same colour: the bigger one (the confirm button) is clicked, at its centre.
+    Paint(rig.controller.scenes[NavRig::kMainScene], {100, 200, 40, 20}, 2, 222, 255);
+    Paint(rig.controller.scenes[NavRig::kMainScene], {600, 500, 120, 40}, 2, 222, 255);
+    maba::TaskRunner runner(rig.Nav(), nullptr);
+    const auto r = runner.RunTask(Task(R"({"id": "t", "steps": [
+        {"action": "click", "on_page": "main_menu", "button": {"hsv_min": [20, 200, 230], "hsv_max": [30, 255, 255], "roi": {"x": 0, "y": 0, "w": 1280, "h": 720}}}]})"));
+    CHECK(r.status == maba::TaskStatus::kSucceeded);
+    CHECK(rig.controller.clicks.size() == 1);
+    if (rig.controller.clicks.size() == 1) CHECK(rig.controller.clicks[0].x == 660 && rig.controller.clicks[0].y == 520);
+    // No such colour: click fails, click_if_present skips.
+    rig.controller.clicks.clear();
+    const auto missing = runner.RunTask(Task(R"({"id": "t", "steps": [
+        {"action": "click", "on_page": "main_menu", "timeout_ms": 200, "button": {"hsv_min": [100, 200, 230], "hsv_max": [110, 255, 255]}}]})"));
+    CHECK(missing.status == maba::TaskStatus::kFailed);
+    const auto optional = runner.RunTask(Task(R"({"id": "t", "steps": [
+        {"action": "click_if_present", "timeout_ms": 200, "button": {"hsv_min": [100, 200, 230], "hsv_max": [110, 255, 255]}}]})"));
+    CHECK(optional.status == maba::TaskStatus::kSucceeded);
+    CHECK(rig.controller.clicks.empty());
+}
+
 MABA_TEST(ClickTextScrollsUntilFound) {
     NavRig rig;
     maba_test::FakeOcr ocr;
@@ -768,6 +790,24 @@ MABA_TEST(PopupColorConditions) {
     CHECK(obs.ok);
     CHECK(rig.controller.clicks.size() == 1);  // dismissed once, then the colour is present
     CHECK(!maba::ParsePopup(R"({"id": "x", "anchors": [{"template": "a.png"}], "colors": {}, "dismiss": "back"})").ok);
+}
+
+MABA_TEST(PopupDismissesByButtonColour) {
+    NavRig rig;
+    // A dialog over the main menu (anchor), closed by its yellow button wherever the layout puts it.
+    Paint(rig.controller.scenes[NavRig::kMainScene], {700, 480, 120, 40}, 2, 222, 255);
+    const auto p = maba::ParsePopup(R"({"id": "notice", "anchors": [{"template": "main.png"}],
+        "colors": [{"hsv_min": [20, 200, 230], "hsv_max": [30, 255, 255]}],
+        "dismiss": {"button": {"hsv_min": [20, 200, 230], "hsv_max": [30, 255, 255], "area": [1000, 10000]}}})");
+    CHECK(p.ok && p.popup.click_button);
+    rig.popups = {p.popup};
+    rig.controller.clicks_to.clear();
+    rig.controller.on_click = [](maba::Point pt, maba_test::FakeController& c) {
+        if (pt.x == 760 && pt.y == 500) Paint(c.scenes[NavRig::kMainScene], {700, 480, 120, 40}, 11, 11, 11);  // closed
+    };
+    CHECK(rig.Nav().Observe().ok);
+    CHECK(rig.controller.clicks.size() == 1);
+    CHECK(!maba::ParsePopup(R"({"id": "x", "anchors": [{"template": "a.png"}], "dismiss": {"button": {}}})").ok);
 }
 
 MABA_TEST(ClickColorTapsEveryMarker) {

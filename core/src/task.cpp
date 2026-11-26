@@ -214,6 +214,8 @@ Step ParseStep(const json& obj, const std::string& where, int depth) {
         case StepAction::kClickIfPresent: {
             if (obj.contains("template")) {
                 s.templ = ParseTemplateRef(obj, where);
+            } else if (obj.contains("button")) {
+                s.button = ParseColor(obj.at("button"), where + ".button");
             } else if (s.action == StepAction::kClick && obj.contains("points")) {
                 const json& pts = obj.at("points");
                 if (!pts.is_array() || pts.empty())
@@ -227,8 +229,8 @@ Step ParseStep(const json& obj, const std::string& where, int depth) {
                 s.point = ParsePoint(obj, where);
             } else {
                 throw ParseError(where + ": " + name +
-                                 (s.action == StepAction::kClick ? " needs 'template', 'points' or 'x'/'y'"
-                                                                 : " needs 'template'"));
+                                 (s.action == StepAction::kClick ? " needs 'template', 'button', 'points' or 'x'/'y'"
+                                                                 : " needs 'template' or 'button'"));
             }
             s.offset = ParseOffset(obj, where);
             const std::string pick = OptString(obj, "pick", where, "best");
@@ -622,7 +624,8 @@ void ValidateSteps(const TaskSpec& t, const std::vector<Step>& steps, const std:
             problems.push_back(at + " uses unknown page '" + s.on_page + "'");
         // A fixed point on the wrong screen hits whatever is there.
         if (s.action == StepAction::kClick && !s.templ && !s.expect && !s.expect_gone && !s.require && s.on_page.empty())
-            problems.push_back(at + " clicks a fixed point without 'expect', 'require' or 'on_page'");
+            problems.push_back(at + (s.button ? " clicks a colour button" : " clicks a fixed point") +
+                               " without 'expect', 'require' or 'on_page'");
         check_condition(s.when, at);
         check_condition(s.until, at);
         if (!s.max_setting.empty() && !declared(s.max_setting, SettingType::kInt))

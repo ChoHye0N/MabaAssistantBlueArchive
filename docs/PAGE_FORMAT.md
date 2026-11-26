@@ -48,7 +48,7 @@ Rules:
 ```
 - Detected when every anchor matches; checked in `priority` order (higher first, default 0), then by id.
 - `colors`, `no_colors` (optional): colour specs (see Tasks) that must all be visible, or must all be absent, besides the anchors. Used where a state is a colour (battle HUD: AUTO is yellow when on, white when off); requiring a bright colour also keeps darkened frames from triggering.
-- `dismiss`: `{ "template": ... }` (click its center), `{ "x", "y" }` (fixed point) or `"back"` (back key).
+- `dismiss`: `{ "template": ... }` (click its center), `{ "button": colour }` (click the center of the largest blob of that colour, the same in every game language), `{ "x", "y" }` (fixed point) or `"back"` (back key).
 - Handled only by the global popup handler, never inside a task. A popup still visible after `max_dismissals` attempts fails the current step with a saved frame.
 
 ## Tasks (`tasks/<id>.json`)
@@ -80,8 +80,8 @@ Rules:
 | `goto` | `page` | Navigate (popups settled, bounded steps) |
 | `return_home` | | Navigate to `main_menu` |
 | `wait_page` | `page` | Wait until it is the current page |
-| `click` | `template` (+`roi`, `threshold`), `x`/`y`, or `points` | Wait until the template is visible and click it; fail if it never appears. `points` picks a point by the innermost loop iteration (cycled), or with `"point_by": "value"` by the value of the innermost `each` (`"1"` = first point), for list settings that name positions |
-| `click_if_present` | `template` (+`roi`, `threshold`) | Same, but a missing template is not an error |
+| `click` | `template` (+`roi`, `threshold`), `button` (a colour), `x`/`y`, or `points` | Wait until the template is visible and click it; fail if it never appears. `button` waits for a blob of that colour (fields as in a colour condition) and clicks the center of the largest one: a coloured button found without its text, so it needs no template per language; guard it like a fixed point (`on_page`, `require` or `expect`). A button that turns grey when it does nothing (claimed) is then simply not there. `points` picks a point by the innermost loop iteration (cycled), or with `"point_by": "value"` by the value of the innermost `each` (`"1"` = first point), for list settings that name positions |
+| `click_if_present` | `template` (+`roi`, `threshold`) or `button` | Same, but a missing template or colour is not an error |
 | `wait_template` | `template` (+`roi`, `threshold`) | Wait until visible |
 | `back` | | Back key |
 | `sleep` | `sleep_ms` (1..10000) | Fixed pause. Only where time itself matters (polling a battle, a cooldown); otherwise `wait_stable` |

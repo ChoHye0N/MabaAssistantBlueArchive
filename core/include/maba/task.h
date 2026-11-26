@@ -151,6 +151,9 @@ struct Step {
     std::string on_page;               // kClick, kClickIfPresent: fail unless this page is shown
     std::optional<TemplateRef> require;  // kClick, kClickIfPresent: fail unless this is visible
     std::optional<ColorSpec> color;    // kClickColor
+    // kClick, kClickIfPresent: a button found by its colour (the largest blob), not by its text,
+    // so the same data works in every game language. Guard it like a fixed point.
+    std::optional<ColorSpec> button;
     Point to;                          // kSwipe end, kClickText scroll end
     int duration_ms = 400;             // kSwipe
     int notches = 0;                   // kWheel: negative turns it towards the user

@@ -29,7 +29,8 @@ struct PopupDef {
     std::vector<ColorSpec> no_colors;  // and none of these is (e.g. "AUTO is not lit")
     DismissKind dismiss = DismissKind::kClick;
     std::optional<TemplateRef> click_template;  // kClick: center of this match, or
-    std::optional<Point> click_point;           // a fixed point
+    std::optional<Point> click_point;           // a fixed point, or
+    std::optional<ColorSpec> click_button;      // the largest blob of this colour (a button, any language)
     int priority = 0;                           // higher is checked first
 };
 
