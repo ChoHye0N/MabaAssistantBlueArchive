@@ -21,7 +21,7 @@
       "action": "if",
       "when": { "color": { "hsv_min": [0, 170, 180], "hsv_max": [10, 255, 255], "area": [20, 150], "roi": { "x": 20, "y": 172, "w": 255, "h": 90 } } },
       "then": [
-        { "action": "click", "x": 130, "y": 222, "on_page": "attendance", "no_verify": true, "sleep_ms": 2000 },
+        { "action": "click", "x": 130, "y": 222, "on_page": "attendance", "no_verify": true, "sleep_ms": 500 },
         { "action": "wait_stable", "timeout_ms": 4000 },
         {
           "action": "if",
@@ -108,7 +108,7 @@
       "action": "if",
       "when": { "color": { "hsv_min": [0, 170, 180], "hsv_max": [10, 255, 255], "area": [20, 150], "roi": { "x": 20, "y": 247, "w": 255, "h": 90 } } },
       "then": [
-        { "action": "click", "x": 130, "y": 297, "on_page": "attendance", "no_verify": true, "sleep_ms": 2000 },
+        { "action": "click", "x": 130, "y": 297, "on_page": "attendance", "no_verify": true, "sleep_ms": 500 },
         { "action": "wait_stable", "timeout_ms": 4000 },
         {
           "action": "if",
@@ -195,7 +195,7 @@
       "action": "if",
       "when": { "color": { "hsv_min": [0, 170, 180], "hsv_max": [10, 255, 255], "area": [20, 150], "roi": { "x": 20, "y": 325, "w": 255, "h": 90 } } },
       "then": [
-        { "action": "click", "x": 130, "y": 375, "on_page": "attendance", "no_verify": true, "sleep_ms": 2000 },
+        { "action": "click", "x": 130, "y": 375, "on_page": "attendance", "no_verify": true, "sleep_ms": 500 },
         { "action": "wait_stable", "timeout_ms": 4000 },
         {
           "action": "if",
@@ -282,7 +282,7 @@
       "action": "if",
       "when": { "color": { "hsv_min": [0, 170, 180], "hsv_max": [10, 255, 255], "area": [20, 150], "roi": { "x": 20, "y": 402, "w": 255, "h": 90 } } },
       "then": [
-        { "action": "click", "x": 130, "y": 452, "on_page": "attendance", "no_verify": true, "sleep_ms": 2000 },
+        { "action": "click", "x": 130, "y": 452, "on_page": "attendance", "no_verify": true, "sleep_ms": 500 },
         { "action": "wait_stable", "timeout_ms": 4000 },
         {
           "action": "if",
@@ -369,7 +369,7 @@
       "action": "if",
       "when": { "color": { "hsv_min": [0, 170, 180], "hsv_max": [10, 255, 255], "area": [20, 150], "roi": { "x": 20, "y": 480, "w": 255, "h": 90 } } },
       "then": [
-        { "action": "click", "x": 130, "y": 530, "on_page": "attendance", "no_verify": true, "sleep_ms": 2000 },
+        { "action": "click", "x": 130, "y": 530, "on_page": "attendance", "no_verify": true, "sleep_ms": 500 },
         { "action": "wait_stable", "timeout_ms": 4000 },
         {
           "action": "if",

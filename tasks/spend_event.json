@@ -251,7 +251,7 @@
               "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 },
               "threshold": 0.9,
               "expect_gone": { "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 }, "threshold": 0.9 }, "timeout_ms": 6000, "retries": 4,
-              "sleep_ms": 5000
+              "sleep_ms": 1000
             },
             {
               "action": "loop",
@@ -357,7 +357,7 @@
           "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 },
           "threshold": 0.9,
           "expect_gone": { "template": "formation_sortie.png", "roi": { "x": 1090, "y": 610, "w": 190, "h": 100 }, "threshold": 0.9 }, "timeout_ms": 6000, "retries": 4,
-          "sleep_ms": 5000
+          "sleep_ms": 1000
         },
         {
           "action": "loop",
@@ -415,7 +415,7 @@
           "template": "dialog_ok_button.png",
           "roi": { "x": 660, "y": 440, "w": 240, "h": 120 },
           "threshold": 0.9,
-          "sleep_ms": 4000
+          "sleep_ms": 2000
         },
         {
           "action": "loop",

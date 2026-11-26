@@ -350,7 +350,7 @@
           "template": "dialog_ok_button.png",
           "roi": { "x": 660, "y": 440, "w": 240, "h": 120 },
           "threshold": 0.9,
-          "sleep_ms": 4000
+          "sleep_ms": 2000
         },
         {
           "action": "loop",

@@ -36,7 +36,7 @@
             {
               "action": "if",
               "when": { "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [3000, 12000], "roi": { "x": 1140, "y": 610, "w": 140, "h": 55 } } },
-              "then": [{ "action": "click", "x": 1205, "y": 638, "on_page": "battle_pass_mission", "no_verify": true, "sleep_ms": 3000 }],
+              "then": [{ "action": "click", "x": 1205, "y": 638, "on_page": "battle_pass_mission", "no_verify": true, "sleep_ms": 1500 }],
               "else": [{ "action": "break" }]
             }
           ]
@@ -56,7 +56,7 @@
             {
               "action": "if",
               "when": { "color": { "hsv_min": [20, 150, 200], "hsv_max": [35, 255, 255], "area": [3000, 12000], "roi": { "x": 1140, "y": 610, "w": 140, "h": 55 } } },
-              "then": [{ "action": "click", "x": 1210, "y": 638, "on_page": "battle_pass", "no_verify": true, "sleep_ms": 3000 }],
+              "then": [{ "action": "click", "x": 1210, "y": 638, "on_page": "battle_pass", "no_verify": true, "sleep_ms": 1500 }],
               "else": [{ "action": "break" }]
             }
           ]
